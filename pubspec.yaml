@@ -1,0 +1,39 @@
+name: bible_widgets
+description: A beautiful Bible verses and inspirational quotes widget app.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  provider: ^6.1.1
+  shared_preferences: ^2.2.2
+  google_fonts: ^6.1.0
+  flutter_animate: ^4.3.0
+  smooth_page_indicator: ^1.1.0
+  share_plus: ^7.2.1
+  path_provider: ^2.1.1
+  screenshot: ^2.1.0
+  intl: ^0.18.1
+  flutter_svg: ^2.0.9
+  cached_network_image: ^3.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+
+flutter:
+  uses-material-design: true
+  
+  fonts:
+    - family: Playfair
+      fonts:
+        - asset: assets/fonts/PlayfairDisplay-Regular.ttf
+        - asset: assets/fonts/PlayfairDisplay-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/PlayfairDisplay-Italic.ttf
+          style: italic
