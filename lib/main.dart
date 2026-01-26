@@ -5,10 +5,16 @@ import 'theme/app_theme.dart';
 import 'providers/app_state.dart';
 import 'screens/welcome_screen.dart';
 import 'screens/home_screen.dart';
+import 'services/widget_service.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
+  // Initialize widget service
+  await WidgetService.initialize();
+  // Update widget with a random verse on app start
+  await WidgetService.updateWidgetWithRandomVerse();
+
   // Set status bar style
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -17,7 +23,7 @@ void main() {
       statusBarBrightness: Brightness.dark,
     ),
   );
-  
+
   runApp(const BibleWidgetsApp());
 }
 

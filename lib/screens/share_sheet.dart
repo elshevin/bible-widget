@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:screenshot/screenshot.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 import '../theme/app_theme.dart';
 import '../providers/app_state.dart';
 
-class ShareSheet extends StatelessWidget {
+class ShareSheet extends StatefulWidget {
   final String text;
   final String? reference;
 
@@ -13,6 +17,76 @@ class ShareSheet extends StatelessWidget {
     required this.text,
     this.reference,
   });
+
+  @override
+  State<ShareSheet> createState() => _ShareSheetState();
+}
+
+class _ShareSheetState extends State<ShareSheet> {
+  final ScreenshotController _screenshotController = ScreenshotController();
+  bool _isSaving = false;
+
+  Future<void> _shareImage() async {
+    setState(() => _isSaving = true);
+    try {
+      final image = await _screenshotController.capture();
+      if (image == null) return;
+
+      final directory = await getTemporaryDirectory();
+      final imagePath = '${directory.path}/bible_verse_${DateTime.now().millisecondsSinceEpoch}.png';
+      final file = File(imagePath);
+      await file.writeAsBytes(image);
+
+      await Share.shareXFiles(
+        [XFile(imagePath)],
+        text: widget.reference != null
+            ? '${widget.text}\n\n— ${widget.reference}'
+            : widget.text,
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to share: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  Future<void> _saveImage() async {
+    setState(() => _isSaving = true);
+    try {
+      final image = await _screenshotController.capture();
+      if (image == null) return;
+
+      final directory = await getApplicationDocumentsDirectory();
+      final imagePath = '${directory.path}/bible_verse_${DateTime.now().millisecondsSinceEpoch}.png';
+      final file = File(imagePath);
+      await file.writeAsBytes(image);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Image saved!')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  Future<void> _shareText() async {
+    final fullText = widget.reference != null
+        ? '${widget.text}\n\n— ${widget.reference}'
+        : widget.text;
+    await Share.share(fullText);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,99 +130,99 @@ class ShareSheet extends StatelessWidget {
           // Preview card
           Padding(
             padding: const EdgeInsets.all(24),
-            child: Container(
-              height: 350,
-              decoration: BoxDecoration(
-                gradient: theme.gradient,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
-              ),
-              padding: const EdgeInsets.all(24),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      text,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: theme.textColor,
-                        height: 1.5,
-                      ),
+            child: Screenshot(
+              controller: _screenshotController,
+              child: Container(
+                height: 350,
+                decoration: BoxDecoration(
+                  gradient: theme.gradient,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
                     ),
-                    if (reference != null) ...[
-                      const SizedBox(height: 16),
+                  ],
+                ),
+                padding: const EdgeInsets.all(24),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
                       Text(
-                        reference!,
+                        widget.text,
+                        textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 14,
-                          color: theme.textColor.withOpacity(0.7),
-                          fontStyle: FontStyle.italic,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: theme.textColor,
+                          height: 1.5,
                         ),
                       ),
+                      if (widget.reference != null) ...[
+                        const SizedBox(height: 16),
+                        Text(
+                          widget.reference!,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: theme.textColor.withOpacity(0.7),
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             ),
           ),
           
           // Action buttons row 1
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _ActionButton(
-                  icon: Icons.download,
-                  label: 'Save\nvideo',
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Saving...')),
-                    );
-                  },
-                ),
-                _ActionButton(
-                  icon: Icons.copy,
-                  label: 'Copy\ntext',
-                  onTap: () {
-                    final fullText = reference != null
-                        ? '$text\n\n— $reference'
-                        : text;
-                    Clipboard.setData(ClipboardData(text: fullText));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Copied to clipboard')),
-                    );
-                  },
-                ),
-                _ActionButton(
-                  icon: Icons.bookmark_border,
-                  label: 'Add to\ncollection',
-                  onTap: () {},
-                ),
-                _ActionButton(
-                  icon: Icons.visibility_off_outlined,
-                  label: 'Hide\nwatermark',
-                  onTap: () {},
-                ),
-                _ActionButton(
-                  icon: Icons.volume_up_outlined,
-                  label: 'Read\naloud',
-                  onTap: () {},
-                ),
-              ],
+          if (_isSaving)
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: CircularProgressIndicator(),
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _ActionButton(
+                    icon: Icons.download,
+                    label: 'Save\nimage',
+                    onTap: _saveImage,
+                  ),
+                  _ActionButton(
+                    icon: Icons.copy,
+                    label: 'Copy\ntext',
+                    onTap: () {
+                      final fullText = widget.reference != null
+                          ? '${widget.text}\n\n— ${widget.reference}'
+                          : widget.text;
+                      Clipboard.setData(ClipboardData(text: fullText));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Copied to clipboard')),
+                      );
+                    },
+                  ),
+                  _ActionButton(
+                    icon: Icons.text_fields,
+                    label: 'Share\ntext',
+                    onTap: _shareText,
+                  ),
+                  _ActionButton(
+                    icon: Icons.image,
+                    label: 'Share\nimage',
+                    onTap: _shareImage,
+                  ),
+                ],
+              ),
             ),
-          ),
           const SizedBox(height: 24),
-          
+
           // Share buttons row
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -159,7 +233,7 @@ class ShareSheet extends StatelessWidget {
                   icon: Icons.chat_bubble,
                   label: 'Messages',
                   color: Colors.green,
-                  onTap: () {},
+                  onTap: _shareText,
                 ),
                 const SizedBox(width: 16),
                 _ShareButton(
@@ -168,7 +242,7 @@ class ShareSheet extends StatelessWidget {
                   gradient: const LinearGradient(
                     colors: [Color(0xFF833AB4), Color(0xFFE1306C), Color(0xFFF77737)],
                   ),
-                  onTap: () {},
+                  onTap: _shareImage,
                 ),
                 const SizedBox(width: 16),
                 _ShareButton(
@@ -177,14 +251,14 @@ class ShareSheet extends StatelessWidget {
                   gradient: const LinearGradient(
                     colors: [Color(0xFF833AB4), Color(0xFFE1306C), Color(0xFFF77737)],
                   ),
-                  onTap: () {},
+                  onTap: _shareImage,
                 ),
                 const SizedBox(width: 16),
                 _ShareButton(
                   icon: Icons.ios_share,
                   label: 'Share to...',
                   color: AppTheme.secondaryText,
-                  onTap: () {},
+                  onTap: _shareImage,
                 ),
               ],
             ),

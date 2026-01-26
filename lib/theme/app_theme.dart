@@ -164,6 +164,7 @@ class VisualTheme {
   final String? fontFamily;
   final bool isPremium;
   final bool isVideo;
+  final String? backgroundImage;
 
   const VisualTheme({
     required this.id,
@@ -173,6 +174,7 @@ class VisualTheme {
     this.fontFamily,
     this.isPremium = false,
     this.isVideo = false,
+    this.backgroundImage,
   });
 
   LinearGradient get gradient => LinearGradient(
@@ -180,47 +182,59 @@ class VisualTheme {
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );
+
+  /// Returns true if this theme has a background image
+  bool get hasBackgroundImage => backgroundImage != null;
 }
 
 class VisualThemes {
+  static const String _bgPath = 'assets/images/backgrounds/';
+
   static const List<VisualTheme> all = [
     VisualTheme(
       id: 'golden_water',
       name: 'Golden Water',
       gradientColors: [Color(0xFF2C1810), Color(0xFF8B6914), Color(0xFF2C1810)],
+      backgroundImage: '${_bgPath}golden_water.png',
       isVideo: true,
     ),
     VisualTheme(
       id: 'sunset_sky',
       name: 'Sunset Sky',
       gradientColors: [Color(0xFF667eea), Color(0xFF764ba2), Color(0xFFf093fb)],
+      backgroundImage: '${_bgPath}sunset_sky.png',
     ),
     VisualTheme(
       id: 'ocean_calm',
       name: 'Ocean Calm',
       gradientColors: [Color(0xFF4facfe), Color(0xFF00f2fe)],
+      backgroundImage: '${_bgPath}ocean_calm.png',
     ),
     VisualTheme(
       id: 'forest_mist',
       name: 'Forest Mist',
       gradientColors: [Color(0xFF134e5e), Color(0xFF71b280)],
+      backgroundImage: '${_bgPath}forest_mist.png',
     ),
     VisualTheme(
       id: 'warm_dawn',
       name: 'Warm Dawn',
       gradientColors: [Color(0xFFffecd2), Color(0xFFfcb69f)],
       textColor: Color(0xFF2D2D2D),
+      backgroundImage: '${_bgPath}warm_dawn.png',
     ),
     VisualTheme(
       id: 'purple_haze',
       name: 'Purple Haze',
       gradientColors: [Color(0xFF4a00e0), Color(0xFF8e2de2)],
+      backgroundImage: '${_bgPath}purple_haze.png',
       isPremium: true,
     ),
     VisualTheme(
       id: 'midnight',
       name: 'Midnight',
       gradientColors: [Color(0xFF0f0c29), Color(0xFF302b63), Color(0xFF24243e)],
+      backgroundImage: '${_bgPath}midnight.png',
       isPremium: true,
     ),
     VisualTheme(
@@ -228,18 +242,21 @@ class VisualThemes {
       name: 'Rose Gold',
       gradientColors: [Color(0xFFf4c4f3), Color(0xFFfc67fa)],
       textColor: Color(0xFF2D2D2D),
+      backgroundImage: '${_bgPath}rose_gold.png',
       isPremium: true,
     ),
     VisualTheme(
       id: 'mountain_sunrise',
       name: 'Mountain Sunrise',
       gradientColors: [Color(0xFFFF512F), Color(0xFFDD2476)],
+      backgroundImage: '${_bgPath}mountain_sunrise.png',
       isPremium: true,
     ),
     VisualTheme(
       id: 'peaceful_green',
       name: 'Peaceful Green',
       gradientColors: [Color(0xFF56ab2f), Color(0xFFa8e6cf)],
+      backgroundImage: '${_bgPath}peaceful_green.png',
       isPremium: true,
     ),
     VisualTheme(
@@ -247,11 +264,13 @@ class VisualThemes {
       name: 'Cream',
       gradientColors: [Color(0xFFF5EDE4), Color(0xFFEDE5DC)],
       textColor: Color(0xFF2D2D2D),
+      backgroundImage: '${_bgPath}cream_simple.png',
     ),
     VisualTheme(
       id: 'dark_elegant',
       name: 'Dark Elegant',
       gradientColors: [Color(0xFF1a1a2e), Color(0xFF16213e)],
+      backgroundImage: '${_bgPath}dark_elegant.png',
       isPremium: true,
     ),
   ];

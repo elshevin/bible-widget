@@ -108,6 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     isFavorite: isFavorite,
                     onFavorite: () => appState.toggleFavorite(verse.id),
                     onShare: () => _showShareSheet(displayText, verse.reference),
+                    backgroundImage: currentTheme.backgroundImage,
                   );
                 },
               ),
@@ -406,6 +407,7 @@ class _VerseCard extends StatelessWidget {
   final bool isFavorite;
   final VoidCallback onFavorite;
   final VoidCallback onShare;
+  final String? backgroundImage;
 
   const _VerseCard({
     required this.text,
@@ -415,45 +417,84 @@ class _VerseCard extends StatelessWidget {
     required this.isFavorite,
     required this.onFavorite,
     required this.onShare,
+    this.backgroundImage,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(gradient: gradient),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Spacer(),
-              Text(
-                text,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w500,
-                  color: textColor,
-                  height: 1.5,
-                ),
-              ),
-              if (reference != null) ...[
-                const SizedBox(height: 24),
-                Text(
-                  reference!,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: textColor.withOpacity(0.7),
-                    fontStyle: FontStyle.italic,
+      decoration: BoxDecoration(
+        gradient: backgroundImage == null ? gradient : null,
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Background image if available
+          if (backgroundImage != null)
+            Image.asset(
+              backgroundImage!,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                // Fallback to gradient if image fails to load
+                return Container(
+                  decoration: BoxDecoration(gradient: gradient),
+                );
+              },
+            ),
+          // Content
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Spacer(),
+                  Text(
+                    text,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w500,
+                      color: textColor,
+                      height: 1.5,
+                      shadows: backgroundImage != null
+                          ? [
+                              Shadow(
+                                offset: const Offset(0, 1),
+                                blurRadius: 4,
+                                color: Colors.black.withOpacity(0.3),
+                              ),
+                            ]
+                          : null,
+                    ),
                   ),
-                ),
-              ],
-              const Spacer(),
-              const SizedBox(height: 120), // Space for bottom UI
-            ],
+                  if (reference != null) ...[
+                    const SizedBox(height: 24),
+                    Text(
+                      reference!,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: textColor.withOpacity(0.8),
+                        fontStyle: FontStyle.italic,
+                        shadows: backgroundImage != null
+                            ? [
+                                Shadow(
+                                  offset: const Offset(0, 1),
+                                  blurRadius: 3,
+                                  color: Colors.black.withOpacity(0.3),
+                                ),
+                              ]
+                            : null,
+                      ),
+                    ),
+                  ],
+                  const Spacer(),
+                  const SizedBox(height: 120), // Space for bottom UI
+                ],
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
