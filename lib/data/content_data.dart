@@ -332,30 +332,30 @@ class ContentData {
 
   // Topics
   static const List<Topic> topics = [
-    // By Type
-    Topic(id: 'bible-verses', name: 'Bible verses', icon: '📖', category: 'By type'),
-    Topic(id: 'prayers', name: 'Prayers', icon: '🙏', category: 'By type'),
-    Topic(id: 'quotes', name: 'Quotes', icon: '❝', category: 'By type'),
+    // By Type - all free
+    Topic(id: 'bible-verses', name: 'Bible verses', icon: '📖', category: 'By type', isPremium: false),
+    Topic(id: 'prayers', name: 'Prayers', icon: '🙏', category: 'By type', isPremium: false),
+    Topic(id: 'quotes', name: 'Quotes', icon: '❝', category: 'By type', isPremium: false),
     Topic(id: 'affirmations', name: 'Affirmations', icon: '💬', category: 'By type', isPremium: false),
-    
-    // Draw near to God
-    Topic(id: 'faith', name: 'Faith', icon: '✝️', category: 'Draw near to God'),
-    Topic(id: 'grace', name: 'Grace', icon: '🤲', category: 'Draw near to God'),
-    Topic(id: 'god', name: 'God', icon: '☁️', category: 'Draw near to God'),
-    
-    // Health and well-being
-    Topic(id: 'self-worth', name: 'Self-worth', icon: '💪', category: 'Health and well-being'),
-    Topic(id: 'letting-go', name: 'Letting go', icon: '🕊️', category: 'Health and well-being'),
-    Topic(id: 'healing', name: 'Healing', icon: '💗', category: 'Health and well-being'),
+
+    // Draw near to God - common ones free
+    Topic(id: 'faith', name: 'Faith', icon: '✝️', category: 'Draw near to God', isPremium: false),
+    Topic(id: 'grace', name: 'Grace', icon: '🤲', category: 'Draw near to God', isPremium: false),
+    Topic(id: 'god', name: 'God', icon: '☁️', category: 'Draw near to God', isPremium: false),
+
+    // Health and well-being - mix of free and premium
+    Topic(id: 'self-worth', name: 'Self-worth', icon: '💪', category: 'Health and well-being', isPremium: false),
+    Topic(id: 'letting-go', name: 'Letting go', icon: '🕊️', category: 'Health and well-being', isPremium: false),
+    Topic(id: 'healing', name: 'Healing', icon: '💗', category: 'Health and well-being', isPremium: false),
     Topic(id: 'mental-health', name: 'Mental health', icon: '🧠', category: 'Health and well-being'),
     Topic(id: 'kindness', name: 'Kindness', icon: '🤝', category: 'Health and well-being'),
-    Topic(id: 'inner-peace', name: 'Inner peace', icon: '💖', category: 'Health and well-being'),
-    
-    // Light for your journey
-    Topic(id: 'hope', name: 'Hope', icon: '🌅', category: 'Light for your journey'),
-    Topic(id: 'uplifting', name: 'Uplifting', icon: '😊', category: 'Light for your journey'),
-    Topic(id: 'love', name: 'Love', icon: '❤️', category: 'Light for your journey'),
-    Topic(id: 'gratitude', name: 'Gratitude', icon: '✨', category: 'Light for your journey'),
+    Topic(id: 'inner-peace', name: 'Inner peace', icon: '💖', category: 'Health and well-being', isPremium: false),
+
+    // Light for your journey - common ones free
+    Topic(id: 'hope', name: 'Hope', icon: '🌅', category: 'Light for your journey', isPremium: false),
+    Topic(id: 'uplifting', name: 'Uplifting', icon: '😊', category: 'Light for your journey', isPremium: false),
+    Topic(id: 'love', name: 'Love', icon: '❤️', category: 'Light for your journey', isPremium: false),
+    Topic(id: 'gratitude', name: 'Gratitude', icon: '✨', category: 'Light for your journey', isPremium: false),
   ];
 
   // Prayers
