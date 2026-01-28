@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Background color -->
+    <!-- Simple background color matching the app theme -->
     <item>
-        <color android:color="#2C1810"/>
-    </item>
-    <!-- Splash image centered -->
-    <item>
-        <bitmap
-            android:gravity="center"
-            android:src="@drawable/splash_image" />
+        <color android:color="#F5EDE4"/>
     </item>
 </layer-list>

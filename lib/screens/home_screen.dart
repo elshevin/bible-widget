@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
@@ -65,6 +66,38 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (_) => ShareSheet(
         text: verseText,
         reference: reference,
+      ),
+    );
+  }
+
+  void _showCongratulationsDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        backgroundColor: AppTheme.cardBackground,
+        title: const Row(
+          children: [
+            Text('🎉 ', style: TextStyle(fontSize: 24)),
+            Text('Congratulations!'),
+          ],
+        ),
+        content: const Text(
+          'You\'ve completed today\'s reading goal!\n\nKeep up the great work on your spiritual journey.',
+          style: TextStyle(fontSize: 16, height: 1.5),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Continue',
+              style: TextStyle(
+                color: AppTheme.accent,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -142,7 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              '$favoritesCount/5',
+                              '${min(favoritesCount, 5)}/5',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,
@@ -370,11 +403,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       builder: (context, state, _) {
                         final verse = state.currentVerse;
                         final isFavorite = verse != null && state.isFavorite(verse.id);
-                        
+
                         return GestureDetector(
                           onTap: () {
                             if (verse != null) {
-                              state.toggleFavorite(verse.id);
+                              final justReachedLimit = state.toggleFavorite(verse.id);
+                              if (justReachedLimit) {
+                                _showCongratulationsDialog();
+                              }
                             }
                           },
                           child: Container(

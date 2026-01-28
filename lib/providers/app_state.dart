@@ -103,15 +103,22 @@ class AppState extends ChangeNotifier {
     return _user.favoriteVerseIds.contains(verseId);
   }
   
-  void toggleFavorite(String verseId) {
+  /// Toggle favorite status for a verse
+  /// Returns true if user just reached the daily limit of 5 favorites
+  bool toggleFavorite(String verseId) {
     final favorites = List<String>.from(_user.favoriteVerseIds);
-    if (favorites.contains(verseId)) {
+    final wasInList = favorites.contains(verseId);
+
+    if (wasInList) {
       favorites.remove(verseId);
     } else {
       favorites.add(verseId);
     }
     _user = _user.copyWith(favoriteVerseIds: favorites);
     notifyListeners();
+
+    // Return true if user just reached 5 favorites (daily goal)
+    return !wasInList && favorites.length == 5;
   }
   
   List<Verse> getFavoriteVerses() {
@@ -218,6 +225,61 @@ class AppState extends ChangeNotifier {
   void setPremium(bool value) {
     _user = _user.copyWith(isPremium: value);
     notifyListeners();
+  }
+
+  // Custom Quotes
+  List<CustomQuote> get customQuotes => _user.customQuotes;
+
+  void addCustomQuote(String text, String? source) {
+    final quote = CustomQuote(
+      id: 'quote_${DateTime.now().millisecondsSinceEpoch}',
+      text: text,
+      source: source,
+      createdAt: DateTime.now(),
+    );
+    final quotes = List<CustomQuote>.from(_user.customQuotes)..add(quote);
+    _user = _user.copyWith(customQuotes: quotes);
+    notifyListeners();
+  }
+
+  void removeCustomQuote(String id) {
+    final quotes = _user.customQuotes.where((q) => q.id != id).toList();
+    _user = _user.copyWith(customQuotes: quotes);
+    notifyListeners();
+  }
+
+  // Collections getters
+  List<Collection> get collections => _user.collections;
+
+  void removeFromCollection(String collectionId, String verseId) {
+    final collections = _user.collections.map((c) {
+      if (c.id == collectionId) {
+        final verseIds = List<String>.from(c.verseIds)..remove(verseId);
+        return Collection(
+          id: c.id,
+          name: c.name,
+          verseIds: verseIds,
+          createdAt: c.createdAt,
+        );
+      }
+      return c;
+    }).toList();
+    _user = _user.copyWith(collections: collections);
+    notifyListeners();
+  }
+
+  void deleteCollection(String collectionId) {
+    final collections = _user.collections.where((c) => c.id != collectionId).toList();
+    _user = _user.copyWith(collections: collections);
+    notifyListeners();
+  }
+
+  Verse? getVerseById(String id) {
+    try {
+      return _feedContent.firstWhere((v) => v.id == id);
+    } catch (e) {
+      return null;
+    }
   }
   
   // Get current verse

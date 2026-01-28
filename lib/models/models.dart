@@ -84,6 +84,21 @@ class Collection {
   });
 }
 
+// Custom Quote Model
+class CustomQuote {
+  final String id;
+  final String text;
+  final String? source;
+  final DateTime createdAt;
+
+  const CustomQuote({
+    required this.id,
+    required this.text,
+    this.source,
+    required this.createdAt,
+  });
+}
+
 // User Model
 class UserProfile {
   final String? name;
@@ -95,6 +110,7 @@ class UserProfile {
   final DateTime? lastActiveDate;
   final List<String> favoriteVerseIds;
   final List<Collection> collections;
+  final List<CustomQuote> customQuotes;
   final bool isPremium;
   final bool hasCompletedOnboarding;
 
@@ -108,6 +124,7 @@ class UserProfile {
     this.lastActiveDate,
     this.favoriteVerseIds = const [],
     this.collections = const [],
+    this.customQuotes = const [],
     this.isPremium = false,
     this.hasCompletedOnboarding = false,
   });
@@ -122,6 +139,7 @@ class UserProfile {
     DateTime? lastActiveDate,
     List<String>? favoriteVerseIds,
     List<Collection>? collections,
+    List<CustomQuote>? customQuotes,
     bool? isPremium,
     bool? hasCompletedOnboarding,
   }) {
@@ -135,6 +153,7 @@ class UserProfile {
       lastActiveDate: lastActiveDate ?? this.lastActiveDate,
       favoriteVerseIds: favoriteVerseIds ?? this.favoriteVerseIds,
       collections: collections ?? this.collections,
+      customQuotes: customQuotes ?? this.customQuotes,
       isPremium: isPremium ?? this.isPremium,
       hasCompletedOnboarding: hasCompletedOnboarding ?? this.hasCompletedOnboarding,
     );

@@ -6,6 +6,8 @@ import '../data/content_data.dart';
 import '../widgets/common_widgets.dart';
 import 'favorites_screen.dart';
 import 'topic_detail_screen.dart';
+import 'collections_screen.dart';
+import 'my_quotes_screen.dart';
 
 class TopicsSheet extends StatelessWidget {
   const TopicsSheet({super.key});
@@ -167,7 +169,15 @@ class TopicsSheet extends StatelessWidget {
                           child: _QuickAccessCard(
                             title: 'Collections',
                             icon: Icons.bookmark_border,
-                            onTap: () {},
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const CollectionsScreen(),
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ],
@@ -179,7 +189,15 @@ class TopicsSheet extends StatelessWidget {
                           child: _QuickAccessCard(
                             title: 'My own quotes',
                             icon: Icons.edit_outlined,
-                            onTap: () {},
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const MyQuotesScreen(),
+                                ),
+                              );
+                            },
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -215,15 +233,26 @@ class TopicsSheet extends StatelessWidget {
                                 name: topic.name,
                                 icon: topic.icon,
                                 isPremium: topic.isPremium,
-                                onTap: () {
+                                onTap: () async {
                                   if (!topic.isPremium) {
+                                    // Get the parent context before popping
+                                    final parentContext = Navigator.of(context).context;
                                     Navigator.pop(context);
-                                    Navigator.push(
-                                      context,
+                                    await Navigator.push(
+                                      parentContext,
                                       MaterialPageRoute(
                                         builder: (_) => TopicDetailScreen(topic: topic),
                                       ),
                                     );
+                                    // Reopen TopicsSheet after returning
+                                    if (parentContext.mounted) {
+                                      showModalBottomSheet(
+                                        context: parentContext,
+                                        isScrollControlled: true,
+                                        backgroundColor: Colors.transparent,
+                                        builder: (_) => const TopicsSheet(),
+                                      );
+                                    }
                                   }
                                 },
                               ),
