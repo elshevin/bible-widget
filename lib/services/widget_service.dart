@@ -9,35 +9,51 @@ class WidgetService {
 
   /// Initialize the widget service
   static Future<void> initialize() async {
-    await HomeWidget.setAppGroupId(appGroupId);
+    try {
+      await HomeWidget.setAppGroupId(appGroupId);
+      print('WidgetService: initialized with appGroupId: $appGroupId');
+    } catch (e) {
+      print('WidgetService: initialization error: $e');
+    }
   }
 
   /// Update the widget with a random verse
   static Future<void> updateWidgetWithRandomVerse() async {
-    final verses = ContentData.verses;
-    final randomVerse = verses[Random().nextInt(verses.length)];
+    try {
+      final verses = ContentData.verses;
+      final randomVerse = verses[Random().nextInt(verses.length)];
 
-    await HomeWidget.saveWidgetData<String>(
-      'widget_verse_text',
-      randomVerse.text,
-    );
-    await HomeWidget.saveWidgetData<String>(
-      'widget_verse_reference',
-      randomVerse.reference ?? '',
-    );
+      print('WidgetService: saving verse - ${randomVerse.reference}');
 
-    await updateWidget();
+      await HomeWidget.saveWidgetData<String>(
+        'widget_verse_text',
+        randomVerse.text,
+      );
+      await HomeWidget.saveWidgetData<String>(
+        'widget_verse_reference',
+        randomVerse.reference ?? '',
+      );
+
+      await updateWidget();
+      print('WidgetService: widget updated successfully');
+    } catch (e) {
+      print('WidgetService: updateWidgetWithRandomVerse error: $e');
+    }
   }
 
   /// Update the widget with a specific verse
   static Future<void> updateWidgetWithVerse(String text, String? reference) async {
-    await HomeWidget.saveWidgetData<String>('widget_verse_text', text);
-    await HomeWidget.saveWidgetData<String>(
-      'widget_verse_reference',
-      reference ?? '',
-    );
+    try {
+      await HomeWidget.saveWidgetData<String>('widget_verse_text', text);
+      await HomeWidget.saveWidgetData<String>(
+        'widget_verse_reference',
+        reference ?? '',
+      );
 
-    await updateWidget();
+      await updateWidget();
+    } catch (e) {
+      print('WidgetService: updateWidgetWithVerse error: $e');
+    }
   }
 
   /// Trigger widget update
@@ -48,7 +64,7 @@ class WidgetService {
         iOSName: iOSWidgetName,
       );
     } catch (e) {
-      print('Error updating widget: $e');
+      print('WidgetService: updateWidget error: $e');
     }
   }
 
@@ -56,6 +72,10 @@ class WidgetService {
   static Future<void> registerInteractivityCallback(
     Future<void> Function(Uri?) callback,
   ) async {
-    await HomeWidget.registerInteractivityCallback(callback);
+    try {
+      await HomeWidget.registerInteractivityCallback(callback);
+    } catch (e) {
+      print('WidgetService: registerInteractivityCallback error: $e');
+    }
   }
 }

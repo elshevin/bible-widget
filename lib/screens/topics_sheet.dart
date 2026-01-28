@@ -5,6 +5,7 @@ import '../providers/app_state.dart';
 import '../data/content_data.dart';
 import '../widgets/common_widgets.dart';
 import 'favorites_screen.dart';
+import 'topic_detail_screen.dart';
 
 class TopicsSheet extends StatelessWidget {
   const TopicsSheet({super.key});
@@ -216,7 +217,13 @@ class TopicsSheet extends StatelessWidget {
                                 isPremium: topic.isPremium,
                                 onTap: () {
                                   if (!topic.isPremium) {
-                                    context.read<AppState>().toggleTopic(topic.id);
+                                    Navigator.pop(context);
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => TopicDetailScreen(topic: topic),
+                                      ),
+                                    );
                                   }
                                 },
                               ),
