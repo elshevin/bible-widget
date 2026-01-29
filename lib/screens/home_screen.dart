@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:video_player/video_player.dart';
+import 'package:lottie/lottie.dart';
 import '../theme/app_theme.dart';
 import '../providers/app_state.dart';
 import '../widgets/common_widgets.dart';
@@ -24,9 +24,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   late Animation<Offset> _slideAnimation;
   bool _isAnimating = false;
   int _direction = 1; // 1 for down, -1 for up
-
-  VideoPlayerController? _videoController;
-  String? _currentVideoUrl;
 
   @override
   void initState() {
@@ -54,35 +51,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   @override
   void dispose() {
     _animationController.dispose();
-    _videoController?.dispose();
     super.dispose();
-  }
-
-  void _initVideoPlayer(String videoUrl) {
-    if (_currentVideoUrl == videoUrl && _videoController != null) {
-      return; // Already initialized with same URL
-    }
-
-    _videoController?.dispose();
-    _currentVideoUrl = videoUrl;
-
-    _videoController = VideoPlayerController.networkUrl(Uri.parse(videoUrl))
-      ..initialize().then((_) {
-        if (mounted) {
-          setState(() {});
-          _videoController?.setLooping(true);
-          _videoController?.setVolume(0); // Mute the video
-          _videoController?.play();
-        }
-      });
-  }
-
-  void _disposeVideoIfNeeded(VisualTheme theme) {
-    if (theme.videoUrl == null && _videoController != null) {
-      _videoController?.dispose();
-      _videoController = null;
-      _currentVideoUrl = null;
-    }
   }
 
   void _navigateToVerse(int direction, AppState appState) async {
@@ -229,33 +198,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 _navigateToVerse(-1, appState);
               }
             },
-            child: Builder(
-              builder: (context) {
-                // Initialize or dispose video player based on theme
-                if (currentTheme.videoUrl != null) {
-                  _initVideoPlayer(currentTheme.videoUrl!);
-                } else {
-                  _disposeVideoIfNeeded(currentTheme);
-                }
-
-                return Stack(
+            child: Stack(
               children: [
-                // Static Background (Image or Video)
-                if (currentTheme.videoUrl != null && _videoController != null && _videoController!.value.isInitialized)
-                  // Video Background
-                  SizedBox.expand(
-                    child: FittedBox(
-                      fit: BoxFit.cover,
-                      child: SizedBox(
-                        width: _videoController!.value.size.width,
-                        height: _videoController!.value.size.height,
-                        child: VideoPlayer(_videoController!),
-                      ),
-                    ),
-                  )
-                else
-                  // Static Background (fallback to image or gradient)
-                  Container(
+                // Static Background (Image with optional Lottie overlay)
+                Container(
                   decoration: BoxDecoration(
                     gradient: currentTheme.backgroundImage == null ? currentTheme.gradient : null,
                   ),
@@ -273,6 +219,19 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         )
                       : null,
                 ),
+
+                // Lottie animation overlay for live themes
+                if (currentTheme.lottieAsset != null)
+                  Positioned.fill(
+                    child: Lottie.asset(
+                      currentTheme.lottieAsset!,
+                      fit: BoxFit.cover,
+                      repeat: true,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                  ),
 
                 // Animated Text Content
                 SafeArea(
@@ -616,8 +575,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   ),
                 ),
               ],
-            );
-              },
             ),
           ),
         );
