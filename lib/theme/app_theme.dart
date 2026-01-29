@@ -166,6 +166,7 @@ class VisualTheme {
   final bool isPremium;
   final bool isVideo;
   final String? backgroundImage;
+  final String? videoUrl; // Network video URL for live photo effect
 
   const VisualTheme({
     required this.id,
@@ -177,6 +178,7 @@ class VisualTheme {
     this.isPremium = false,
     this.isVideo = false,
     this.backgroundImage,
+    this.videoUrl,
   });
 
   LinearGradient get gradient => LinearGradient(
@@ -421,6 +423,64 @@ class VisualThemes {
       gradientColors: [Color(0xFFFFFFF0), Color(0xFFF5F5F5)],
       textColor: Color(0xFF2D2D2D),
       backgroundImage: '${_bgPath}cream_watercolor.png',
+    ),
+    // Live Photo / Video themes
+    VisualTheme(
+      id: 'water_ripple',
+      name: 'Water Ripple',
+      category: 'Nature',
+      gradientColors: [Color(0xFF1E3A5F), Color(0xFF4A8FBF)],
+      backgroundImage: '${_bgPath}calm_lake.png',
+      isVideo: true,
+      videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-water-surface-with-light-ripples-1178-large.mp4',
+    ),
+    VisualTheme(
+      id: 'starry_night',
+      name: 'Starry Night',
+      category: 'Elegant',
+      gradientColors: [Color(0xFF0D1B2A), Color(0xFF1B263B)],
+      backgroundImage: '${_bgPath}navy_stars.png',
+      isVideo: true,
+      videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-stars-in-space-1610-large.mp4',
+      isPremium: true,
+    ),
+    VisualTheme(
+      id: 'soft_clouds',
+      name: 'Soft Clouds',
+      category: 'Nature',
+      gradientColors: [Color(0xFF87CEEB), Color(0xFFB0E0E6)],
+      backgroundImage: '${_bgPath}misty_mountains.png',
+      isVideo: true,
+      videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-white-clouds-moving-on-blue-sky-1184-large.mp4',
+    ),
+    VisualTheme(
+      id: 'golden_sunset',
+      name: 'Golden Sunset',
+      category: 'Nature',
+      gradientColors: [Color(0xFFFF6B35), Color(0xFFFFB347)],
+      backgroundImage: '${_bgPath}wheat_sunset.png',
+      isVideo: true,
+      videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-sun-setting-over-the-ocean-1177-large.mp4',
+      isPremium: true,
+    ),
+    VisualTheme(
+      id: 'rain_drops',
+      name: 'Rain Drops',
+      category: 'Nature',
+      gradientColors: [Color(0xFF4A5568), Color(0xFF718096)],
+      backgroundImage: '${_bgPath}forest_mist.png',
+      isVideo: true,
+      videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-rain-drops-on-a-window-1172-large.mp4',
+    ),
+    VisualTheme(
+      id: 'candle_flame',
+      name: 'Candle Flame',
+      category: 'Elegant',
+      gradientColors: [Color(0xFF2C1810), Color(0xFF8B4513)],
+      backgroundImage: '${_bgPath}burgundy_wine.png',
+      isVideo: true,
+      videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-lit-candle-burning-in-total-darkness-4073-large.mp4',
+      isPremium: true,
     ),
   ];
 

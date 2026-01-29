@@ -210,6 +210,7 @@ class _ThemesSheetState extends State<ThemesSheet> {
                             return ThemePreviewCard(
                               name: theme.name,
                               gradient: theme.gradient,
+                              backgroundImage: theme.backgroundImage,
                               isSelected: selectedThemeId == theme.id,
                               isPremium: theme.isPremium,
                               isVideo: theme.isVideo,

@@ -424,6 +424,7 @@ class PremiumBadge extends StatelessWidget {
 class ThemePreviewCard extends StatelessWidget {
   final String name;
   final LinearGradient gradient;
+  final String? backgroundImage;
   final bool isSelected;
   final bool isPremium;
   final bool isVideo;
@@ -435,6 +436,7 @@ class ThemePreviewCard extends StatelessWidget {
     required this.gradient,
     required this.isSelected,
     required this.onTap,
+    this.backgroundImage,
     this.isPremium = false,
     this.isVideo = false,
   });
@@ -446,14 +448,24 @@ class ThemePreviewCard extends StatelessWidget {
       child: Container(
         height: 160,
         decoration: BoxDecoration(
-          gradient: gradient,
+          gradient: backgroundImage == null ? gradient : null,
           borderRadius: BorderRadius.circular(16),
           border: isSelected
               ? Border.all(color: AppTheme.primaryText, width: 3)
               : null,
         ),
         child: Stack(
+          fit: StackFit.expand,
           children: [
+            // Background image if available
+            if (backgroundImage != null)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(isSelected ? 13 : 16),
+                child: Image.asset(
+                  backgroundImage!,
+                  fit: BoxFit.cover,
+                ),
+              ),
             // Font preview
             Center(
               child: Text(
