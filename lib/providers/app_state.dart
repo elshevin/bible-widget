@@ -251,6 +251,10 @@ class AppState extends ChangeNotifier {
   // Collections getters
   List<Collection> get collections => _user.collections;
 
+  bool isInAnyCollection(String verseId) {
+    return _user.collections.any((c) => c.verseIds.contains(verseId));
+  }
+
   void removeFromCollection(String collectionId, String verseId) {
     final collections = _user.collections.map((c) {
       if (c.id == collectionId) {
