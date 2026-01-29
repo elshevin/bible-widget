@@ -19,26 +19,21 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   bool _showStreakBanner = true;
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
-  bool _isAnimating = false;
-  int _direction = 1; // 1 for down, -1 for up
+
+  // Drag-based animation state
+  double _dragOffset = 0;
+  bool _isTransitioning = false;
+  late AnimationController _transitionController;
+  double _animatedOffset = 0;
+  double _opacity = 1.0;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 400),
+    _transitionController = AnimationController(
+      duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    _fadeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
-    );
-    _slideAnimation = Tween<Offset>(
-      begin: Offset.zero,
-      end: const Offset(0, -0.1),
-    ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeInOut));
 
     // Hide streak banner after 3 seconds
     Future.delayed(const Duration(seconds: 3), () {
@@ -50,47 +45,114 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _transitionController.dispose();
     super.dispose();
   }
 
-  void _navigateToVerse(int direction, AppState appState) async {
-    if (_isAnimating) return;
+  void _onDragUpdate(DragUpdateDetails details) {
+    if (_isTransitioning) return;
+    setState(() {
+      _dragOffset += details.delta.dy;
+      // Calculate opacity based on drag distance
+      _opacity = (1.0 - (_dragOffset.abs() / 400)).clamp(0.2, 1.0);
+    });
+  }
 
+  void _onDragEnd(DragEndDetails details, AppState appState) {
+    if (_isTransitioning) return;
+
+    final threshold = 80.0;
+    final velocity = details.primaryVelocity ?? 0;
     final feedContent = appState.feedContent;
     final currentIndex = appState.currentFeedIndex;
+
+    // Determine direction: negative drag (swipe up) = next, positive drag (swipe down) = previous
+    final direction = _dragOffset < 0 ? 1 : -1;
     final nextIndex = currentIndex + direction;
 
-    if (nextIndex < 0 || nextIndex >= feedContent.length) return;
+    // Check if we should switch verses
+    final shouldSwitch = (_dragOffset.abs() > threshold || velocity.abs() > 500) &&
+        nextIndex >= 0 &&
+        nextIndex < feedContent.length;
 
-    setState(() {
-      _isAnimating = true;
-      _direction = direction;
+    if (shouldSwitch) {
+      _animateToNextVerse(direction, appState);
+    } else {
+      _animateBack();
+    }
+  }
+
+  void _animateToNextVerse(int direction, AppState appState) {
+    _isTransitioning = true;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final targetOffset = direction * -screenHeight * 0.6; // Slide out of screen
+    final startOffset = _dragOffset;
+    final startOpacity = _opacity;
+
+    _transitionController.reset();
+    _transitionController.addListener(() {
+      final progress = Curves.easeOut.transform(_transitionController.value);
+      setState(() {
+        _animatedOffset = startOffset + (targetOffset - startOffset) * progress;
+        _opacity = startOpacity * (1 - progress);
+      });
     });
 
-    // Update slide direction based on swipe
-    _slideAnimation = Tween<Offset>(
-      begin: Offset.zero,
-      end: Offset(0, direction * -0.1),
-    ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeInOut));
+    _transitionController.forward().then((_) {
+      // Switch to next verse
+      final nextIndex = appState.currentFeedIndex + direction;
+      appState.setFeedIndex(nextIndex);
 
-    // Animate out
-    await _animationController.forward();
+      // Animate new verse in from opposite direction
+      _animatedOffset = direction * screenHeight * 0.4;
+      _opacity = 0.0;
+      _dragOffset = 0;
 
-    // Change verse
-    appState.setFeedIndex(nextIndex);
+      _transitionController.reset();
+      _transitionController.addListener(() {
+        final progress = Curves.easeOut.transform(_transitionController.value);
+        setState(() {
+          _animatedOffset = _animatedOffset * (1 - progress);
+          _opacity = progress;
+        });
+      });
 
-    // Reset and animate in from opposite direction
-    _slideAnimation = Tween<Offset>(
-      begin: Offset(0, direction * 0.1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeInOut));
+      _transitionController.forward().then((_) {
+        setState(() {
+          _dragOffset = 0;
+          _animatedOffset = 0;
+          _opacity = 1.0;
+          _isTransitioning = false;
+        });
+        _transitionController.removeListener(() {});
+      });
+    });
+  }
 
-    _animationController.reset();
-    await _animationController.forward();
-    _animationController.reset();
+  void _animateBack() {
+    _isTransitioning = true;
+    final startOffset = _dragOffset;
+    final startOpacity = _opacity;
 
-    setState(() => _isAnimating = false);
+    _transitionController.reset();
+    _transitionController.addListener(() {
+      final progress = Curves.easeOut.transform(_transitionController.value);
+      setState(() {
+        _dragOffset = startOffset * (1 - progress);
+        _animatedOffset = 0;
+        _opacity = startOpacity + (1.0 - startOpacity) * progress;
+      });
+    });
+
+    _transitionController.forward().then((_) {
+      setState(() {
+        _dragOffset = 0;
+        _animatedOffset = 0;
+        _opacity = 1.0;
+        _isTransitioning = false;
+      });
+      _transitionController.removeListener(() {});
+    });
   }
 
   void _showTopicsSheet() {
@@ -188,16 +250,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
         return Scaffold(
           body: GestureDetector(
-            onVerticalDragEnd: (details) {
-              if (details.primaryVelocity == null) return;
-              if (details.primaryVelocity! < -100) {
-                // Swipe up - next verse
-                _navigateToVerse(1, appState);
-              } else if (details.primaryVelocity! > 100) {
-                // Swipe down - previous verse
-                _navigateToVerse(-1, appState);
-              }
-            },
+            onVerticalDragUpdate: _onDragUpdate,
+            onVerticalDragEnd: (details) => _onDragEnd(details, appState),
             child: Stack(
               children: [
                 // Static Background (Image with optional Lottie overlay)
@@ -233,7 +287,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     ),
                   ),
 
-                // Animated Text Content
+                // Animated Text Content - follows finger drag
                 SafeArea(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -241,61 +295,54 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Spacer(),
-                        AnimatedBuilder(
-                          animation: _animationController,
-                          builder: (context, child) {
-                            return SlideTransition(
-                              position: _slideAnimation,
-                              child: FadeTransition(
-                                opacity: _isAnimating
-                                    ? _fadeAnimation
-                                    : const AlwaysStoppedAnimation(1.0),
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      displayText,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.w500,
-                                        color: currentTheme.textColor,
-                                        height: 1.5,
-                                        shadows: currentTheme.backgroundImage != null
-                                            ? [
-                                                Shadow(
-                                                  offset: const Offset(0, 1),
-                                                  blurRadius: 4,
-                                                  color: Colors.black.withOpacity(0.3),
-                                                ),
-                                              ]
-                                            : null,
-                                      ),
-                                    ),
-                                    if (reference != null) ...[
-                                      const SizedBox(height: 24),
-                                      Text(
-                                        reference,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: currentTheme.textColor.withOpacity(0.8),
-                                          fontStyle: FontStyle.italic,
-                                          shadows: currentTheme.backgroundImage != null
-                                              ? [
-                                                  Shadow(
-                                                    offset: const Offset(0, 1),
-                                                    blurRadius: 3,
-                                                    color: Colors.black.withOpacity(0.3),
-                                                  ),
-                                                ]
-                                              : null,
-                                        ),
-                                      ),
-                                    ],
-                                  ],
+                        Transform.translate(
+                          offset: Offset(0, _dragOffset + _animatedOffset),
+                          child: Opacity(
+                            opacity: _opacity,
+                            child: Column(
+                              children: [
+                                Text(
+                                  displayText,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w500,
+                                    color: currentTheme.textColor,
+                                    height: 1.5,
+                                    shadows: currentTheme.backgroundImage != null
+                                        ? [
+                                            Shadow(
+                                              offset: const Offset(0, 1),
+                                              blurRadius: 4,
+                                              color: Colors.black.withOpacity(0.3),
+                                            ),
+                                          ]
+                                        : null,
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
+                                if (reference != null) ...[
+                                  const SizedBox(height: 24),
+                                  Text(
+                                    reference,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: currentTheme.textColor.withOpacity(0.8),
+                                      fontStyle: FontStyle.italic,
+                                      shadows: currentTheme.backgroundImage != null
+                                          ? [
+                                              Shadow(
+                                                offset: const Offset(0, 1),
+                                                blurRadius: 3,
+                                                color: Colors.black.withOpacity(0.3),
+                                              ),
+                                            ]
+                                          : null,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
                         ),
                         const Spacer(),
                         const SizedBox(height: 120), // Space for bottom UI
