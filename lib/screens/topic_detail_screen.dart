@@ -167,22 +167,44 @@ class _VerseCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               GestureDetector(
+                behavior: HitTestBehavior.opaque,
                 onTap: onFavoriteToggle,
-                child: Icon(
-                  isFavorite ? Icons.favorite : Icons.favorite_border,
-                  size: 22,
-                  color: isFavorite ? Colors.red : AppTheme.primaryText,
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_border,
+                    size: 22,
+                    color: isFavorite ? Colors.red : AppTheme.primaryText,
+                  ),
                 ),
               ),
-              const SizedBox(width: 16),
-              const Icon(
-                Icons.bookmark_border,
-                size: 22,
+              const SizedBox(width: 8),
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  // TODO: Add to collection functionality
+                },
+                child: const Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Icon(
+                    Icons.bookmark_border,
+                    size: 22,
+                  ),
+                ),
               ),
-              const SizedBox(width: 16),
-              const Icon(
-                Icons.ios_share,
-                size: 22,
+              const SizedBox(width: 8),
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  // TODO: Share functionality
+                },
+                child: const Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Icon(
+                    Icons.ios_share,
+                    size: 22,
+                  ),
+                ),
               ),
             ],
           ),
