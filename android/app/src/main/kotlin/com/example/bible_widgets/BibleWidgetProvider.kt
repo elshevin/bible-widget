@@ -8,6 +8,10 @@ import android.widget.RemoteViews
 import android.app.PendingIntent
 import android.content.Intent
 import android.util.Log
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
+import android.graphics.Bitmap
+import android.graphics.Canvas
 
 class BibleWidgetProvider : AppWidgetProvider() {
 
@@ -21,6 +25,12 @@ class BibleWidgetProvider : AppWidgetProvider() {
             "HomeWidgetPreferences"
         )
 
+        // Default theme colors (golden water theme)
+        private const val DEFAULT_START_COLOR = "#2C1810"
+        private const val DEFAULT_END_COLOR = "#2C1810"
+        private const val DEFAULT_CENTER_COLOR = "#8B6914"
+        private const val DEFAULT_TEXT_COLOR = "#FFFFFF"
+
         // Default verses for the widget
         private val defaultVerses = listOf(
             Pair("For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, plans to give you hope and a future.", "Jeremiah 29:11"),
@@ -33,6 +43,27 @@ class BibleWidgetProvider : AppWidgetProvider() {
             Pair("And we know that in all things God works for the good of those who love him.", "Romans 8:28")
         )
 
+        private fun createGradientBitmap(width: Int, height: Int, startColor: Int, endColor: Int): Bitmap {
+            val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bitmap)
+            val gradient = GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(startColor, endColor)
+            )
+            gradient.cornerRadius = 24f
+            gradient.setBounds(0, 0, width, height)
+            gradient.draw(canvas)
+            return bitmap
+        }
+
+        private fun parseColor(colorStr: String?, defaultColor: String): Int {
+            return try {
+                Color.parseColor(colorStr ?: defaultColor)
+            } catch (e: Exception) {
+                Color.parseColor(defaultColor)
+            }
+        }
+
         fun updateAppWidget(
             context: Context,
             appWidgetManager: AppWidgetManager,
@@ -42,25 +73,35 @@ class BibleWidgetProvider : AppWidgetProvider() {
 
             var verseText: String? = null
             var verseReference: String? = null
+            var startColor: String? = null
+            var endColor: String? = null
+            var textColor: String? = null
 
-            // Try to find verse data from different SharedPreferences
+            // Try to find data from different SharedPreferences
             for (prefsName in PREFS_NAMES) {
                 val prefs: SharedPreferences = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
 
                 // Try different key formats
                 val keyFormats = listOf(
-                    "widget_verse_text" to "widget_verse_reference",
-                    "flutter.widget_verse_text" to "flutter.widget_verse_reference"
+                    listOf("widget_verse_text", "widget_verse_reference", "widget_start_color", "widget_end_color", "widget_text_color"),
+                    listOf("flutter.widget_verse_text", "flutter.widget_verse_reference", "flutter.widget_start_color", "flutter.widget_end_color", "flutter.widget_text_color")
                 )
 
-                for ((textKey, refKey) in keyFormats) {
-                    val text = prefs.getString(textKey, null)
-                    val ref = prefs.getString(refKey, null)
+                for (keys in keyFormats) {
+                    val text = prefs.getString(keys[0], null)
+                    val ref = prefs.getString(keys[1], null)
+                    val start = prefs.getString(keys[2], null)
+                    val end = prefs.getString(keys[3], null)
+                    val txtColor = prefs.getString(keys[4], null)
 
                     if (text != null && text.isNotEmpty()) {
                         verseText = text
                         verseReference = ref ?: ""
-                        Log.d(TAG, "Found verse in $prefsName with key $textKey: ${text.take(50)}...")
+                        startColor = start
+                        endColor = end
+                        textColor = txtColor
+                        Log.d(TAG, "Found data in $prefsName with keys: ${keys[0]}")
+                        Log.d(TAG, "Colors - start: $start, end: $end, text: $txtColor")
                         break
                     }
                 }
@@ -80,6 +121,19 @@ class BibleWidgetProvider : AppWidgetProvider() {
             views.setTextViewText(R.id.widget_verse_text, text)
             views.setTextViewText(R.id.widget_verse_reference, reference)
 
+            // Apply theme colors
+            val parsedStartColor = parseColor(startColor, DEFAULT_START_COLOR)
+            val parsedEndColor = parseColor(endColor, DEFAULT_END_COLOR)
+            val parsedTextColor = parseColor(textColor, DEFAULT_TEXT_COLOR)
+
+            // Create gradient bitmap for background
+            val backgroundBitmap = createGradientBitmap(400, 400, parsedStartColor, parsedEndColor)
+            views.setImageViewBitmap(R.id.widget_background, backgroundBitmap)
+
+            // Set text colors
+            views.setTextColor(R.id.widget_verse_text, parsedTextColor)
+            views.setTextColor(R.id.widget_verse_reference, (parsedTextColor and 0x00FFFFFF) or 0xCC000000.toInt())
+
             // Create intent to open app when widget is clicked
             val intent = Intent(context, MainActivity::class.java)
             val pendingIntent = PendingIntent.getActivity(
@@ -91,7 +145,7 @@ class BibleWidgetProvider : AppWidgetProvider() {
             views.setOnClickPendingIntent(R.id.widget_container, pendingIntent)
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
-            Log.d(TAG, "Widget updated successfully")
+            Log.d(TAG, "Widget updated successfully with colors")
         }
     }
 

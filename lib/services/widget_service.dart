@@ -1,5 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
 import '../data/content_data.dart';
+import '../theme/app_theme.dart';
 import 'dart:math';
 
 class WidgetService {
@@ -54,6 +56,37 @@ class WidgetService {
     } catch (e) {
       print('WidgetService: updateWidgetWithVerse error: $e');
     }
+  }
+
+  /// Update the widget theme colors
+  static Future<void> updateWidgetTheme(String themeId) async {
+    try {
+      final theme = VisualThemes.getById(themeId);
+      final colors = theme.gradientColors;
+
+      // Save gradient colors as hex strings
+      await HomeWidget.saveWidgetData<String>(
+        'widget_start_color',
+        _colorToHex(colors.first),
+      );
+      await HomeWidget.saveWidgetData<String>(
+        'widget_end_color',
+        _colorToHex(colors.last),
+      );
+      await HomeWidget.saveWidgetData<String>(
+        'widget_text_color',
+        _colorToHex(theme.textColor),
+      );
+
+      await updateWidget();
+      print('WidgetService: theme updated to $themeId');
+    } catch (e) {
+      print('WidgetService: updateWidgetTheme error: $e');
+    }
+  }
+
+  static String _colorToHex(Color color) {
+    return '#${color.value.toRadixString(16).padLeft(8, '0').substring(2)}';
   }
 
   /// Trigger widget update

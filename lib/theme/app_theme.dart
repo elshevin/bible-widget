@@ -227,7 +227,6 @@ class VisualThemes {
       category: 'Nature',
       gradientColors: [Color(0xFFFF512F), Color(0xFFDD2476)],
       backgroundImage: '${_bgPath}mountain_sunrise.png',
-      isPremium: true,
     ),
     VisualTheme(
       id: 'peaceful_green',
@@ -235,7 +234,6 @@ class VisualThemes {
       category: 'Nature',
       gradientColors: [Color(0xFF56ab2f), Color(0xFFa8e6cf)],
       backgroundImage: '${_bgPath}peaceful_green.png',
-      isPremium: true,
     ),
     // Gradient themes
     VisualTheme(
@@ -259,7 +257,6 @@ class VisualThemes {
       category: 'Gradient',
       gradientColors: [Color(0xFF4a00e0), Color(0xFF8e2de2)],
       backgroundImage: '${_bgPath}purple_haze.png',
-      isPremium: true,
     ),
     VisualTheme(
       id: 'rose_gold',
@@ -268,7 +265,6 @@ class VisualThemes {
       gradientColors: [Color(0xFFf4c4f3), Color(0xFFfc67fa)],
       textColor: Color(0xFF2D2D2D),
       backgroundImage: '${_bgPath}rose_gold.png',
-      isPremium: true,
     ),
     // Plain themes
     VisualTheme(
@@ -286,7 +282,6 @@ class VisualThemes {
       category: 'Elegant',
       gradientColors: [Color(0xFF0f0c29), Color(0xFF302b63), Color(0xFF24243e)],
       backgroundImage: '${_bgPath}midnight.png',
-      isPremium: true,
     ),
     VisualTheme(
       id: 'dark_elegant',
@@ -294,7 +289,6 @@ class VisualThemes {
       category: 'Elegant',
       gradientColors: [Color(0xFF1a1a2e), Color(0xFF16213e)],
       backgroundImage: '${_bgPath}dark_elegant.png',
-      isPremium: true,
     ),
     // New Gradient themes
     VisualTheme(
@@ -351,7 +345,6 @@ class VisualThemes {
       category: 'Nature',
       gradientColors: [Color(0xFF8E9AAF), Color(0xFF5C6378)],
       backgroundImage: '${_bgPath}misty_mountains.png',
-      isPremium: true,
     ),
     VisualTheme(
       id: 'calm_lake',
@@ -367,7 +360,6 @@ class VisualThemes {
       category: 'Elegant',
       gradientColors: [Color(0xFF0D1B2A), Color(0xFF1B263B)],
       backgroundImage: '${_bgPath}navy_stars.png',
-      isPremium: true,
     ),
     VisualTheme(
       id: 'burgundy_wine',
@@ -382,7 +374,6 @@ class VisualThemes {
       category: 'Elegant',
       gradientColors: [Color(0xFF36454F), Color(0xFF2F4F4F)],
       backgroundImage: '${_bgPath}charcoal_marble.png',
-      isPremium: true,
     ),
     VisualTheme(
       id: 'forest_moonlight',
@@ -424,53 +415,137 @@ class VisualThemes {
       textColor: Color(0xFF2D2D2D),
       backgroundImage: '${_bgPath}cream_watercolor.png',
     ),
-    // Live Photo / Lottie animation themes
+    // === 20 NEW THEMES ===
+    // New Nature themes (5)
     VisualTheme(
-      id: 'live_stars',
-      name: 'Twinkling Stars',
-      category: 'Elegant',
-      gradientColors: [Color(0xFF0D1B2A), Color(0xFF1B263B)],
-      backgroundImage: '${_bgPath}navy_stars.png',
-      isVideo: true,
-      lottieAsset: 'assets/animations/stars.json',
-    ),
-    VisualTheme(
-      id: 'live_clouds',
-      name: 'Floating Clouds',
+      id: 'autumn_forest',
+      name: 'Autumn Forest',
       category: 'Nature',
-      gradientColors: [Color(0xFF87CEEB), Color(0xFFB0E0E6)],
-      backgroundImage: '${_bgPath}misty_mountains.png',
-      isVideo: true,
-      lottieAsset: 'assets/animations/clouds.json',
+      gradientColors: [Color(0xFFD4A76A), Color(0xFF8B4513), Color(0xFF5C4033)],
     ),
     VisualTheme(
-      id: 'live_rain',
-      name: 'Gentle Rain',
+      id: 'spring_meadow',
+      name: 'Spring Meadow',
       category: 'Nature',
-      gradientColors: [Color(0xFF4A5568), Color(0xFF718096)],
-      backgroundImage: '${_bgPath}forest_mist.png',
-      isVideo: true,
-      lottieAsset: 'assets/animations/rain.json',
+      gradientColors: [Color(0xFF87CEAB), Color(0xFF3CB371), Color(0xFF228B22)],
     ),
     VisualTheme(
-      id: 'live_candle',
-      name: 'Warm Candle',
-      category: 'Elegant',
-      gradientColors: [Color(0xFF2C1810), Color(0xFF8B4513)],
-      backgroundImage: '${_bgPath}burgundy_wine.png',
-      isVideo: true,
-      lottieAsset: 'assets/animations/candle.json',
-      isPremium: true,
+      id: 'winter_snow',
+      name: 'Winter Snow',
+      category: 'Nature',
+      gradientColors: [Color(0xFFE8F4F8), Color(0xFFB0C4DE), Color(0xFF708090)],
+      textColor: Color(0xFF2D2D2D),
     ),
     VisualTheme(
-      id: 'live_particles',
-      name: 'Light Particles',
+      id: 'tropical_sunset',
+      name: 'Tropical Sunset',
+      category: 'Nature',
+      gradientColors: [Color(0xFFFF7F50), Color(0xFFFF6347), Color(0xFF4169E1)],
+    ),
+    VisualTheme(
+      id: 'lavender_fields',
+      name: 'Lavender Fields',
+      category: 'Nature',
+      gradientColors: [Color(0xFFE6E6FA), Color(0xFF9370DB), Color(0xFF663399)],
+    ),
+    // New Gradient themes (5)
+    VisualTheme(
+      id: 'indigo_teal',
+      name: 'Indigo Teal',
       category: 'Gradient',
-      gradientColors: [Color(0xFF667eea), Color(0xFF764ba2)],
-      backgroundImage: '${_bgPath}sunset_sky.png',
-      isVideo: true,
-      lottieAsset: 'assets/animations/particles.json',
-      isPremium: true,
+      gradientColors: [Color(0xFF4B0082), Color(0xFF008B8B)],
+    ),
+    VisualTheme(
+      id: 'coral_peach',
+      name: 'Coral Peach',
+      category: 'Gradient',
+      gradientColors: [Color(0xFFFF7F7F), Color(0xFFFFDAB9)],
+      textColor: Color(0xFF2D2D2D),
+    ),
+    VisualTheme(
+      id: 'ocean_deep',
+      name: 'Ocean Deep',
+      category: 'Gradient',
+      gradientColors: [Color(0xFF000080), Color(0xFF00CED1)],
+    ),
+    VisualTheme(
+      id: 'dusty_rose',
+      name: 'Dusty Rose',
+      category: 'Gradient',
+      gradientColors: [Color(0xFFDC9A9A), Color(0xFFE6B8B8), Color(0xFFC8A2C8)],
+    ),
+    VisualTheme(
+      id: 'terracotta_rust',
+      name: 'Terracotta Rust',
+      category: 'Gradient',
+      gradientColors: [Color(0xFFE07850), Color(0xFFC45C3A), Color(0xFF8B4513)],
+    ),
+    // New Elegant themes (5)
+    VisualTheme(
+      id: 'emerald_gold',
+      name: 'Emerald Gold',
+      category: 'Elegant',
+      gradientColors: [Color(0xFF004D40), Color(0xFF00695C), Color(0xFF1B5E20)],
+    ),
+    VisualTheme(
+      id: 'royal_purple',
+      name: 'Royal Purple',
+      category: 'Elegant',
+      gradientColors: [Color(0xFF301934), Color(0xFF4A235A), Color(0xFF6B3A70)],
+    ),
+    VisualTheme(
+      id: 'sapphire_night',
+      name: 'Sapphire Night',
+      category: 'Elegant',
+      gradientColors: [Color(0xFF0C1445), Color(0xFF1A237E), Color(0xFF283593)],
+    ),
+    VisualTheme(
+      id: 'chocolate_bronze',
+      name: 'Chocolate Bronze',
+      category: 'Elegant',
+      gradientColors: [Color(0xFF3E2723), Color(0xFF5D4037), Color(0xFF795548)],
+    ),
+    VisualTheme(
+      id: 'obsidian_silver',
+      name: 'Obsidian Silver',
+      category: 'Elegant',
+      gradientColors: [Color(0xFF1C1C1C), Color(0xFF363636), Color(0xFF4F4F4F)],
+    ),
+    // New Plain themes (5)
+    VisualTheme(
+      id: 'ivory_warm',
+      name: 'Ivory Warm',
+      category: 'Plain',
+      gradientColors: [Color(0xFFFFFFF0), Color(0xFFFAF0E6)],
+      textColor: Color(0xFF2D2D2D),
+    ),
+    VisualTheme(
+      id: 'rose_blush',
+      name: 'Rose Blush',
+      category: 'Plain',
+      gradientColors: [Color(0xFFFFF0F5), Color(0xFFFFE4E1)],
+      textColor: Color(0xFF2D2D2D),
+    ),
+    VisualTheme(
+      id: 'sage_linen',
+      name: 'Sage Linen',
+      category: 'Plain',
+      gradientColors: [Color(0xFFE8F5E9), Color(0xFFC8E6C9)],
+      textColor: Color(0xFF2D2D2D),
+    ),
+    VisualTheme(
+      id: 'powder_blue',
+      name: 'Powder Blue',
+      category: 'Plain',
+      gradientColors: [Color(0xFFF0F8FF), Color(0xFFE6F2FF)],
+      textColor: Color(0xFF2D2D2D),
+    ),
+    VisualTheme(
+      id: 'soft_peach',
+      name: 'Soft Peach',
+      category: 'Plain',
+      gradientColors: [Color(0xFFFFF5EE), Color(0xFFFFEBD6)],
+      textColor: Color(0xFF2D2D2D),
     ),
   ];
 

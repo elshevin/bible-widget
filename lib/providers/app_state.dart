@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/models.dart';
 import '../data/content_data.dart';
 import '../theme/app_theme.dart';
+import '../services/widget_service.dart';
 
 class AppState extends ChangeNotifier {
   UserProfile _user = const UserProfile();
@@ -68,6 +69,8 @@ class AppState extends ChangeNotifier {
   void setTheme(String themeId) {
     _currentTheme = VisualThemes.getById(themeId);
     _user = _user.copyWith(selectedThemeId: themeId);
+    // Update widget with new theme colors
+    WidgetService.updateWidgetTheme(themeId);
     notifyListeners();
   }
   

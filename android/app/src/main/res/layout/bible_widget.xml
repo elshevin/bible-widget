@@ -1,35 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="16dp"
-    android:background="@drawable/widget_background">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/widget_verse_text"
+    <!-- Background layer for dynamic color -->
+    <ImageView
+        android:id="@+id/widget_background"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textSize="16sp"
-        android:textColor="#FFFFFF"
-        android:fontFamily="serif"
-        android:text="For I know the plans I have for you, declares the Lord..."
-        android:maxLines="5"
-        android:ellipsize="end" />
+        android:layout_height="match_parent"
+        android:scaleType="fitXY" />
 
-    <TextView
-        android:id="@+id/widget_verse_reference"
+    <!-- Content layer -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
         android:gravity="center"
-        android:textSize="12sp"
-        android:textColor="#CCFFFFFF"
-        android:fontFamily="serif"
-        android:fontStyle="italic"
-        android:text="Jeremiah 29:11" />
+        android:padding="16dp">
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/widget_verse_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF"
+            android:fontFamily="serif"
+            android:text="For I know the plans I have for you, declares the Lord..."
+            android:maxLines="5"
+            android:ellipsize="end" />
+
+        <TextView
+            android:id="@+id/widget_verse_reference"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:textColor="#CCFFFFFF"
+            android:fontFamily="serif"
+            android:fontStyle="italic"
+            android:text="Jeremiah 29:11" />
+
+    </LinearLayout>
+
+</FrameLayout>
