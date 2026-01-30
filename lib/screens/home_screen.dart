@@ -85,7 +85,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   void _animateToNextVerse(int direction, AppState appState) {
     _isTransitioning = true;
     final screenHeight = MediaQuery.of(context).size.height;
-    final targetOffset = direction * -screenHeight * 0.6; // Slide out of screen
+    // Old content always slides UP (negative Y direction)
+    final targetOffset = -screenHeight * 0.6;
     final startOffset = _dragOffset;
     final startOpacity = _opacity;
 
@@ -103,8 +104,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       final nextIndex = appState.currentFeedIndex + direction;
       appState.setFeedIndex(nextIndex);
 
-      // Animate new verse in from opposite direction
-      _animatedOffset = direction * screenHeight * 0.4;
+      // New content slides UP from bottom (starts at positive Y, animates to 0)
+      _animatedOffset = screenHeight * 0.4;
       _opacity = 0.0;
       _dragOffset = 0;
 
@@ -340,6 +341,49 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                     ),
                                   ),
                                 ],
+                                // Share & Favorite buttons - move with content
+                                const SizedBox(height: 40),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    // Share
+                                    GestureDetector(
+                                      onTap: () {
+                                        if (currentVerse != null) {
+                                          _showShareSheet(displayText, reference);
+                                        }
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.all(12),
+                                        child: const Icon(
+                                          Icons.ios_share,
+                                          color: Colors.white,
+                                          size: 28,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 24),
+                                    // Favorite
+                                    GestureDetector(
+                                      onTap: () {
+                                        if (currentVerse != null) {
+                                          final justReachedLimit = appState.toggleFavorite(currentVerse.id);
+                                          if (justReachedLimit) {
+                                            _showCongratulationsDialog();
+                                          }
+                                        }
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.all(12),
+                                        child: Icon(
+                                          isFavorite ? Icons.favorite : Icons.favorite_border,
+                                          color: isFavorite ? Colors.red : Colors.white,
+                                          size: 28,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ],
                             ),
                           ),
@@ -574,53 +618,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   ),
                 ),
 
-                // Center action buttons (Share & Favorite)
-                Positioned(
-                  bottom: MediaQuery.of(context).padding.bottom + 80,
-                  left: 0,
-                  right: 0,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Share
-                      GestureDetector(
-                        onTap: () {
-                          if (currentVerse != null) {
-                            _showShareSheet(displayText, reference);
-                          }
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          child: const Icon(
-                            Icons.ios_share,
-                            color: Colors.white,
-                            size: 28,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 24),
-                      // Favorite
-                      GestureDetector(
-                        onTap: () {
-                          if (currentVerse != null) {
-                            final justReachedLimit = appState.toggleFavorite(currentVerse.id);
-                            if (justReachedLimit) {
-                              _showCongratulationsDialog();
-                            }
-                          }
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          child: Icon(
-                            isFavorite ? Icons.favorite : Icons.favorite_border,
-                            color: isFavorite ? Colors.red : Colors.white,
-                            size: 28,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               ],
             ),
           ),

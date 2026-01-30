@@ -1,4 +1,4 @@
-package com.example.bible_widgets
+package com.oneapp.biblewidget
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider

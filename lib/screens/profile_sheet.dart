@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
 import '../providers/app_state.dart';
 import '../widgets/common_widgets.dart';
+import '../data/content_data.dart';
+import '../models/models.dart';
+import '../services/notification_service.dart';
 
 class ProfileSheet extends StatelessWidget {
   const ProfileSheet({super.key});
@@ -176,12 +179,12 @@ class ProfileSheet extends StatelessWidget {
                         _CustomizeCard(
                           title: 'Topics you follow',
                           icon: Icons.grid_view_rounded,
-                          onTap: () {},
+                          onTap: () => _showTopicsFollowed(context),
                         ),
                         _CustomizeCard(
                           title: 'App icon',
                           icon: Icons.apps_rounded,
-                          onTap: () {},
+                          onTap: () => _showAppIconPicker(context),
                         ),
                         _CustomizeCard(
                           title: 'Home Screen widgets',
@@ -196,12 +199,7 @@ class ProfileSheet extends StatelessWidget {
                         _CustomizeCard(
                           title: 'Reminders',
                           icon: Icons.notifications_outlined,
-                          onTap: () {},
-                        ),
-                        _CustomizeCard(
-                          title: 'Watch',
-                          icon: Icons.watch_outlined,
-                          onTap: () {},
+                          onTap: () => _showReminderSettings(context),
                         ),
                       ],
                     ),
@@ -231,6 +229,33 @@ class ProfileSheet extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => _WidgetGuideSheet(type: type),
+    );
+  }
+
+  void _showTopicsFollowed(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const _TopicsFollowedSheet(),
+    );
+  }
+
+  void _showAppIconPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const _AppIconPickerSheet(),
+    );
+  }
+
+  void _showReminderSettings(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const _ReminderSettingsSheet(),
     );
   }
 }
@@ -738,6 +763,726 @@ class _InstructionItem extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _TopicsFollowedSheet extends StatelessWidget {
+  const _TopicsFollowedSheet();
+
+  @override
+  Widget build(BuildContext context) {
+    return DraggableScrollableSheet(
+      initialChildSize: 0.9,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      builder: (context, scrollController) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: AppTheme.background,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            children: [
+              // Header
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: const Icon(Icons.chevron_left, size: 28),
+                    ),
+                    const Expanded(
+                      child: Text(
+                        'Topics you follow',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 28),
+                  ],
+                ),
+              ),
+
+              Expanded(
+                child: Consumer<AppState>(
+                  builder: (context, appState, _) {
+                    final topics = ContentData.topics;
+                    final selectedTopics = appState.user.selectedTopics;
+
+                    // Group topics by category
+                    final Map<String, List<Topic>> topicsByCategory = {};
+                    for (final topic in topics) {
+                      topicsByCategory.putIfAbsent(topic.category, () => []);
+                      topicsByCategory[topic.category]!.add(topic);
+                    }
+
+                    return ListView(
+                      controller: scrollController,
+                      padding: const EdgeInsets.all(16),
+                      children: [
+                        // General section (always shown)
+                        _TopicFollowItem(
+                          icon: '📋',
+                          title: 'General',
+                          subtitle: 'All content',
+                          isFollowed: selectedTopics.isEmpty,
+                          onTap: () => appState.setSelectedTopics([]),
+                        ),
+                        const SizedBox(height: 8),
+                        _TopicFollowItem(
+                          icon: '❤️',
+                          title: 'Favorites',
+                          subtitle: '${appState.favoritesCount} saved',
+                          isFollowed: false,
+                          showFollowButton: false,
+                          onTap: () {},
+                        ),
+                        const SizedBox(height: 8),
+                        _TopicFollowItem(
+                          icon: '✏️',
+                          title: 'My own quotes',
+                          subtitle: '${appState.customQuotes.length} quotes',
+                          isFollowed: false,
+                          showFollowButton: false,
+                          onTap: () {},
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // Topics by category
+                        ...topicsByCategory.entries.map((entry) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                entry.key.toUpperCase(),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppTheme.secondaryText,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              ...entry.value.map((topic) {
+                                final isFollowed = selectedTopics.contains(topic.id);
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 8),
+                                  child: _TopicFollowItem(
+                                    icon: topic.icon,
+                                    title: topic.name,
+                                    subtitle: isFollowed ? 'Following' : '',
+                                    isFollowed: isFollowed,
+                                    onTap: () => appState.toggleTopic(topic.id),
+                                  ),
+                                );
+                              }),
+                              const SizedBox(height: 16),
+                            ],
+                          );
+                        }),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _TopicFollowItem extends StatelessWidget {
+  final String icon;
+  final String title;
+  final String subtitle;
+  final bool isFollowed;
+  final bool showFollowButton;
+  final VoidCallback onTap;
+
+  const _TopicFollowItem({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.isFollowed,
+    this.showFollowButton = true,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppTheme.cardBackground,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppTheme.secondaryText.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                child: Text(icon, style: const TextStyle(fontSize: 20)),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (subtitle.isNotEmpty)
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppTheme.secondaryText.withOpacity(0.7),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            if (showFollowButton)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: isFollowed
+                      ? AppTheme.accent
+                      : AppTheme.secondaryText.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  isFollowed ? 'Following' : 'Follow',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: isFollowed ? Colors.white : AppTheme.primaryText,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AppIconPickerSheet extends StatelessWidget {
+  const _AppIconPickerSheet();
+
+  @override
+  Widget build(BuildContext context) {
+    // Available app icons
+    final appIcons = [
+      ('default', 'Default', AppTheme.accent),
+      ('dark', 'Dark', const Color(0xFF1A1A1A)),
+      ('light', 'Light', const Color(0xFFF5EDE4)),
+      ('gold', 'Gold', const Color(0xFFD4AF37)),
+      ('rose', 'Rose', const Color(0xFFE8B4B8)),
+      ('ocean', 'Ocean', const Color(0xFF4FACFE)),
+      ('forest', 'Forest', const Color(0xFF71B280)),
+      ('sunset', 'Sunset', const Color(0xFFFF7E5F)),
+    ];
+
+    return DraggableScrollableSheet(
+      initialChildSize: 0.7,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      builder: (context, scrollController) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: AppTheme.background,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            children: [
+              // Header
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: const Icon(Icons.chevron_left, size: 28),
+                    ),
+                    const Expanded(
+                      child: Text(
+                        'App Icon',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 28),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 16),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24),
+                child: Text(
+                  'Choose your favorite app icon',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppTheme.secondaryText,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              Expanded(
+                child: GridView.builder(
+                  controller: scrollController,
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4,
+                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 16,
+                    childAspectRatio: 0.8,
+                  ),
+                  itemCount: appIcons.length,
+                  itemBuilder: (context, index) {
+                    final icon = appIcons[index];
+                    final isSelected = index == 0; // Default is selected
+
+                    return GestureDetector(
+                      onTap: () {
+                        // Show coming soon message for non-default icons
+                        if (index != 0) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('App icon changing coming soon!'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        }
+                      },
+                      child: Column(
+                        children: [
+                          Container(
+                            width: 60,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              color: icon.$3,
+                              borderRadius: BorderRadius.circular(14),
+                              border: isSelected
+                                  ? Border.all(color: AppTheme.accent, width: 3)
+                                  : null,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: icon.$3.withOpacity(0.3),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                              child: Icon(
+                                Icons.menu_book_rounded,
+                                color: icon.$1 == 'light'
+                                    ? AppTheme.primaryText
+                                    : Colors.white,
+                                size: 28,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            icon.$2,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: isSelected
+                                  ? FontWeight.w600
+                                  : FontWeight.normal,
+                              color: isSelected
+                                  ? AppTheme.primaryText
+                                  : AppTheme.secondaryText,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                  24,
+                  0,
+                  24,
+                  MediaQuery.of(context).padding.bottom + 16,
+                ),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.cardBackground,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        size: 20,
+                        color: AppTheme.secondaryText.withOpacity(0.7),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'The icon change may take a few seconds to appear on your home screen.',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppTheme.secondaryText.withOpacity(0.7),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ReminderSettingsSheet extends StatefulWidget {
+  const _ReminderSettingsSheet();
+
+  @override
+  State<_ReminderSettingsSheet> createState() => _ReminderSettingsSheetState();
+}
+
+class _ReminderSettingsSheetState extends State<_ReminderSettingsSheet> {
+  bool _isEnabled = false;
+  TimeOfDay _reminderTime = const TimeOfDay(hour: 9, minute: 0);
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final enabled = await NotificationService.isReminderEnabled();
+    final time = await NotificationService.getReminderTime();
+    if (mounted) {
+      setState(() {
+        _isEnabled = enabled;
+        if (time != null) _reminderTime = time;
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _toggleReminder(bool value) async {
+    setState(() => _isEnabled = value);
+
+    if (value) {
+      final granted = await NotificationService.requestPermissions();
+      if (granted) {
+        await NotificationService.scheduleDailyReminder(
+          hour: _reminderTime.hour,
+          minute: _reminderTime.minute,
+        );
+      } else {
+        setState(() => _isEnabled = false);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Notification permission denied'),
+            ),
+          );
+        }
+      }
+    } else {
+      await NotificationService.cancelAllReminders();
+    }
+  }
+
+  Future<void> _pickTime() async {
+    final time = await showTimePicker(
+      context: context,
+      initialTime: _reminderTime,
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppTheme.accent,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (time != null) {
+      setState(() => _reminderTime = time);
+      if (_isEnabled) {
+        await NotificationService.scheduleDailyReminder(
+          hour: time.hour,
+          minute: time.minute,
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final timeString =
+        '${_reminderTime.hourOfPeriod == 0 ? 12 : _reminderTime.hourOfPeriod}:${_reminderTime.minute.toString().padLeft(2, '0')} ${_reminderTime.period == DayPeriod.am ? 'AM' : 'PM'}';
+
+    return DraggableScrollableSheet(
+      initialChildSize: 0.5,
+      minChildSize: 0.3,
+      maxChildSize: 0.7,
+      builder: (context, scrollController) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: AppTheme.background,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            children: [
+              // Header
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: const Icon(Icons.chevron_left, size: 28),
+                    ),
+                    const Expanded(
+                      child: Text(
+                        'Reminders',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 28),
+                  ],
+                ),
+              ),
+
+              if (_isLoading)
+                const Expanded(
+                  child: Center(
+                    child: CircularProgressIndicator(color: AppTheme.accent),
+                  ),
+                )
+              else
+                Expanded(
+                  child: ListView(
+                    controller: scrollController,
+                    padding: const EdgeInsets.all(24),
+                    children: [
+                      // Enable/Disable toggle
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppTheme.cardBackground,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.notifications_outlined,
+                              color: AppTheme.accent,
+                            ),
+                            const SizedBox(width: 12),
+                            const Expanded(
+                              child: Text(
+                                'Daily reminder',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            Switch(
+                              value: _isEnabled,
+                              onChanged: _toggleReminder,
+                              activeColor: AppTheme.accent,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Time picker
+                      GestureDetector(
+                        onTap: _isEnabled ? _pickTime : null,
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: AppTheme.cardBackground,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.access_time,
+                                color: _isEnabled
+                                    ? AppTheme.accent
+                                    : AppTheme.secondaryText.withOpacity(0.5),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  'Reminder time',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: _isEnabled
+                                        ? AppTheme.primaryText
+                                        : AppTheme.secondaryText.withOpacity(0.5),
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                timeString,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: _isEnabled
+                                      ? AppTheme.accent
+                                      : AppTheme.secondaryText.withOpacity(0.5),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Icon(
+                                Icons.chevron_right,
+                                color: _isEnabled
+                                    ? AppTheme.secondaryText
+                                    : AppTheme.secondaryText.withOpacity(0.3),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Info text
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppTheme.cardBackground,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.info_outline,
+                              size: 20,
+                              color: AppTheme.secondaryText.withOpacity(0.7),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                'You\'ll receive a daily notification with an inspiring verse to help you start your day with faith.',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: AppTheme.secondaryText.withOpacity(0.7),
+                                  height: 1.4,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Test notification button
+                      if (_isEnabled)
+                        GestureDetector(
+                          onTap: () async {
+                            await NotificationService.showTestNotification();
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Test notification sent!'),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: AppTheme.accent.withOpacity(0.3),
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.send_outlined,
+                                  color: AppTheme.accent,
+                                  size: 20,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Send test notification',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppTheme.accent,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -3,6 +3,7 @@ import '../models/models.dart';
 import '../data/content_data.dart';
 import '../theme/app_theme.dart';
 import '../services/widget_service.dart';
+import '../services/storage_service.dart';
 
 class AppState extends ChangeNotifier {
   UserProfile _user = const UserProfile();
@@ -17,10 +18,27 @@ class AppState extends ChangeNotifier {
   VisualTheme get currentTheme => _currentTheme;
   bool get hasCompletedOnboarding => _user.hasCompletedOnboarding;
   
-  // Initialize
-  void initialize() {
+  // Initialize - loads saved data from storage
+  Future<void> initialize() async {
+    // Load saved user data
+    await StorageService.init();
+    _user = await StorageService.loadUserProfile();
+
+    // Set theme from saved data
+    _currentTheme = VisualThemes.getById(_user.selectedThemeId);
+
+    // Load feed content
     _feedContent = ContentData.getAllContent();
+
+    // Refresh feed based on user's saved topic preferences
+    if (_user.selectedTopics.isNotEmpty) {
+      _refreshFeed();
+    }
+
+    // Update streak
     _updateStreak();
+
+    notifyListeners();
   }
   
   // Update user profile
@@ -32,28 +50,32 @@ class AppState extends ChangeNotifier {
   // Update name
   void setUserName(String name) {
     _user = _user.copyWith(name: name);
+    StorageService.saveUserBasicInfo(name: name);
     notifyListeners();
   }
   
   // Update age range
   void setAgeRange(int index) {
     _user = _user.copyWith(ageRange: index);
+    StorageService.saveUserBasicInfo(ageRange: index);
     notifyListeners();
   }
   
   // Update gender
   void setGender(String gender) {
     _user = _user.copyWith(gender: gender);
+    StorageService.saveUserBasicInfo(gender: gender);
     notifyListeners();
   }
   
   // Update selected topics
   void setSelectedTopics(List<String> topics) {
     _user = _user.copyWith(selectedTopics: topics);
+    StorageService.saveTopics(topics);
     _refreshFeed();
     notifyListeners();
   }
-  
+
   void toggleTopic(String topicId) {
     final topics = List<String>.from(_user.selectedTopics);
     if (topics.contains(topicId)) {
@@ -62,6 +84,7 @@ class AppState extends ChangeNotifier {
       topics.add(topicId);
     }
     _user = _user.copyWith(selectedTopics: topics);
+    StorageService.saveTopics(topics);
     notifyListeners();
   }
   
@@ -69,6 +92,8 @@ class AppState extends ChangeNotifier {
   void setTheme(String themeId) {
     _currentTheme = VisualThemes.getById(themeId);
     _user = _user.copyWith(selectedThemeId: themeId);
+    // Save to storage
+    StorageService.saveTheme(themeId);
     // Update widget with new theme colors
     WidgetService.updateWidgetTheme(themeId);
     notifyListeners();
@@ -77,6 +102,9 @@ class AppState extends ChangeNotifier {
   // Complete onboarding
   void completeOnboarding() {
     _user = _user.copyWith(hasCompletedOnboarding: true);
+    StorageService.saveOnboardingComplete(true);
+    // Save all user data collected during onboarding
+    StorageService.saveUserProfile(_user);
     _refreshFeed();
     notifyListeners();
   }
@@ -118,6 +146,7 @@ class AppState extends ChangeNotifier {
       favorites.add(verseId);
     }
     _user = _user.copyWith(favoriteVerseIds: favorites);
+    StorageService.saveFavorites(favorites);
     notifyListeners();
 
     // Return true if user just reached 5 favorites (daily goal)
@@ -136,35 +165,39 @@ class AppState extends ChangeNotifier {
   void _updateStreak() {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    
+
     if (_user.lastActiveDate == null) {
       _user = _user.copyWith(
         streakCount: 1,
         lastActiveDate: today,
       );
+      StorageService.saveStreak(1, today);
     } else {
       final lastActive = DateTime(
         _user.lastActiveDate!.year,
         _user.lastActiveDate!.month,
         _user.lastActiveDate!.day,
       );
-      
+
       final difference = today.difference(lastActive).inDays;
-      
+
       if (difference == 0) {
         // Same day, no change
       } else if (difference == 1) {
         // Consecutive day
+        final newStreak = _user.streakCount + 1;
         _user = _user.copyWith(
-          streakCount: _user.streakCount + 1,
+          streakCount: newStreak,
           lastActiveDate: today,
         );
+        StorageService.saveStreak(newStreak, today);
       } else {
         // Streak broken
         _user = _user.copyWith(
           streakCount: 1,
           lastActiveDate: today,
         );
+        StorageService.saveStreak(1, today);
       }
     }
   }
@@ -201,9 +234,10 @@ class AppState extends ChangeNotifier {
     );
     final collections = List<Collection>.from(_user.collections)..add(collection);
     _user = _user.copyWith(collections: collections);
+    StorageService.saveUserProfile(_user);
     notifyListeners();
   }
-  
+
   void addToCollection(String collectionId, String verseId) {
     final collections = _user.collections.map((c) {
       if (c.id == collectionId) {
@@ -221,6 +255,7 @@ class AppState extends ChangeNotifier {
       return c;
     }).toList();
     _user = _user.copyWith(collections: collections);
+    StorageService.saveUserProfile(_user);
     notifyListeners();
   }
   
@@ -242,12 +277,14 @@ class AppState extends ChangeNotifier {
     );
     final quotes = List<CustomQuote>.from(_user.customQuotes)..add(quote);
     _user = _user.copyWith(customQuotes: quotes);
+    StorageService.saveUserProfile(_user);
     notifyListeners();
   }
 
   void removeCustomQuote(String id) {
     final quotes = _user.customQuotes.where((q) => q.id != id).toList();
     _user = _user.copyWith(customQuotes: quotes);
+    StorageService.saveUserProfile(_user);
     notifyListeners();
   }
 
@@ -272,12 +309,14 @@ class AppState extends ChangeNotifier {
       return c;
     }).toList();
     _user = _user.copyWith(collections: collections);
+    StorageService.saveUserProfile(_user);
     notifyListeners();
   }
 
   void deleteCollection(String collectionId) {
     final collections = _user.collections.where((c) => c.id != collectionId).toList();
     _user = _user.copyWith(collections: collections);
+    StorageService.saveUserProfile(_user);
     notifyListeners();
   }
 

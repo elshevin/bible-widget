@@ -1,4 +1,4 @@
-package com.example.bible_widgets
+package com.oneapp.biblewidget
 
 import io.flutter.embedding.android.FlutterActivity
 
