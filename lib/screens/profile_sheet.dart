@@ -504,7 +504,7 @@ class _SettingsSheet extends StatelessWidget {
                             _SettingsItem(
                               icon: Icons.badge_outlined,
                               title: 'Name',
-                              subtitle: appState.user.name.isNotEmpty ? appState.user.name : 'Not set',
+                              subtitle: appState.user.name?.isNotEmpty == true ? appState.user.name! : 'Not set',
                               onTap: () => _showNameEditor(context),
                             ),
                           ],
