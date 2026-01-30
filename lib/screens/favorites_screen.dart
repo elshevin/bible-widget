@@ -3,9 +3,24 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
 import '../providers/app_state.dart';
+import 'share_sheet.dart';
 
-class FavoritesScreen extends StatelessWidget {
+class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});
+
+  @override
+  State<FavoritesScreen> createState() => _FavoritesScreenState();
+}
+
+class _FavoritesScreenState extends State<FavoritesScreen> {
+  String _searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,81 +48,65 @@ class FavoritesScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Row(
-                    children: [
-                      const Icon(Icons.swap_vert, size: 24),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppTheme.cardBackground,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: const Text(
-                          'Follow',
-                          style: TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    ],
-                  ),
+                  const SizedBox(width: 28),
                 ],
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // Search bar
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
                   color: AppTheme.cardBackground,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Row(
-                  children: [
-                    Icon(
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (value) => setState(() => _searchQuery = value),
+                  decoration: InputDecoration(
+                    icon: Icon(
                       Icons.search,
                       color: AppTheme.secondaryText.withOpacity(0.5),
                     ),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Search',
-                      style: TextStyle(
-                        color: AppTheme.secondaryText.withOpacity(0.5),
-                        fontSize: 16,
-                      ),
+                    hintText: 'Search favorites',
+                    hintStyle: TextStyle(
+                      color: AppTheme.secondaryText.withOpacity(0.5),
+                      fontSize: 16,
                     ),
-                  ],
+                    border: InputBorder.none,
+                    suffixIcon: _searchQuery.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear, size: 20),
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() => _searchQuery = '');
+                            },
+                          )
+                        : null,
+                  ),
                 ),
               ),
             ),
             const SizedBox(height: 16),
-            
-            // Show all in feed button
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {},
-                  child: const Text('Show all in feed'),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            
+
             // Favorites list
             Expanded(
               child: Consumer<AppState>(
                 builder: (context, appState, _) {
-                  final favorites = appState.getFavoriteVerses();
+                  var favorites = appState.getFavoriteVerses();
+
+                  // Filter by search query
+                  if (_searchQuery.isNotEmpty) {
+                    final query = _searchQuery.toLowerCase();
+                    favorites = favorites.where((verse) {
+                      final text = appState.getDisplayText(verse).toLowerCase();
+                      final reference = (verse.reference ?? '').toLowerCase();
+                      return text.contains(query) || reference.contains(query);
+                    }).toList();
+                  }
                   
                   if (favorites.isEmpty) {
                     return Center(
@@ -147,14 +146,24 @@ class FavoritesScreen extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final verse = favorites[index];
                       final displayText = appState.getDisplayText(verse);
-                      
+
                       return _FavoriteCard(
                         text: displayText,
                         reference: verse.reference,
                         date: DateTime.now(), // In real app, store save date
                         isFavorite: true,
                         onFavoriteToggle: () => appState.toggleFavorite(verse.id),
-                        onShare: () {},
+                        onShare: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (_) => ShareSheet(
+                              text: displayText,
+                              reference: verse.reference,
+                            ),
+                          );
+                        },
                         onCollection: () {},
                       );
                     },

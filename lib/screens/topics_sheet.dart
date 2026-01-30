@@ -4,13 +4,36 @@ import '../theme/app_theme.dart';
 import '../providers/app_state.dart';
 import '../data/content_data.dart';
 import '../widgets/common_widgets.dart';
+import '../models/models.dart';
 import 'favorites_screen.dart';
 import 'topic_detail_screen.dart';
 import 'collections_screen.dart';
 import 'my_quotes_screen.dart';
 
-class TopicsSheet extends StatelessWidget {
+class TopicsSheet extends StatefulWidget {
   const TopicsSheet({super.key});
+
+  @override
+  State<TopicsSheet> createState() => _TopicsSheetState();
+}
+
+class _TopicsSheetState extends State<TopicsSheet> {
+  String _searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<Topic> _filterTopics(List<Topic> topics) {
+    if (_searchQuery.isEmpty) return topics;
+    final query = _searchQuery.toLowerCase();
+    return topics.where((topic) {
+      return topic.name.toLowerCase().contains(query);
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,16 +77,7 @@ class TopicsSheet extends StatelessWidget {
                         ),
                       ),
                     ),
-                    TextButton(
-                      onPressed: () {},
-                      child: const Text(
-                        'Edit',
-                        style: TextStyle(
-                          color: AppTheme.primaryText,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
+                    const SizedBox(width: 48),
                   ],
                 ),
               ),
@@ -76,29 +90,35 @@ class TopicsSheet extends StatelessWidget {
                   children: [
                     // Search bar
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
                         color: AppTheme.cardBackground,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Row(
-                        children: [
-                          Icon(
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: (value) => setState(() => _searchQuery = value),
+                        decoration: InputDecoration(
+                          icon: Icon(
                             Icons.search,
                             color: AppTheme.secondaryText.withOpacity(0.5),
                           ),
-                          const SizedBox(width: 12),
-                          Text(
-                            'Search topics',
-                            style: TextStyle(
-                              color: AppTheme.secondaryText.withOpacity(0.5),
-                              fontSize: 16,
-                            ),
+                          hintText: 'Search topics',
+                          hintStyle: TextStyle(
+                            color: AppTheme.secondaryText.withOpacity(0.5),
+                            fontSize: 16,
                           ),
-                        ],
+                          border: InputBorder.none,
+                          suffixIcon: _searchQuery.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear, size: 20),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    setState(() => _searchQuery = '');
+                                  },
+                                )
+                              : null,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -215,6 +235,10 @@ class TopicsSheet extends StatelessWidget {
                     
                     // Topics by category
                     ...groupedTopics.entries.map((entry) {
+                      final filteredTopics = _filterTopics(entry.value);
+                      if (filteredTopics.isEmpty) {
+                        return const SizedBox.shrink();
+                      }
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -226,7 +250,7 @@ class TopicsSheet extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 12),
-                          ...entry.value.map((topic) {
+                          ...filteredTopics.map((topic) {
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 8),
                               child: _TopicListItem(

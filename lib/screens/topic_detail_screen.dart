@@ -4,6 +4,7 @@ import '../theme/app_theme.dart';
 import '../providers/app_state.dart';
 import '../data/content_data.dart';
 import '../models/models.dart';
+import 'share_sheet.dart';
 
 class TopicDetailScreen extends StatelessWidget {
   final Topic topic;
@@ -293,6 +294,17 @@ class TopicDetailScreen extends StatelessWidget {
                                   appState.toggleFavorite(verse.id),
                               onBookmarkTap: () =>
                                   _showAddToCollectionSheet(context, verse.id),
+                              onShareTap: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  builder: (_) => ShareSheet(
+                                    text: displayText,
+                                    reference: verse.reference,
+                                  ),
+                                );
+                              },
                             );
                           },
                         );
@@ -313,6 +325,7 @@ class _VerseCard extends StatelessWidget {
   final bool isBookmarked;
   final VoidCallback onFavoriteToggle;
   final VoidCallback onBookmarkTap;
+  final VoidCallback onShareTap;
 
   const _VerseCard({
     required this.text,
@@ -321,6 +334,7 @@ class _VerseCard extends StatelessWidget {
     required this.isBookmarked,
     required this.onFavoriteToggle,
     required this.onBookmarkTap,
+    required this.onShareTap,
   });
 
   @override
@@ -384,9 +398,7 @@ class _VerseCard extends StatelessWidget {
               const SizedBox(width: 8),
               GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTap: () {
-                  // TODO: Share functionality
-                },
+                onTap: onShareTap,
                 child: const Padding(
                   padding: EdgeInsets.all(8),
                   child: Icon(
