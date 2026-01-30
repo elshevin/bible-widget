@@ -28,11 +28,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   double _animatedOffset = 0;
   double _opacity = 1.0;
 
-  // Animation values for smooth transitions
-  late Animation<double> _exitAnimation;
-  late Animation<double> _enterAnimation;
-  late Animation<double> _exitOpacity;
-  late Animation<double> _enterOpacity;
+  // Animation values for smooth transitions (nullable until first use)
+  Animation<double>? _exitAnimation;
+  Animation<double>? _enterAnimation;
+  Animation<double>? _exitOpacity;
+  Animation<double>? _enterOpacity;
 
   @override
   void initState() {
@@ -118,8 +118,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     void exitListener() {
       setState(() {
-        _animatedOffset = _exitAnimation.value - startOffset;
-        _opacity = _exitOpacity.value;
+        _animatedOffset = _exitAnimation!.value - startOffset;
+        _opacity = _exitOpacity!.value;
       });
     }
 
@@ -154,8 +154,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
       void enterListener() {
         setState(() {
-          _animatedOffset = _enterAnimation.value;
-          _opacity = _enterOpacity.value;
+          _animatedOffset = _enterAnimation!.value;
+          _opacity = _enterOpacity!.value;
         });
       }
 
@@ -189,9 +189,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     void bounceListener() {
       setState(() {
-        _dragOffset = _exitAnimation.value;
+        _dragOffset = _exitAnimation!.value;
         _animatedOffset = 0;
-        _opacity = _exitOpacity.value;
+        _opacity = _exitOpacity!.value;
       });
     }
 

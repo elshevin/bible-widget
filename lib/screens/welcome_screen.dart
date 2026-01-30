@@ -78,81 +78,76 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           ),
         ),
         child: SafeArea(
-          child: AnimatedBuilder(
-            animation: _controller,
-            builder: (context, child) {
-              return Opacity(
-                opacity: _fadeAnimation.value,
-                child: Transform.scale(
-                  scale: _scaleAnimation.value,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32),
-                    child: Column(
-                      children: [
-                        const Spacer(flex: 2),
-                        // Sun/light effect
-                        Container(
-                          width: 180,
-                          height: 180,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: RadialGradient(
-                              colors: [
-                                Colors.white.withOpacity(0.95),
-                                Colors.white.withOpacity(0.4),
-                                Colors.white.withOpacity(0.1),
-                                Colors.transparent,
-                              ],
-                              stops: const [0.0, 0.3, 0.6, 1.0],
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.white.withOpacity(0.6),
-                                blurRadius: 80,
-                                spreadRadius: 40,
-                              ),
-                            ],
-                          ),
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: ScaleTransition(
+              scale: _scaleAnimation,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: Column(
+                  children: [
+                    const Spacer(flex: 2),
+                    // Sun/light effect
+                    Container(
+                      width: 180,
+                      height: 180,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            Colors.white.withOpacity(0.95),
+                            Colors.white.withOpacity(0.4),
+                            Colors.white.withOpacity(0.1),
+                            Colors.transparent,
+                          ],
+                          stops: const [0.0, 0.3, 0.6, 1.0],
                         ),
-                        const Spacer(flex: 1),
-                        // Title
-                        Text(
-                          'Daily Verses',
-                          style: GoogleFonts.playfairDisplay(
-                            fontSize: 38,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFF2D2D2D),
-                            letterSpacing: 0.5,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.white.withOpacity(0.6),
+                            blurRadius: 80,
+                            spreadRadius: 40,
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'to Nourish Your Soul',
-                          style: GoogleFonts.inter(
-                            fontSize: 18,
-                            color: const Color(0xFF4A4A4A),
-                            fontStyle: FontStyle.italic,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-                        // App name
-                        Text(
-                          'Bible Widgets',
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            color: const Color(0xFF6B6B6B),
-                            letterSpacing: 3,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const Spacer(flex: 3),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
+                    const Spacer(flex: 1),
+                    // Title
+                    Text(
+                      'Daily Verses',
+                      style: GoogleFonts.playfairDisplay(
+                        fontSize: 38,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF2D2D2D),
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'to Nourish Your Soul',
+                      style: GoogleFonts.inter(
+                        fontSize: 18,
+                        color: const Color(0xFF4A4A4A),
+                        fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    // App name
+                    Text(
+                      'Bible Widgets',
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        color: const Color(0xFF6B6B6B),
+                        letterSpacing: 3,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const Spacer(flex: 3),
+                  ],
                 ),
-              );
-            },
+              ),
+            ),
           ),
         ),
       ),
