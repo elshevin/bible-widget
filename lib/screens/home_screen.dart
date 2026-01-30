@@ -17,20 +17,31 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   bool _showStreakBanner = true;
 
   // Drag-based animation state
   double _dragOffset = 0;
   bool _isTransitioning = false;
-  late AnimationController _transitionController;
+  late AnimationController _exitController;
+  late AnimationController _enterController;
   double _animatedOffset = 0;
   double _opacity = 1.0;
+
+  // Animation values for smooth transitions
+  late Animation<double> _exitAnimation;
+  late Animation<double> _enterAnimation;
+  late Animation<double> _exitOpacity;
+  late Animation<double> _enterOpacity;
 
   @override
   void initState() {
     super.initState();
-    _transitionController = AnimationController(
+    _exitController = AnimationController(
+      duration: const Duration(milliseconds: 250),
+      vsync: this,
+    );
+    _enterController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
@@ -45,7 +56,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   @override
   void dispose() {
-    _transitionController.dispose();
+    _exitController.dispose();
+    _enterController.dispose();
     super.dispose();
   }
 
@@ -54,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     setState(() {
       _dragOffset += details.delta.dy;
       // Calculate opacity based on drag distance
-      _opacity = (1.0 - (_dragOffset.abs() / 400)).clamp(0.2, 1.0);
+      _opacity = (1.0 - (_dragOffset.abs() / 350)).clamp(0.3, 1.0);
     });
   }
 
@@ -85,47 +97,77 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   void _animateToNextVerse(int direction, AppState appState) {
     _isTransitioning = true;
     final screenHeight = MediaQuery.of(context).size.height;
-    // Old content always slides UP (negative Y direction)
-    final targetOffset = -screenHeight * 0.6;
+
+    // Old content slides in the direction of the swipe
+    // Swipe up (direction=1) => content goes UP (negative)
+    // Swipe down (direction=-1) => content goes DOWN (positive)
+    final exitTargetOffset = direction > 0 ? -screenHeight * 0.5 : screenHeight * 0.5;
     final startOffset = _dragOffset;
     final startOpacity = _opacity;
 
-    _transitionController.reset();
-    _transitionController.addListener(() {
-      final progress = Curves.easeOut.transform(_transitionController.value);
-      setState(() {
-        _animatedOffset = startOffset + (targetOffset - startOffset) * progress;
-        _opacity = startOpacity * (1 - progress);
-      });
-    });
+    // Setup exit animation
+    _exitAnimation = Tween<double>(
+      begin: startOffset,
+      end: exitTargetOffset,
+    ).animate(CurvedAnimation(parent: _exitController, curve: Curves.easeOut));
 
-    _transitionController.forward().then((_) {
+    _exitOpacity = Tween<double>(
+      begin: startOpacity,
+      end: 0.0,
+    ).animate(CurvedAnimation(parent: _exitController, curve: Curves.easeOut));
+
+    void exitListener() {
+      setState(() {
+        _animatedOffset = _exitAnimation.value - startOffset;
+        _opacity = _exitOpacity.value;
+      });
+    }
+
+    _exitController.addListener(exitListener);
+    _exitController.forward(from: 0).then((_) {
+      _exitController.removeListener(exitListener);
+
       // Switch to next verse
       final nextIndex = appState.currentFeedIndex + direction;
       appState.setFeedIndex(nextIndex);
 
-      // New content slides UP from bottom (starts at positive Y, animates to 0)
-      _animatedOffset = screenHeight * 0.4;
-      _opacity = 0.0;
+      // New content comes from the opposite direction
+      // If old went UP, new comes from BOTTOM
+      // If old went DOWN, new comes from TOP
+      final enterStartOffset = direction > 0 ? screenHeight * 0.4 : -screenHeight * 0.4;
+
+      // Setup enter animation
+      _enterAnimation = Tween<double>(
+        begin: enterStartOffset,
+        end: 0.0,
+      ).animate(CurvedAnimation(parent: _enterController, curve: Curves.easeOutCubic));
+
+      _enterOpacity = Tween<double>(
+        begin: 0.0,
+        end: 1.0,
+      ).animate(CurvedAnimation(parent: _enterController, curve: Curves.easeOut));
+
+      // Set initial state for new content
       _dragOffset = 0;
+      _animatedOffset = enterStartOffset;
+      _opacity = 0.0;
 
-      _transitionController.reset();
-      _transitionController.addListener(() {
-        final progress = Curves.easeOut.transform(_transitionController.value);
+      void enterListener() {
         setState(() {
-          _animatedOffset = _animatedOffset * (1 - progress);
-          _opacity = progress;
+          _animatedOffset = _enterAnimation.value;
+          _opacity = _enterOpacity.value;
         });
-      });
+      }
 
-      _transitionController.forward().then((_) {
+      _enterController.addListener(enterListener);
+      _enterController.forward(from: 0).then((_) {
+        _enterController.removeListener(enterListener);
         setState(() {
           _dragOffset = 0;
           _animatedOffset = 0;
           _opacity = 1.0;
           _isTransitioning = false;
         });
-        _transitionController.removeListener(() {});
       });
     });
   }
@@ -135,24 +177,33 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     final startOffset = _dragOffset;
     final startOpacity = _opacity;
 
-    _transitionController.reset();
-    _transitionController.addListener(() {
-      final progress = Curves.easeOut.transform(_transitionController.value);
-      setState(() {
-        _dragOffset = startOffset * (1 - progress);
-        _animatedOffset = 0;
-        _opacity = startOpacity + (1.0 - startOpacity) * progress;
-      });
-    });
+    _exitAnimation = Tween<double>(
+      begin: startOffset,
+      end: 0.0,
+    ).animate(CurvedAnimation(parent: _exitController, curve: Curves.easeOut));
 
-    _transitionController.forward().then((_) {
+    _exitOpacity = Tween<double>(
+      begin: startOpacity,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _exitController, curve: Curves.easeOut));
+
+    void bounceListener() {
+      setState(() {
+        _dragOffset = _exitAnimation.value;
+        _animatedOffset = 0;
+        _opacity = _exitOpacity.value;
+      });
+    }
+
+    _exitController.addListener(bounceListener);
+    _exitController.forward(from: 0).then((_) {
+      _exitController.removeListener(bounceListener);
       setState(() {
         _dragOffset = 0;
         _animatedOffset = 0;
         _opacity = 1.0;
         _isTransitioning = false;
       });
-      _transitionController.removeListener(() {});
     });
   }
 

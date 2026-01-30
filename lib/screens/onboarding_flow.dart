@@ -599,8 +599,8 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
   }
 
   Widget _buildReminderPage() {
-    final timeString =
-        '${_reminderTime.hour.toString().padLeft(2, '0')}:${_reminderTime.minute.toString().padLeft(2, '0')} ${_reminderTime.period == DayPeriod.am ? 'AM' : 'PM'}';
+    final hour12 = _reminderTime.hourOfPeriod == 0 ? 12 : _reminderTime.hourOfPeriod;
+    final timeString = '$hour12:${_reminderTime.minute.toString().padLeft(2, '0')} ${_reminderTime.period == DayPeriod.am ? 'AM' : 'PM'}';
 
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -702,27 +702,9 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
             ),
           ),
           const SizedBox(height: 32),
-          // Time picker
+          // Time picker - iOS style wheel picker in bottom sheet
           GestureDetector(
-            onTap: () async {
-              final time = await showTimePicker(
-                context: context,
-                initialTime: _reminderTime,
-                builder: (context, child) {
-                  return Theme(
-                    data: Theme.of(context).copyWith(
-                      colorScheme: const ColorScheme.light(
-                        primary: AppTheme.accent,
-                      ),
-                    ),
-                    child: child!,
-                  );
-                },
-              );
-              if (time != null) {
-                setState(() => _reminderTime = time);
-              }
-            },
+            onTap: () => _showTimePickerSheet(),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               decoration: BoxDecoration(
@@ -768,6 +750,200 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
           const SizedBox(height: 16),
         ],
       ),
+    );
+  }
+
+  void _showTimePickerSheet() {
+    int selectedHour = _reminderTime.hourOfPeriod == 0 ? 12 : _reminderTime.hourOfPeriod;
+    int selectedMinute = _reminderTime.minute;
+    bool isAM = _reminderTime.period == DayPeriod.am;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: AppTheme.cardBackground,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 12),
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(sheetContext),
+                          child: const Text(
+                            'Cancel',
+                            style: TextStyle(
+                              color: AppTheme.secondaryText,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                        const Text(
+                          'Set Time',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            // Convert back to 24-hour format
+                            int hour24 = selectedHour;
+                            if (isAM && selectedHour == 12) {
+                              hour24 = 0;
+                            } else if (!isAM && selectedHour != 12) {
+                              hour24 = selectedHour + 12;
+                            }
+                            setState(() {
+                              _reminderTime = TimeOfDay(hour: hour24, minute: selectedMinute);
+                            });
+                            Navigator.pop(sheetContext);
+                          },
+                          child: const Text(
+                            'Done',
+                            style: TextStyle(
+                              color: AppTheme.accent,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 200,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Hour picker
+                        SizedBox(
+                          width: 70,
+                          child: ListWheelScrollView.useDelegate(
+                            itemExtent: 50,
+                            physics: const FixedExtentScrollPhysics(),
+                            onSelectedItemChanged: (index) {
+                              setSheetState(() => selectedHour = index + 1);
+                            },
+                            controller: FixedExtentScrollController(
+                              initialItem: selectedHour - 1,
+                            ),
+                            childDelegate: ListWheelChildBuilderDelegate(
+                              childCount: 12,
+                              builder: (context, index) {
+                                final hour = index + 1;
+                                final isSelected = hour == selectedHour;
+                                return Center(
+                                  child: Text(
+                                    hour.toString(),
+                                    style: TextStyle(
+                                      fontSize: isSelected ? 28 : 20,
+                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                      color: isSelected ? AppTheme.primaryText : AppTheme.secondaryText,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                        const Text(
+                          ':',
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        // Minute picker
+                        SizedBox(
+                          width: 70,
+                          child: ListWheelScrollView.useDelegate(
+                            itemExtent: 50,
+                            physics: const FixedExtentScrollPhysics(),
+                            onSelectedItemChanged: (index) {
+                              setSheetState(() => selectedMinute = index);
+                            },
+                            controller: FixedExtentScrollController(
+                              initialItem: selectedMinute,
+                            ),
+                            childDelegate: ListWheelChildBuilderDelegate(
+                              childCount: 60,
+                              builder: (context, index) {
+                                final isSelected = index == selectedMinute;
+                                return Center(
+                                  child: Text(
+                                    index.toString().padLeft(2, '0'),
+                                    style: TextStyle(
+                                      fontSize: isSelected ? 28 : 20,
+                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                      color: isSelected ? AppTheme.primaryText : AppTheme.secondaryText,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        // AM/PM picker
+                        SizedBox(
+                          width: 60,
+                          child: ListWheelScrollView.useDelegate(
+                            itemExtent: 50,
+                            physics: const FixedExtentScrollPhysics(),
+                            onSelectedItemChanged: (index) {
+                              setSheetState(() => isAM = index == 0);
+                            },
+                            controller: FixedExtentScrollController(
+                              initialItem: isAM ? 0 : 1,
+                            ),
+                            childDelegate: ListWheelChildBuilderDelegate(
+                              childCount: 2,
+                              builder: (context, index) {
+                                final text = index == 0 ? 'AM' : 'PM';
+                                final isSelected = (index == 0) == isAM;
+                                return Center(
+                                  child: Text(
+                                    text,
+                                    style: TextStyle(
+                                      fontSize: isSelected ? 24 : 18,
+                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                      color: isSelected ? AppTheme.primaryText : AppTheme.secondaryText,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: MediaQuery.of(context).padding.bottom + 24),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
