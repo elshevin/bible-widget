@@ -131,6 +131,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       final nextIndex = appState.currentFeedIndex + direction;
       appState.setFeedIndex(nextIndex);
 
+      // Add to reading history
+      final currentVerse = appState.currentVerse;
+      if (currentVerse != null) {
+        appState.addToHistory(currentVerse.id);
+      }
+
       // New content comes from the opposite direction
       // If old went UP, new comes from BOTTOM
       // If old went DOWN, new comes from TOP

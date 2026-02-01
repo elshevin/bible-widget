@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
 import '../providers/app_state.dart';
+import 'app_icon_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -195,6 +196,19 @@ class SettingsScreen extends StatelessWidget {
                             title: 'Name',
                             subtitle: appState.user.name?.isNotEmpty == true ? appState.user.name! : 'Not set',
                             onTap: () => _showNameEditor(context),
+                          ),
+                          _SettingsItem(
+                            icon: Icons.apps,
+                            title: 'App Icon',
+                            subtitle: 'Customize your app icon',
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const AppIconScreen(),
+                                ),
+                              );
+                            },
                           ),
                         ],
                       ),

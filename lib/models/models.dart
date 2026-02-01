@@ -26,6 +26,9 @@ class Verse {
     }
     return text;
   }
+
+  // Get source string for display
+  String get source => reference ?? book ?? 'Unknown';
 }
 
 // Topic Model
@@ -99,6 +102,27 @@ class CustomQuote {
   });
 }
 
+// Reading History Entry
+class HistoryEntry {
+  final String verseId;
+  final DateTime viewedAt;
+
+  const HistoryEntry({
+    required this.verseId,
+    required this.viewedAt,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'verseId': verseId,
+    'viewedAt': viewedAt.toIso8601String(),
+  };
+
+  factory HistoryEntry.fromJson(Map<String, dynamic> json) => HistoryEntry(
+    verseId: json['verseId'] as String,
+    viewedAt: DateTime.parse(json['viewedAt'] as String),
+  );
+}
+
 // User Model
 class UserProfile {
   final String? name;
@@ -111,6 +135,7 @@ class UserProfile {
   final List<String> favoriteVerseIds;
   final List<Collection> collections;
   final List<CustomQuote> customQuotes;
+  final List<HistoryEntry> readingHistory;
   final bool isPremium;
   final bool hasCompletedOnboarding;
 
@@ -125,6 +150,7 @@ class UserProfile {
     this.favoriteVerseIds = const [],
     this.collections = const [],
     this.customQuotes = const [],
+    this.readingHistory = const [],
     this.isPremium = false,
     this.hasCompletedOnboarding = false,
   });
@@ -140,6 +166,7 @@ class UserProfile {
     List<String>? favoriteVerseIds,
     List<Collection>? collections,
     List<CustomQuote>? customQuotes,
+    List<HistoryEntry>? readingHistory,
     bool? isPremium,
     bool? hasCompletedOnboarding,
   }) {
@@ -154,6 +181,7 @@ class UserProfile {
       favoriteVerseIds: favoriteVerseIds ?? this.favoriteVerseIds,
       collections: collections ?? this.collections,
       customQuotes: customQuotes ?? this.customQuotes,
+      readingHistory: readingHistory ?? this.readingHistory,
       isPremium: isPremium ?? this.isPremium,
       hasCompletedOnboarding: hasCompletedOnboarding ?? this.hasCompletedOnboarding,
     );

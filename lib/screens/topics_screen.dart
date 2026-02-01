@@ -8,6 +8,8 @@ import 'favorites_screen.dart';
 import 'topic_detail_screen.dart';
 import 'collections_screen.dart';
 import 'my_quotes_screen.dart';
+import 'search_screen.dart';
+import 'history_screen.dart';
 
 class TopicsScreen extends StatefulWidget {
   const TopicsScreen({super.key});
@@ -17,24 +19,6 @@ class TopicsScreen extends StatefulWidget {
 }
 
 class _TopicsScreenState extends State<TopicsScreen> {
-  String _searchQuery = '';
-  final TextEditingController _searchController = TextEditingController();
-  bool _showSearch = false;
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  List<Topic> _filterTopics(List<Topic> topics) {
-    if (_searchQuery.isEmpty) return topics;
-    final query = _searchQuery.toLowerCase();
-    return topics.where((topic) {
-      return topic.name.toLowerCase().contains(query);
-    }).toList();
-  }
-
   @override
   Widget build(BuildContext context) {
     final groupedTopics = ContentData.getTopicsGrouped();
@@ -72,18 +56,17 @@ class _TopicsScreenState extends State<TopicsScreen> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      setState(() {
-                        _showSearch = !_showSearch;
-                        if (!_showSearch) {
-                          _searchController.clear();
-                          _searchQuery = '';
-                        }
-                      });
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SearchScreen(),
+                        ),
+                      );
                     },
                     child: Container(
                       padding: const EdgeInsets.all(8),
-                      child: Icon(
-                        _showSearch ? Icons.close : Icons.search,
+                      child: const Icon(
+                        Icons.search,
                         size: 24,
                         color: AppTheme.primaryText,
                       ),
@@ -105,45 +88,6 @@ class _TopicsScreenState extends State<TopicsScreen> {
                 ],
               ),
             ),
-
-            // Search bar (conditionally shown)
-            if (_showSearch)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: AppTheme.cardBackground,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: TextField(
-                    controller: _searchController,
-                    autofocus: true,
-                    onChanged: (value) => setState(() => _searchQuery = value),
-                    decoration: InputDecoration(
-                      icon: Icon(
-                        Icons.search,
-                        color: AppTheme.secondaryText.withOpacity(0.5),
-                      ),
-                      hintText: 'Search topics',
-                      hintStyle: TextStyle(
-                        color: AppTheme.secondaryText.withOpacity(0.5),
-                        fontSize: 16,
-                      ),
-                      border: InputBorder.none,
-                      suffixIcon: _searchQuery.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.clear, size: 20),
-                              onPressed: () {
-                                _searchController.clear();
-                                setState(() => _searchQuery = '');
-                              },
-                            )
-                          : null,
-                    ),
-                  ),
-                ),
-              ),
 
             // Content
             Expanded(
@@ -258,8 +202,14 @@ class _TopicsScreenState extends State<TopicsScreen> {
                         child: _QuickAccessCard(
                           title: 'History',
                           icon: Icons.history,
-                          isPremium: true,
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const HistoryScreen(),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ],
@@ -308,8 +258,8 @@ class _TopicsScreenState extends State<TopicsScreen> {
 
                   // Topics by category
                   ...groupedTopics.entries.where((e) => e.key != 'By type').map((entry) {
-                    final filteredTopics = _filterTopics(entry.value);
-                    if (filteredTopics.isEmpty) {
+                    final topics = entry.value;
+                    if (topics.isEmpty) {
                       return const SizedBox.shrink();
                     }
                     return Column(
@@ -323,7 +273,7 @@ class _TopicsScreenState extends State<TopicsScreen> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        ...filteredTopics.map((topic) {
+                        ...topics.map((topic) {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 8),
                             child: _TopicListItem(

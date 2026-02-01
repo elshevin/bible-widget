@@ -339,4 +339,36 @@ class AppState extends ChangeNotifier {
   String getDisplayText(Verse verse) {
     return verse.getDisplayText(_user.name);
   }
+
+  // Reading History
+  List<HistoryEntry> get readingHistory => _user.readingHistory;
+
+  void addToHistory(String verseId) {
+    // Don't add duplicates within the same minute
+    final now = DateTime.now();
+    final recentEntries = _user.readingHistory.where((e) =>
+      e.verseId == verseId &&
+      now.difference(e.viewedAt).inMinutes < 1
+    );
+    if (recentEntries.isNotEmpty) return;
+
+    final entry = HistoryEntry(verseId: verseId, viewedAt: now);
+    final history = [entry, ..._user.readingHistory];
+    // Keep only last 100 entries
+    final trimmed = history.take(100).toList();
+    _user = _user.copyWith(readingHistory: trimmed);
+    StorageService.saveUserProfile(_user);
+    notifyListeners();
+  }
+
+  List<Verse> getHistoryVerses() {
+    final verses = <Verse>[];
+    for (final entry in _user.readingHistory) {
+      final verse = getVerseById(entry.verseId);
+      if (verse != null && !verses.any((v) => v.id == verse.id)) {
+        verses.add(verse);
+      }
+    }
+    return verses;
+  }
 }
