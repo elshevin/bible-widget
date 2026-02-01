@@ -34,8 +34,13 @@ class _SearchScreenState extends State<SearchScreen> {
   List<Topic> _getFilteredTopics() {
     if (_searchQuery.isEmpty) return [];
     final query = _searchQuery.toLowerCase();
-    final topics = ContentData.getAllTopics();
-    return topics.where((topic) {
+    // Get all topics from grouped data
+    final groupedTopics = ContentData.getTopicsGrouped();
+    final allTopics = <Topic>[];
+    for (final topics in groupedTopics.values) {
+      allTopics.addAll(topics);
+    }
+    return allTopics.where((topic) {
       return topic.name.toLowerCase().contains(query);
     }).toList();
   }

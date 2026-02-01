@@ -10,6 +10,7 @@ import 'collections_screen.dart';
 import 'my_quotes_screen.dart';
 import 'search_screen.dart';
 import 'history_screen.dart';
+import 'topics_follow_screen.dart';
 
 class TopicsScreen extends StatefulWidget {
   const TopicsScreen({super.key});
@@ -75,7 +76,12 @@ class _TopicsScreenState extends State<TopicsScreen> {
                   const SizedBox(width: 8),
                   GestureDetector(
                     onTap: () {
-                      // Edit functionality
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const TopicsFollowScreen(),
+                        ),
+                      );
                     },
                     child: const Text(
                       'Edit',

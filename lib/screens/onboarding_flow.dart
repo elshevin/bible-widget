@@ -99,6 +99,9 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
   static const int _totalPages = 17;
 
   void _nextPage() {
+    // Dismiss keyboard when moving to next page
+    FocusScope.of(context).unfocus();
+
     if (_currentPage < _totalPages - 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
