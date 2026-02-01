@@ -9,6 +9,7 @@ import '../data/content_data.dart';
 import '../models/models.dart';
 import '../services/notification_service.dart';
 import 'app_icon_screen.dart';
+import 'settings_screen.dart';
 
 class ProfileSheet extends StatelessWidget {
   const ProfileSheet({super.key});
@@ -129,23 +130,14 @@ class ProfileSheet extends StatelessWidget {
                           ),
                           child: Column(
                             children: [
-                              Row(
+                              const Row(
                                 children: [
-                                  const Text(
+                                  Text(
                                     'Your streak',
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                     ),
-                                  ),
-                                  const Spacer(),
-                                  IconButton(
-                                    icon: const Icon(Icons.ios_share, size: 20),
-                                    onPressed: () {},
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.more_horiz, size: 20),
-                                    onPressed: () {},
                                   ),
                                 ],
                               ),
@@ -218,11 +210,12 @@ class ProfileSheet extends StatelessWidget {
   }
 
   void _showSettings(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => const _SettingsSheet(),
+    Navigator.pop(context); // Close profile sheet first
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const SettingsScreen(),
+      ),
     );
   }
 
