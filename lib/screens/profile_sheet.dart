@@ -8,6 +8,7 @@ import '../widgets/common_widgets.dart';
 import '../data/content_data.dart';
 import '../models/models.dart';
 import '../services/notification_service.dart';
+import 'app_icon_screen.dart';
 
 class ProfileSheet extends StatelessWidget {
   const ProfileSheet({super.key});
@@ -244,11 +245,12 @@ class ProfileSheet extends StatelessWidget {
   }
 
   void _showAppIconPicker(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => const _AppIconPickerSheet(),
+    Navigator.pop(context); // Close profile sheet first
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const AppIconScreen(),
+      ),
     );
   }
 

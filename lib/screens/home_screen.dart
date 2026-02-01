@@ -5,7 +5,7 @@ import 'package:lottie/lottie.dart';
 import '../theme/app_theme.dart';
 import '../providers/app_state.dart';
 import '../widgets/common_widgets.dart';
-import 'topics_sheet.dart';
+import 'topics_screen.dart';
 import 'themes_sheet.dart';
 import 'profile_sheet.dart';
 import 'share_sheet.dart';
@@ -207,12 +207,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     });
   }
 
-  void _showTopicsSheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => const TopicsSheet(),
+  void _showTopicsScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const TopicsScreen(),
+      ),
     );
   }
 
@@ -578,7 +578,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       children: [
                         // Topics button
                         GestureDetector(
-                          onTap: _showTopicsSheet,
+                          onTap: _showTopicsScreen,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16,
