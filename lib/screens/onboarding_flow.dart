@@ -1017,17 +1017,18 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
   }
 
   Widget _buildPersonalizedWelcome() {
+    // Use the selected theme from the previous page
+    final selectedTheme = VisualThemes.getById(_selectedThemeId);
+
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            const Color(0xFF2C1810),
-            const Color(0xFF8B6914).withOpacity(0.8),
-            const Color(0xFF2C1810),
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
+        gradient: selectedTheme.gradient,
+        image: selectedTheme.backgroundImage != null
+            ? DecorationImage(
+                image: AssetImage(selectedTheme.backgroundImage!),
+                fit: BoxFit.cover,
+              )
+            : null,
       ),
       child: SafeArea(
         child: Padding(
@@ -1042,7 +1043,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
                     : 'Everything you\'ve experienced is leading you to the path God created for you.',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: Colors.white,
+                      color: selectedTheme.textColor,
                       height: 1.4,
                     ),
               ),

@@ -77,31 +77,42 @@ class _SearchScreenState extends State<SearchScreen> {
                     child: const Icon(Icons.arrow_back, size: 24),
                   ),
                   const SizedBox(width: 12),
+                  Icon(
+                    Icons.search,
+                    color: AppTheme.secondaryText.withOpacity(0.5),
+                    size: 22,
+                  ),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      height: 44,
                       decoration: BoxDecoration(
-                        color: AppTheme.cardBackground,
-                        borderRadius: BorderRadius.circular(24),
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: AppTheme.primaryText.withOpacity(0.3),
+                          width: 1,
+                        ),
                       ),
                       child: TextField(
                         controller: _searchController,
                         autofocus: true,
                         onChanged: (value) => setState(() => _searchQuery = value),
+                        style: const TextStyle(fontSize: 16),
                         decoration: InputDecoration(
-                          icon: Icon(
-                            Icons.search,
-                            color: AppTheme.secondaryText.withOpacity(0.5),
-                          ),
                           hintText: 'Search',
                           hintStyle: TextStyle(
                             color: AppTheme.secondaryText.withOpacity(0.5),
                             fontSize: 16,
                           ),
                           border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
                           suffixIcon: _searchQuery.isNotEmpty
                               ? IconButton(
-                                  icon: const Icon(Icons.close, size: 20),
+                                  icon: const Icon(Icons.close, size: 18),
                                   onPressed: () {
                                     _searchController.clear();
                                     setState(() => _searchQuery = '');

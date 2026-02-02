@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:home_widget/home_widget.dart';
 import 'theme/app_theme.dart';
 import 'providers/app_state.dart';
 import 'screens/welcome_screen.dart';
@@ -8,6 +9,9 @@ import 'screens/home_screen.dart';
 import 'services/widget_service.dart';
 import 'services/storage_service.dart';
 import 'services/notification_service.dart';
+
+// Global key to access app state from widget callback
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,8 +24,16 @@ void main() async {
 
   // Initialize widget service
   await WidgetService.initialize();
-  // Update widget with a random verse on app start
-  await WidgetService.updateWidgetWithRandomVerse();
+
+  // Check if app was launched from widget click
+  final launchUri = await HomeWidget.initiallyLaunchedFromHomeWidget();
+  final launchedFromWidget = launchUri != null;
+
+  // Only update widget with random verse if NOT launched from widget
+  // This preserves the content user clicked on
+  if (!launchedFromWidget) {
+    await WidgetService.updateWidgetWithRandomVerse();
+  }
 
   // Set status bar style
   SystemChrome.setSystemUIOverlayStyle(
@@ -32,11 +44,13 @@ void main() async {
     ),
   );
 
-  runApp(const BibleWidgetsApp());
+  runApp(BibleWidgetsApp(launchedFromWidget: launchedFromWidget));
 }
 
 class BibleWidgetsApp extends StatefulWidget {
-  const BibleWidgetsApp({super.key});
+  final bool launchedFromWidget;
+
+  const BibleWidgetsApp({super.key, this.launchedFromWidget = false});
 
   @override
   State<BibleWidgetsApp> createState() => _BibleWidgetsAppState();
@@ -55,10 +69,38 @@ class _BibleWidgetsAppState extends State<BibleWidgetsApp> {
 
   Future<void> _initializeApp() async {
     await _appState.initialize();
+
+    // If launched from widget, sync the displayed verse
+    if (widget.launchedFromWidget) {
+      await _syncWidgetContent();
+    }
+
+    // Sync theme to widget on app start
+    await WidgetService.updateWidgetTheme(_appState.currentTheme.id);
+
     if (mounted) {
       setState(() {
         _isInitialized = true;
       });
+    }
+  }
+
+  /// Sync widget content to app - find and display the verse shown on widget
+  Future<void> _syncWidgetContent() async {
+    try {
+      final widgetText = await HomeWidget.getWidgetData<String>('widget_verse_text');
+      if (widgetText != null && widgetText.isNotEmpty) {
+        // Find the verse in feed content that matches widget text
+        final feedContent = _appState.feedContent;
+        for (int i = 0; i < feedContent.length; i++) {
+          if (feedContent[i].text == widgetText) {
+            _appState.setFeedIndex(i);
+            break;
+          }
+        }
+      }
+    } catch (e) {
+      print('Error syncing widget content: $e');
     }
   }
 
