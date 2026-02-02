@@ -340,6 +340,47 @@ class AppState extends ChangeNotifier {
     return verse.getDisplayText(_user.name);
   }
 
+  // Widget Settings
+  WidgetSettings get widgetSettings => _user.widgetSettings;
+
+  void updateWidgetSettings(WidgetSettings settings) {
+    _user = _user.copyWith(widgetSettings: settings);
+    StorageService.saveWidgetSettings(settings);
+    // Update widget with new theme
+    WidgetService.updateWidgetTheme(settings.themeId);
+    notifyListeners();
+  }
+
+  void updateWidgetName(String name) {
+    final newSettings = _user.widgetSettings.copyWith(name: name);
+    updateWidgetSettings(newSettings);
+  }
+
+  void updateWidgetTheme(String themeId) {
+    final newSettings = _user.widgetSettings.copyWith(themeId: themeId);
+    updateWidgetSettings(newSettings);
+  }
+
+  void updateWidgetTextSize(WidgetTextSize textSize) {
+    final newSettings = _user.widgetSettings.copyWith(textSize: textSize);
+    updateWidgetSettings(newSettings);
+  }
+
+  void updateWidgetRefreshFrequency(WidgetRefreshFrequency frequency) {
+    final newSettings = _user.widgetSettings.copyWith(refreshFrequency: frequency);
+    updateWidgetSettings(newSettings);
+  }
+
+  void updateWidgetContentType(WidgetContentType contentType) {
+    final newSettings = _user.widgetSettings.copyWith(contentType: contentType);
+    updateWidgetSettings(newSettings);
+  }
+
+  void updateWidgetButtonStyle(WidgetButtonStyle buttonStyle) {
+    final newSettings = _user.widgetSettings.copyWith(buttonStyle: buttonStyle);
+    updateWidgetSettings(newSettings);
+  }
+
   // Reading History
   List<HistoryEntry> get readingHistory => _user.readingHistory;
 

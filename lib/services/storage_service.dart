@@ -16,6 +16,8 @@ class StorageService {
   static const String _keyCustomQuotes = 'custom_quotes';
   static const String _keyIsPremium = 'is_premium';
   static const String _keyHasCompletedOnboarding = 'has_completed_onboarding';
+  static const String _keyWidgetSettings = 'widget_settings';
+  static const String _keyReadingHistory = 'reading_history';
 
   static SharedPreferences? _prefs;
 
@@ -73,6 +75,13 @@ class StorageService {
     // Premium and onboarding
     await _prefs!.setBool(_keyIsPremium, user.isPremium);
     await _prefs!.setBool(_keyHasCompletedOnboarding, user.hasCompletedOnboarding);
+
+    // Widget settings
+    await _prefs!.setString(_keyWidgetSettings, jsonEncode(user.widgetSettings.toJson()));
+
+    // Reading history
+    final historyJson = user.readingHistory.map((e) => jsonEncode(e.toJson())).toList();
+    await _prefs!.setStringList(_keyReadingHistory, historyJson);
   }
 
   /// Load user profile from storage
@@ -127,6 +136,23 @@ class StorageService {
     final isPremium = _prefs!.getBool(_keyIsPremium) ?? false;
     final hasCompletedOnboarding = _prefs!.getBool(_keyHasCompletedOnboarding) ?? false;
 
+    // Widget settings
+    final widgetSettingsJson = _prefs!.getString(_keyWidgetSettings);
+    WidgetSettings widgetSettings = const WidgetSettings();
+    if (widgetSettingsJson != null) {
+      try {
+        widgetSettings = WidgetSettings.fromJson(jsonDecode(widgetSettingsJson) as Map<String, dynamic>);
+      } catch (e) {
+        // Use default if parsing fails
+      }
+    }
+
+    // Reading history
+    final historyJson = _prefs!.getStringList(_keyReadingHistory) ?? [];
+    final readingHistory = historyJson.map((json) {
+      return HistoryEntry.fromJson(jsonDecode(json) as Map<String, dynamic>);
+    }).toList();
+
     return UserProfile(
       name: name,
       ageRange: ageRange,
@@ -140,6 +166,8 @@ class StorageService {
       customQuotes: customQuotes,
       isPremium: isPremium,
       hasCompletedOnboarding: hasCompletedOnboarding,
+      widgetSettings: widgetSettings,
+      readingHistory: readingHistory,
     );
   }
 
@@ -182,6 +210,26 @@ class StorageService {
     if (name != null) await _prefs!.setString(_keyUserName, name);
     if (ageRange != null) await _prefs!.setInt(_keyAgeRange, ageRange);
     if (gender != null) await _prefs!.setString(_keyGender, gender);
+  }
+
+  /// Save widget settings
+  static Future<void> saveWidgetSettings(WidgetSettings settings) async {
+    if (_prefs == null) await init();
+    await _prefs!.setString(_keyWidgetSettings, jsonEncode(settings.toJson()));
+  }
+
+  /// Load widget settings
+  static Future<WidgetSettings> loadWidgetSettings() async {
+    if (_prefs == null) await init();
+    final json = _prefs!.getString(_keyWidgetSettings);
+    if (json != null) {
+      try {
+        return WidgetSettings.fromJson(jsonDecode(json) as Map<String, dynamic>);
+      } catch (e) {
+        return const WidgetSettings();
+      }
+    }
+    return const WidgetSettings();
   }
 
   /// Clear all stored data (for logout/reset)

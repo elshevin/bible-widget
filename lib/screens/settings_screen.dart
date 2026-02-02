@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import '../theme/app_theme.dart';
 import '../providers/app_state.dart';
 import 'app_icon_screen.dart';
+import 'widget_settings_screen.dart';
 import 'privacy_policy_screen.dart';
 import 'terms_screen.dart';
 
@@ -200,6 +201,19 @@ class SettingsScreen extends StatelessWidget {
                                 context,
                                 MaterialPageRoute(
                                   builder: (_) => const AppIconScreen(),
+                                ),
+                              );
+                            },
+                          ),
+                          _SettingsItem(
+                            icon: Icons.widgets_outlined,
+                            title: 'Widget',
+                            subtitle: 'Customize your home screen widget',
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const WidgetSettingsScreen(),
                                 ),
                               );
                             },

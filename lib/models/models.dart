@@ -138,6 +138,7 @@ class UserProfile {
   final List<HistoryEntry> readingHistory;
   final bool isPremium;
   final bool hasCompletedOnboarding;
+  final WidgetSettings widgetSettings;
 
   const UserProfile({
     this.name,
@@ -153,6 +154,7 @@ class UserProfile {
     this.readingHistory = const [],
     this.isPremium = false,
     this.hasCompletedOnboarding = false,
+    this.widgetSettings = const WidgetSettings(),
   });
 
   UserProfile copyWith({
@@ -169,6 +171,7 @@ class UserProfile {
     List<HistoryEntry>? readingHistory,
     bool? isPremium,
     bool? hasCompletedOnboarding,
+    WidgetSettings? widgetSettings,
   }) {
     return UserProfile(
       name: name ?? this.name,
@@ -184,6 +187,7 @@ class UserProfile {
       readingHistory: readingHistory ?? this.readingHistory,
       isPremium: isPremium ?? this.isPremium,
       hasCompletedOnboarding: hasCompletedOnboarding ?? this.hasCompletedOnboarding,
+      widgetSettings: widgetSettings ?? this.widgetSettings,
     );
   }
 }
@@ -203,4 +207,133 @@ class OnboardingQuestion {
     this.allowSkip = true,
     this.isMultiSelect = false,
   });
+}
+
+// Widget Refresh Frequency
+enum WidgetRefreshFrequency {
+  never('Never', Duration(days: 365 * 100)), // essentially never
+  daily('Every day', Duration(hours: 24)),
+  twiceDaily('Not very often (1-2 times/day)', Duration(hours: 12)),
+  everySixHours('Every 6 hours', Duration(hours: 6)),
+  hourly('Every hour', Duration(hours: 1)),
+  veryOften('Very often (1-2 times/hour)', Duration(minutes: 30));
+
+  final String displayName;
+  final Duration duration;
+
+  const WidgetRefreshFrequency(this.displayName, this.duration);
+}
+
+// Widget Content Type
+enum WidgetContentType {
+  general('General'),
+  favorites('Favorites'),
+  bibleVerses('Bible verses'),
+  prayers('Prayers'),
+  followedTopics('Followed topics');
+
+  final String displayName;
+
+  const WidgetContentType(this.displayName);
+}
+
+// Widget Button Style
+enum WidgetButtonStyle {
+  none('None'),
+  saveOnly('Save to favorites'),
+  saveAndShare('Save to favorites and Share');
+
+  final String displayName;
+
+  const WidgetButtonStyle(this.displayName);
+}
+
+// Widget Text Size
+enum WidgetTextSize {
+  small('Small', 14.0),
+  medium('Medium', 16.0),
+  large('Large', 18.0),
+  extraLarge('Extra Large', 20.0);
+
+  final String displayName;
+  final double fontSize;
+
+  const WidgetTextSize(this.displayName, this.fontSize);
+}
+
+// Widget Settings Model
+class WidgetSettings {
+  final String name;
+  final String themeId;
+  final WidgetTextSize textSize;
+  final WidgetRefreshFrequency refreshFrequency;
+  final WidgetContentType contentType;
+  final WidgetButtonStyle buttonStyle;
+  final DateTime? lastRefreshed;
+
+  const WidgetSettings({
+    this.name = 'Bible Widget',
+    this.themeId = 'golden_water',
+    this.textSize = WidgetTextSize.medium,
+    this.refreshFrequency = WidgetRefreshFrequency.daily,
+    this.contentType = WidgetContentType.general,
+    this.buttonStyle = WidgetButtonStyle.saveOnly,
+    this.lastRefreshed,
+  });
+
+  WidgetSettings copyWith({
+    String? name,
+    String? themeId,
+    WidgetTextSize? textSize,
+    WidgetRefreshFrequency? refreshFrequency,
+    WidgetContentType? contentType,
+    WidgetButtonStyle? buttonStyle,
+    DateTime? lastRefreshed,
+  }) {
+    return WidgetSettings(
+      name: name ?? this.name,
+      themeId: themeId ?? this.themeId,
+      textSize: textSize ?? this.textSize,
+      refreshFrequency: refreshFrequency ?? this.refreshFrequency,
+      contentType: contentType ?? this.contentType,
+      buttonStyle: buttonStyle ?? this.buttonStyle,
+      lastRefreshed: lastRefreshed ?? this.lastRefreshed,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'themeId': themeId,
+    'textSize': textSize.name,
+    'refreshFrequency': refreshFrequency.name,
+    'contentType': contentType.name,
+    'buttonStyle': buttonStyle.name,
+    'lastRefreshed': lastRefreshed?.toIso8601String(),
+  };
+
+  factory WidgetSettings.fromJson(Map<String, dynamic> json) {
+    return WidgetSettings(
+      name: json['name'] as String? ?? 'Bible Widget',
+      themeId: json['themeId'] as String? ?? 'golden_water',
+      textSize: WidgetTextSize.values.firstWhere(
+        (e) => e.name == json['textSize'],
+        orElse: () => WidgetTextSize.medium,
+      ),
+      refreshFrequency: WidgetRefreshFrequency.values.firstWhere(
+        (e) => e.name == json['refreshFrequency'],
+        orElse: () => WidgetRefreshFrequency.daily,
+      ),
+      contentType: WidgetContentType.values.firstWhere(
+        (e) => e.name == json['contentType'],
+        orElse: () => WidgetContentType.general,
+      ),
+      buttonStyle: WidgetButtonStyle.values.firstWhere(
+        (e) => e.name == json['buttonStyle'],
+        orElse: () => WidgetButtonStyle.saveOnly,
+      ),
+      lastRefreshed: json['lastRefreshed'] != null
+          ? DateTime.parse(json['lastRefreshed'] as String)
+          : null,
+    );
+  }
 }
