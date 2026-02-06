@@ -88,13 +88,27 @@ class _BibleWidgetsAppState extends State<BibleWidgetsApp> {
   /// Sync widget content to app - find and display the verse shown on widget
   Future<void> _syncWidgetContent() async {
     try {
+      // First try to find by verse ID (most accurate)
+      final verseId = await HomeWidget.getWidgetData<String>('widget_verse_id');
+      if (verseId != null && verseId.isNotEmpty) {
+        final feedContent = _appState.feedContent;
+        for (int i = 0; i < feedContent.length; i++) {
+          if (feedContent[i].id == verseId) {
+            _appState.setFeedIndex(i);
+            print('Found verse by ID: $verseId at index $i');
+            return;
+          }
+        }
+      }
+
+      // Fallback: find by text match
       final widgetText = await HomeWidget.getWidgetData<String>('widget_verse_text');
       if (widgetText != null && widgetText.isNotEmpty) {
-        // Find the verse in feed content that matches widget text
         final feedContent = _appState.feedContent;
         for (int i = 0; i < feedContent.length; i++) {
           if (feedContent[i].text == widgetText) {
             _appState.setFeedIndex(i);
+            print('Found verse by text match at index $i');
             break;
           }
         }

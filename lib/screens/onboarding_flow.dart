@@ -140,57 +140,61 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.background,
-      body: SafeArea(
-        child: PageView(
-          controller: _pageController,
-          physics: const NeverScrollableScrollPhysics(),
-          onPageChanged: (index) => setState(() => _currentPage = index),
-          children: [
-            // 1. Intro - Personalize the app
-            _buildTransitionPage(
+      body: PageView(
+        controller: _pageController,
+        physics: const NeverScrollableScrollPhysics(),
+        onPageChanged: (index) => setState(() => _currentPage = index),
+        children: [
+          // 1. Intro - Personalize the app
+          SafeArea(
+            child: _buildTransitionPage(
               title: 'Personalize the app by\nsharing a few details\nabout yourself',
               showIcon: true,
             ),
-            // 2. Name
-            _buildNamePage(),
-            // 3. Age
-            _buildAgePage(),
-            // 4. Gender
-            _buildGenderPage(),
-            // 5. Relationship status
-            _buildRelationshipPage(),
-            // 6. Transition - Faith journey
-            _buildTransitionPage(
+          ),
+          // 2. Name
+          SafeArea(child: _buildNamePage()),
+          // 3. Age
+          SafeArea(child: _buildAgePage()),
+          // 4. Gender
+          SafeArea(child: _buildGenderPage()),
+          // 5. Relationship status
+          SafeArea(child: _buildRelationshipPage()),
+          // 6. Transition - Faith journey
+          SafeArea(
+            child: _buildTransitionPage(
               title: 'Let\'s talk about your\nfaith and your\npersonal journey',
             ),
-            // 7. Bible familiarity
-            _buildBibleFamiliarityPage(),
-            // 8. Faith practice
-            _buildFaithPracticePage(),
-            // 9. Denomination
-            _buildDenominationPage(),
-            // 10. Transition - Set up app
-            _buildTransitionPage(
+          ),
+          // 7. Bible familiarity
+          SafeArea(child: _buildBibleFamiliarityPage()),
+          // 8. Faith practice
+          SafeArea(child: _buildFaithPracticePage()),
+          // 9. Denomination
+          SafeArea(child: _buildDenominationPage()),
+          // 10. Transition - Set up app
+          SafeArea(
+            child: _buildTransitionPage(
               title: 'Set up the app according\nto your preferences',
               showIcon: true,
               iconType: 'phone',
             ),
-            // 11. Prayer frequency
-            _buildPrayerFrequencyPage(),
-            // 12. Streak goal
-            _buildStreakGoalPage(),
-            // 13. Streak intro
-            _buildStreakIntroPage(),
-            // 14. Reminder setup
-            _buildReminderPage(),
-            // 15. Topics
-            _buildTopicsPage(),
-            // 16. Theme
-            _buildThemePage(),
-            // 17. Final welcome
-            _buildPersonalizedWelcome(),
-          ],
-        ),
+          ),
+          // 11. Prayer frequency
+          SafeArea(child: _buildPrayerFrequencyPage()),
+          // 12. Streak goal
+          SafeArea(child: _buildStreakGoalPage()),
+          // 13. Streak intro
+          SafeArea(child: _buildStreakIntroPage()),
+          // 14. Reminder setup
+          SafeArea(child: _buildReminderPage()),
+          // 15. Topics
+          SafeArea(child: _buildTopicsPage()),
+          // 16. Theme
+          SafeArea(child: _buildThemePage()),
+          // 17. Final welcome - NO SafeArea wrapper, handled inside
+          _buildPersonalizedWelcome(),
+        ],
       ),
     );
   }

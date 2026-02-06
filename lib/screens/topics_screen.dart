@@ -237,28 +237,64 @@ class _TopicsScreenState extends State<TopicsScreen> {
                     title: 'Bible verses',
                     icon: Icons.menu_book_outlined,
                     isPremium: false,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => TopicDetailScreen(
+                            topic: ContentData.topics.firstWhere((t) => t.id == 'bible-verses'),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                   const SizedBox(height: 8),
                   _TypeListItem(
                     title: 'Prayers',
                     icon: Icons.person_outline,
                     isPremium: false,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => TopicDetailScreen(
+                            topic: ContentData.topics.firstWhere((t) => t.id == 'prayers'),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                   const SizedBox(height: 8),
                   _TypeListItem(
                     title: 'Quotes',
                     icon: Icons.format_quote_outlined,
                     isPremium: false,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => TopicDetailScreen(
+                            topic: ContentData.topics.firstWhere((t) => t.id == 'quotes'),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                   const SizedBox(height: 8),
                   _TypeListItem(
                     title: 'Affirmations',
                     icon: Icons.chat_bubble_outline,
                     isPremium: false,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => TopicDetailScreen(
+                            topic: ContentData.topics.firstWhere((t) => t.id == 'affirmations'),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                   const SizedBox(height: 24),
 

@@ -8,6 +8,7 @@ struct BibleWidgetEntry: TimelineEntry {
     let reference: String
     let startColor: String
     let endColor: String
+    let verseId: String
 }
 
 // MARK: - Timeline Provider
@@ -20,7 +21,8 @@ struct BibleWidgetProvider: TimelineProvider {
             verse: "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.",
             reference: "John 3:16",
             startColor: "#c9a962",
-            endColor: "#d4b574"
+            endColor: "#d4b574",
+            verseId: ""
         )
     }
 
@@ -46,12 +48,16 @@ struct BibleWidgetProvider: TimelineProvider {
         let startColor = sharedDefaults?.string(forKey: "widget_start_color") ?? "#c9a962"
         let endColor = sharedDefaults?.string(forKey: "widget_end_color") ?? "#d4b574"
 
+        // Get verse ID for deep link navigation
+        let verseId = sharedDefaults?.string(forKey: "widget_verse_id") ?? ""
+
         return BibleWidgetEntry(
             date: Date(),
             verse: verse,
             reference: reference,
             startColor: startColor,
-            endColor: endColor
+            endColor: endColor,
+            verseId: verseId
         )
     }
 }
@@ -60,37 +66,46 @@ struct BibleWidgetProvider: TimelineProvider {
 struct BibleWidgetEntryView: View {
     var entry: BibleWidgetProvider.Entry
     @Environment(\.widgetFamily) var widgetFamily
+    var showBackground: Bool = true
+
+    // Build URL for deep linking to specific verse
+    private var widgetURL: URL {
+        let urlString = "biblewidgets://verse?id=\(entry.verseId)"
+        return URL(string: urlString) ?? URL(string: "biblewidgets://")!
+    }
 
     var body: some View {
-        ZStack {
-            // Background gradient using dynamic colors from Flutter
-            LinearGradient(
-                colors: [Color(hex: entry.startColor), Color(hex: entry.endColor)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+        VStack(alignment: .leading, spacing: 8) {
+            // Verse text
+            Text(entry.verse)
+                .font(verseFontSize)
+                .fontWeight(.medium)
+                .foregroundColor(.white)
+                .lineLimit(lineLimit)
+                .minimumScaleFactor(0.7)
 
-            VStack(alignment: .leading, spacing: 8) {
-                // Verse text
-                Text(entry.verse)
-                    .font(verseFontSize)
-                    .fontWeight(.medium)
-                    .foregroundColor(.white)
-                    .lineLimit(lineLimit)
-                    .minimumScaleFactor(0.7)
+            Spacer()
 
+            // Reference
+            HStack {
                 Spacer()
-
-                // Reference
-                HStack {
-                    Spacer()
-                    Text(entry.reference)
-                        .font(referenceFontSize)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white.opacity(0.9))
-                }
+                Text(entry.reference)
+                    .font(referenceFontSize)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white.opacity(0.9))
             }
-            .padding()
+        }
+        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .widgetURL(widgetURL)
+        .background {
+            if showBackground {
+                LinearGradient(
+                    colors: [Color(hex: entry.startColor), Color(hex: entry.endColor)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
         }
     }
 
@@ -169,10 +184,16 @@ struct BibleWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: BibleWidgetProvider()) { entry in
             if #available(iOS 17.0, *) {
-                BibleWidgetEntryView(entry: entry)
-                    .containerBackground(.fill.tertiary, for: .widget)
+                BibleWidgetEntryView(entry: entry, showBackground: false)
+                    .containerBackground(for: .widget) {
+                        LinearGradient(
+                            colors: [Color(hex: entry.startColor), Color(hex: entry.endColor)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    }
             } else {
-                BibleWidgetEntryView(entry: entry)
+                BibleWidgetEntryView(entry: entry, showBackground: true)
             }
         }
         .configurationDisplayName("Bible Verse")
@@ -181,15 +202,3 @@ struct BibleWidget: Widget {
     }
 }
 
-// MARK: - Preview
-#Preview(as: .systemMedium) {
-    BibleWidget()
-} timeline: {
-    BibleWidgetEntry(
-        date: .now,
-        verse: "For God so loved the world that he gave his one and only Son.",
-        reference: "John 3:16",
-        startColor: "#c9a962",
-        endColor: "#d4b574"
-    )
-}

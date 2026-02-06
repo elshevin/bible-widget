@@ -35,6 +35,11 @@ class WidgetService {
         'widget_verse_reference',
         randomVerse.reference ?? '',
       );
+      // Save verse ID for deep link navigation
+      await HomeWidget.saveWidgetData<String>(
+        'widget_verse_id',
+        randomVerse.id,
+      );
 
       await updateWidget();
       print('WidgetService: widget updated successfully');
@@ -44,13 +49,17 @@ class WidgetService {
   }
 
   /// Update the widget with a specific verse
-  static Future<void> updateWidgetWithVerse(String text, String? reference) async {
+  static Future<void> updateWidgetWithVerse(String text, String? reference, {String? verseId}) async {
     try {
       await HomeWidget.saveWidgetData<String>('widget_verse_text', text);
       await HomeWidget.saveWidgetData<String>(
         'widget_verse_reference',
         reference ?? '',
       );
+      // Save verse ID for deep link navigation
+      if (verseId != null) {
+        await HomeWidget.saveWidgetData<String>('widget_verse_id', verseId);
+      }
 
       await updateWidget();
     } catch (e) {
