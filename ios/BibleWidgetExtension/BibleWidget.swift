@@ -43,6 +43,7 @@ struct BibleWidgetProvider: TimelineProvider {
     private func getEntryFromDefaults() -> BibleWidgetEntry {
         // Create fresh UserDefaults instance each time to ensure we get latest data
         guard let sharedDefaults = UserDefaults(suiteName: BibleWidgetProvider.appGroupId) else {
+            print("BibleWidget: ERROR - Could not access App Group: \(BibleWidgetProvider.appGroupId)")
             // Return default entry if App Group is not available
             return BibleWidgetEntry(
                 date: Date(),
@@ -57,31 +58,22 @@ struct BibleWidgetProvider: TimelineProvider {
         // Force synchronize to get latest data from disk
         sharedDefaults.synchronize()
 
-        // Try different key formats - home_widget may prefix keys differently
-        let keyFormats = [
-            // Standard keys (home_widget default)
-            ["widget_verse_text", "widget_verse_reference", "widget_start_color", "widget_end_color", "widget_verse_id"],
-            // With flutter prefix
-            ["flutter.widget_verse_text", "flutter.widget_verse_reference", "flutter.widget_start_color", "flutter.widget_end_color", "flutter.widget_verse_id"]
-        ]
+        // Debug: Print all keys in UserDefaults
+        print("BibleWidget: Reading from App Group: \(BibleWidgetProvider.appGroupId)")
+        let allKeys = sharedDefaults.dictionaryRepresentation().keys
+        print("BibleWidget: Available keys: \(allKeys.sorted())")
 
-        var verse: String?
-        var reference: String?
-        var startColor: String?
-        var endColor: String?
-        var verseId: String?
+        // Read data directly with standard keys (home_widget uses no prefix)
+        let verse = sharedDefaults.string(forKey: "widget_verse_text")
+        let reference = sharedDefaults.string(forKey: "widget_verse_reference")
+        let startColor = sharedDefaults.string(forKey: "widget_start_color")
+        let endColor = sharedDefaults.string(forKey: "widget_end_color")
+        let verseId = sharedDefaults.string(forKey: "widget_verse_id")
 
-        for keys in keyFormats {
-            let v = sharedDefaults.string(forKey: keys[0])
-            if v != nil && !v!.isEmpty {
-                verse = v
-                reference = sharedDefaults.string(forKey: keys[1])
-                startColor = sharedDefaults.string(forKey: keys[2])
-                endColor = sharedDefaults.string(forKey: keys[3])
-                verseId = sharedDefaults.string(forKey: keys[4])
-                break
-            }
-        }
+        print("BibleWidget: verse=\(verse?.prefix(30) ?? "nil")...")
+        print("BibleWidget: reference=\(reference ?? "nil")")
+        print("BibleWidget: startColor=\(startColor ?? "nil"), endColor=\(endColor ?? "nil")")
+        print("BibleWidget: verseId=\(verseId ?? "nil")")
 
         return BibleWidgetEntry(
             date: Date(),
@@ -101,9 +93,10 @@ struct BibleWidgetEntryView: View {
     var showBackground: Bool = true
 
     // Build URL for deep linking to specific verse
+    // IMPORTANT: Must include homeWidget=true for home_widget plugin to recognize the URL
     private var widgetURL: URL {
-        let urlString = "biblewidgets://verse?id=\(entry.verseId)"
-        return URL(string: urlString) ?? URL(string: "biblewidgets://")!
+        let urlString = "biblewidgets://verse?id=\(entry.verseId)&homeWidget=true"
+        return URL(string: urlString) ?? URL(string: "biblewidgets://?homeWidget=true")!
     }
 
     var body: some View {
