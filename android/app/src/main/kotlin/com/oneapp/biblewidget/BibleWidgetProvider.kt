@@ -11,9 +11,11 @@ import android.util.Log
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import es.antonborri.home_widget.HomeWidgetLaunchIntent
 import es.antonborri.home_widget.HomeWidgetPlugin
+import java.io.File
 
 class BibleWidgetProvider : AppWidgetProvider() {
 
@@ -76,10 +78,12 @@ class BibleWidgetProvider : AppWidgetProvider() {
             val endColor = prefs.getString("widget_end_color", null)
             val textColor = prefs.getString("widget_text_color", null)
             val verseId = prefs.getString("widget_verse_id", null)
+            val backgroundImagePath = prefs.getString("widget_background_image", null)
 
             Log.d(TAG, "Read data - text: ${verseText?.take(30)}...")
             Log.d(TAG, "Read data - verseId: $verseId")
             Log.d(TAG, "Read data - colors: start=$startColor, end=$endColor")
+            Log.d(TAG, "Read data - backgroundImagePath: $backgroundImagePath")
 
             // Use default verse if no data found
             val (text, reference) = if (verseText != null && verseText.isNotEmpty()) {
@@ -98,8 +102,27 @@ class BibleWidgetProvider : AppWidgetProvider() {
             val parsedEndColor = parseColor(endColor, DEFAULT_END_COLOR)
             val parsedTextColor = parseColor(textColor, DEFAULT_TEXT_COLOR)
 
-            // Create gradient bitmap for background
-            val backgroundBitmap = createGradientBitmap(400, 400, parsedStartColor, parsedEndColor)
+            // Try to load background image, fallback to gradient if not available
+            var backgroundBitmap: Bitmap? = null
+            if (backgroundImagePath != null && backgroundImagePath.isNotEmpty()) {
+                try {
+                    val file = File(backgroundImagePath)
+                    if (file.exists()) {
+                        backgroundBitmap = BitmapFactory.decodeFile(backgroundImagePath)
+                        Log.d(TAG, "Loaded background image from: $backgroundImagePath")
+                    } else {
+                        Log.d(TAG, "Background image file not found: $backgroundImagePath")
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to load background image: ${e.message}")
+                }
+            }
+
+            // Use gradient as fallback if no image
+            if (backgroundBitmap == null) {
+                backgroundBitmap = createGradientBitmap(400, 400, parsedStartColor, parsedEndColor)
+                Log.d(TAG, "Using gradient fallback for background")
+            }
             views.setImageViewBitmap(R.id.widget_background, backgroundBitmap)
 
             // Set text colors

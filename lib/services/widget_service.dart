@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -113,16 +112,14 @@ class WidgetService {
     return '#${color.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}';
   }
 
-  /// Render background image and save to App Group shared container for iOS widget
-  /// Uses HomeWidget.renderFlutterWidget to save to the shared container
-  /// that both the main app and widget extension can access
+  /// Render background image and save to shared container for widget
+  /// Uses HomeWidget.renderFlutterWidget which saves to:
+  /// - iOS: App Group container (accessible by widget extension)
+  /// - Android: Internal storage (accessible via SharedPreferences path)
   static Future<void> _copyBackgroundForWidget(String? assetPath) async {
     if (assetPath == null) return;
 
     try {
-      // iOS only - Android uses different approach
-      if (!Platform.isIOS) return;
-
       print('WidgetService: Rendering background for widget: $assetPath');
 
       // Load the image first to ensure it's fully loaded before rendering
@@ -134,6 +131,7 @@ class WidgetService {
       print('WidgetService: Image loaded: ${image.width}x${image.height}');
 
       // Use renderFlutterWidget with RawImage which doesn't need async loading
+      // This works on both iOS and Android
       await HomeWidget.renderFlutterWidget(
         RawImage(
           image: image,
@@ -143,10 +141,10 @@ class WidgetService {
         ),
         key: 'widget_background_image',
         logicalSize: const Size(400, 400),
-        pixelRatio: 2.0, // For retina display
+        pixelRatio: 2.0, // For retina/high-density displays
       );
 
-      print('WidgetService: Background rendered to App Group container');
+      print('WidgetService: Background rendered to shared container');
     } catch (e) {
       print('WidgetService: _copyBackgroundForWidget error: $e');
     }
