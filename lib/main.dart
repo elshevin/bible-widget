@@ -29,6 +29,11 @@ void main() async {
   final launchUri = await HomeWidget.initiallyLaunchedFromHomeWidget();
   final launchedFromWidget = launchUri != null;
 
+  // Load saved theme and sync to widget BEFORE updating verse content
+  // This ensures widget always has correct theme colors
+  final savedThemeId = await StorageService.loadThemeId();
+  await WidgetService.updateWidgetTheme(savedThemeId);
+
   // Only update widget with random verse if NOT launched from widget
   // This preserves the content user clicked on
   if (!launchedFromWidget) {

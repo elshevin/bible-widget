@@ -302,6 +302,7 @@ class TopicDetailScreen extends StatelessWidget {
                                   builder: (_) => ShareSheet(
                                     text: displayText,
                                     reference: verse.reference,
+                                    theme: appState.currentTheme,
                                   ),
                                 );
                               },

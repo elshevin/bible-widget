@@ -11,11 +11,13 @@ import '../providers/app_state.dart';
 class ShareSheet extends StatefulWidget {
   final String text;
   final String? reference;
+  final VisualTheme? theme;
 
   const ShareSheet({
     super.key,
     required this.text,
     this.reference,
+    this.theme,
   });
 
   @override
@@ -90,8 +92,19 @@ class _ShareSheetState extends State<ShareSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final appState = context.read<AppState>();
-    final theme = appState.currentTheme;
+    // Use passed theme, or try to read from context, or fallback to default
+    VisualTheme theme;
+    if (widget.theme != null) {
+      theme = widget.theme!;
+    } else {
+      try {
+        final appState = context.read<AppState>();
+        theme = appState.currentTheme;
+      } catch (e) {
+        // Fallback to first theme if Provider not available
+        theme = VisualThemes.all.first;
+      }
+    }
 
     return Container(
       decoration: const BoxDecoration(

@@ -183,6 +183,12 @@ class StorageService {
     await _prefs!.setString(_keySelectedThemeId, themeId);
   }
 
+  /// Load theme ID (for early widget sync before full profile load)
+  static Future<String> loadThemeId() async {
+    if (_prefs == null) await init();
+    return _prefs!.getString(_keySelectedThemeId) ?? 'autumn_forest';
+  }
+
   static Future<void> saveTopics(List<String> topics) async {
     if (_prefs == null) await init();
     await _prefs!.setStringList(_keySelectedTopics, topics);

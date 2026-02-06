@@ -73,22 +73,30 @@ class WidgetService {
       final theme = VisualThemes.getById(themeId);
       final colors = theme.gradientColors;
 
+      final startColor = _colorToHex(colors.first);
+      final endColor = _colorToHex(colors.last);
+      final textColor = _colorToHex(theme.textColor);
+
+      print('WidgetService: Updating theme to $themeId');
+      print('WidgetService: startColor=$startColor, endColor=$endColor');
+
       // Save gradient colors as hex strings
       await HomeWidget.saveWidgetData<String>(
         'widget_start_color',
-        _colorToHex(colors.first),
+        startColor,
       );
       await HomeWidget.saveWidgetData<String>(
         'widget_end_color',
-        _colorToHex(colors.last),
+        endColor,
       );
       await HomeWidget.saveWidgetData<String>(
         'widget_text_color',
-        _colorToHex(theme.textColor),
+        textColor,
       );
 
+      // Force widget refresh
       await updateWidget();
-      print('WidgetService: theme updated to $themeId');
+      print('WidgetService: theme updated successfully to $themeId');
     } catch (e) {
       print('WidgetService: updateWidgetTheme error: $e');
     }
@@ -98,13 +106,16 @@ class WidgetService {
     return '#${color.value.toRadixString(16).padLeft(8, '0').substring(2)}';
   }
 
-  /// Trigger widget update
+  /// Trigger widget update - forces iOS WidgetKit to reload timelines
   static Future<void> updateWidget() async {
     try {
-      await HomeWidget.updateWidget(
+      // This calls WidgetCenter.shared.reloadTimelines on iOS
+      // and AppWidgetManager.notifyAppWidgetViewDataChanged on Android
+      final result = await HomeWidget.updateWidget(
         name: androidWidgetName,
         iOSName: iOSWidgetName,
       );
+      print('WidgetService: updateWidget result = $result');
     } catch (e) {
       print('WidgetService: updateWidget error: $e');
     }

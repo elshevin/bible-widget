@@ -240,7 +240,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  void _showShareSheet(String verseText, String? reference) {
+  void _showShareSheet(String verseText, String? reference, VisualTheme theme) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -248,6 +248,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       builder: (_) => ShareSheet(
         text: verseText,
         reference: reference,
+        theme: theme,
       ),
     );
   }
@@ -407,7 +408,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                     GestureDetector(
                                       onTap: () {
                                         if (currentVerse != null) {
-                                          _showShareSheet(displayText, reference);
+                                          _showShareSheet(displayText, reference, currentTheme);
                                         }
                                       },
                                       child: Container(

@@ -161,6 +161,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                             builder: (_) => ShareSheet(
                               text: displayText,
                               reference: verse.reference,
+                              theme: appState.currentTheme,
                             ),
                           );
                         },

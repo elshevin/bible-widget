@@ -13,7 +13,8 @@ struct BibleWidgetEntry: TimelineEntry {
 
 // MARK: - Timeline Provider
 struct BibleWidgetProvider: TimelineProvider {
-    let sharedDefaults = UserDefaults(suiteName: "group.com.oneapp.bibleWidgets")
+    // App Group ID - MUST match exactly with Flutter's HomeWidget.setAppGroupId()
+    static let appGroupId = "group.com.oneapp.bibleWidgets"
 
     func placeholder(in context: Context) -> BibleWidgetEntry {
         BibleWidgetEntry(
@@ -40,16 +41,32 @@ struct BibleWidgetProvider: TimelineProvider {
     }
 
     private func getEntryFromDefaults() -> BibleWidgetEntry {
-        // Keys match Flutter's HomeWidget.saveWidgetData() calls
-        let verse = sharedDefaults?.string(forKey: "widget_verse_text") ?? "Trust in the LORD with all your heart and lean not on your own understanding."
-        let reference = sharedDefaults?.string(forKey: "widget_verse_reference") ?? "Proverbs 3:5"
+        // Create fresh UserDefaults instance each time to ensure we get latest data
+        guard let sharedDefaults = UserDefaults(suiteName: BibleWidgetProvider.appGroupId) else {
+            // Return default entry if App Group is not available
+            return BibleWidgetEntry(
+                date: Date(),
+                verse: "Trust in the LORD with all your heart and lean not on your own understanding.",
+                reference: "Proverbs 3:5",
+                startColor: "#c9a962",
+                endColor: "#d4b574",
+                verseId: ""
+            )
+        }
 
-        // Get theme colors from Flutter
-        let startColor = sharedDefaults?.string(forKey: "widget_start_color") ?? "#c9a962"
-        let endColor = sharedDefaults?.string(forKey: "widget_end_color") ?? "#d4b574"
+        // Force synchronize to get latest data from disk
+        sharedDefaults.synchronize()
+
+        // Keys match Flutter's HomeWidget.saveWidgetData() calls
+        let verse = sharedDefaults.string(forKey: "widget_verse_text") ?? "Trust in the LORD with all your heart and lean not on your own understanding."
+        let reference = sharedDefaults.string(forKey: "widget_verse_reference") ?? "Proverbs 3:5"
+
+        // Get theme colors from Flutter - these should be set by WidgetService.updateWidgetTheme()
+        let startColor = sharedDefaults.string(forKey: "widget_start_color") ?? "#c9a962"
+        let endColor = sharedDefaults.string(forKey: "widget_end_color") ?? "#d4b574"
 
         // Get verse ID for deep link navigation
-        let verseId = sharedDefaults?.string(forKey: "widget_verse_id") ?? ""
+        let verseId = sharedDefaults.string(forKey: "widget_verse_id") ?? ""
 
         return BibleWidgetEntry(
             date: Date(),
