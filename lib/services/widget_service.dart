@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:home_widget/home_widget.dart';
 import '../data/content_data.dart';
 import '../theme/app_theme.dart';
@@ -123,11 +125,18 @@ class WidgetService {
 
       print('WidgetService: Rendering background for widget: $assetPath');
 
-      // Use renderFlutterWidget which automatically saves to App Group container
-      // and stores the path in UserDefaults
+      // Load the image first to ensure it's fully loaded before rendering
+      final ByteData data = await rootBundle.load(assetPath);
+      final ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List());
+      final ui.FrameInfo frameInfo = await codec.getNextFrame();
+      final ui.Image image = frameInfo.image;
+
+      print('WidgetService: Image loaded: ${image.width}x${image.height}');
+
+      // Use renderFlutterWidget with RawImage which doesn't need async loading
       await HomeWidget.renderFlutterWidget(
-        Image.asset(
-          assetPath,
+        RawImage(
+          image: image,
           fit: BoxFit.cover,
           width: 400,
           height: 400,
