@@ -147,8 +147,8 @@ class _ShareSheetState extends State<ShareSheet> {
               controller: _screenshotController,
               child: Container(
                 height: 350,
+                clipBehavior: Clip.antiAlias,
                 decoration: BoxDecoration(
-                  gradient: theme.gradient,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
@@ -158,34 +158,54 @@ class _ShareSheetState extends State<ShareSheet> {
                     ),
                   ],
                 ),
-                padding: const EdgeInsets.all(24),
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        widget.text,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: theme.textColor,
-                          height: 1.5,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    // Background: image if available, otherwise gradient
+                    if (theme.hasBackgroundImage)
+                      Image.asset(
+                        theme.backgroundImage!,
+                        fit: BoxFit.cover,
+                      )
+                    else
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: theme.gradient,
                         ),
                       ),
-                      if (widget.reference != null) ...[
-                        const SizedBox(height: 16),
-                        Text(
-                          widget.reference!,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: theme.textColor.withOpacity(0.7),
-                            fontStyle: FontStyle.italic,
-                          ),
+                    // Content overlay
+                    Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              widget.text,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: theme.textColor,
+                                height: 1.5,
+                              ),
+                            ),
+                            if (widget.reference != null) ...[
+                              const SizedBox(height: 16),
+                              Text(
+                                widget.reference!,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: theme.textColor.withOpacity(0.7),
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
-                      ],
-                    ],
-                  ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
