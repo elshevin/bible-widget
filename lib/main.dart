@@ -15,6 +15,31 @@ import 'data/content_data.dart';
 // Global key to access app state from widget callback
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
+/// Update widget colors only (without background image rendering)
+/// This can be called before runApp since it doesn't need Flutter rendering
+Future<void> _updateWidgetColorsOnly(String themeId) async {
+  try {
+    final theme = VisualThemes.getById(themeId);
+    final colors = theme.gradientColors;
+
+    String colorToHex(Color color) {
+      return '#${color.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}';
+    }
+
+    final startColor = colorToHex(colors.first);
+    final endColor = colorToHex(colors.last);
+    final textColor = colorToHex(theme.textColor);
+
+    await HomeWidget.saveWidgetData<String>('widget_start_color', startColor);
+    await HomeWidget.saveWidgetData<String>('widget_end_color', endColor);
+    await HomeWidget.saveWidgetData<String>('widget_text_color', textColor);
+
+    print('main: Updated widget colors for theme $themeId');
+  } catch (e) {
+    print('main: _updateWidgetColorsOnly error: $e');
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -40,12 +65,16 @@ void main() async {
     print('Extracted verse ID: $launchVerseId');
   }
 
-  // Load saved theme and sync to widget BEFORE updating verse content
-  // This ensures widget always has correct theme colors
+  // Load saved theme ID for passing to app
+  // Widget sync with background image will happen after app is fully initialized
+  // because renderFlutterWidget needs the Flutter engine to be fully ready
   final savedThemeId = await StorageService.loadThemeId();
-  await WidgetService.updateWidgetTheme(savedThemeId);
 
-  // Only update widget with random verse if NOT launched from widget
+  // Only save basic widget data before runApp (colors, not images)
+  // Background image rendering happens in _initializeApp after Flutter is ready
+  await _updateWidgetColorsOnly(savedThemeId);
+
+  // Only update widget verse if NOT launched from widget
   // This preserves the content user clicked on
   if (!launchedFromWidget) {
     await WidgetService.updateWidgetWithRandomVerse();
@@ -135,7 +164,7 @@ class _BibleWidgetsAppState extends State<BibleWidgetsApp> {
       widgetText = await HomeWidget.getWidgetData<String>('widget_verse_text');
 
       print('Widget sync: launchVerseId=$launchVerseId, storedVerseId=$verseId');
-      print('Widget sync: text=${widgetText?.substring(0, min(30, widgetText?.length ?? 0))}...');
+      print('Widget sync: text=${widgetText?.substring(0, min(30, widgetText.length))}...');
 
       // First search in feedContent by ID
       if (verseId != null && verseId.isNotEmpty) {

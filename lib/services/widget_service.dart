@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
 import '../data/content_data.dart';
@@ -67,7 +68,7 @@ class WidgetService {
     }
   }
 
-  /// Update the widget theme colors
+  /// Update the widget theme colors and background image
   static Future<void> updateWidgetTheme(String themeId) async {
     try {
       final theme = VisualThemes.getById(themeId);
@@ -79,6 +80,7 @@ class WidgetService {
 
       print('WidgetService: Updating theme to $themeId');
       print('WidgetService: startColor=$startColor, endColor=$endColor');
+      print('WidgetService: backgroundImage=${theme.backgroundImage}');
 
       // Save gradient colors as hex strings
       await HomeWidget.saveWidgetData<String>(
@@ -94,6 +96,9 @@ class WidgetService {
         textColor,
       );
 
+      // Render background image to App Group shared container for iOS widget
+      await _copyBackgroundForWidget(theme.backgroundImage);
+
       // Force widget refresh
       await updateWidget();
       print('WidgetService: theme updated successfully to $themeId');
@@ -103,7 +108,39 @@ class WidgetService {
   }
 
   static String _colorToHex(Color color) {
-    return '#${color.value.toRadixString(16).padLeft(8, '0').substring(2)}';
+    return '#${color.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}';
+  }
+
+  /// Render background image and save to App Group shared container for iOS widget
+  /// Uses HomeWidget.renderFlutterWidget to save to the shared container
+  /// that both the main app and widget extension can access
+  static Future<void> _copyBackgroundForWidget(String? assetPath) async {
+    if (assetPath == null) return;
+
+    try {
+      // iOS only - Android uses different approach
+      if (!Platform.isIOS) return;
+
+      print('WidgetService: Rendering background for widget: $assetPath');
+
+      // Use renderFlutterWidget which automatically saves to App Group container
+      // and stores the path in UserDefaults
+      await HomeWidget.renderFlutterWidget(
+        Image.asset(
+          assetPath,
+          fit: BoxFit.cover,
+          width: 400,
+          height: 400,
+        ),
+        key: 'widget_background_image',
+        logicalSize: const Size(400, 400),
+        pixelRatio: 2.0, // For retina display
+      );
+
+      print('WidgetService: Background rendered to App Group container');
+    } catch (e) {
+      print('WidgetService: _copyBackgroundForWidget error: $e');
+    }
   }
 
   /// Trigger widget update - forces iOS WidgetKit to reload timelines
@@ -145,6 +182,7 @@ class WidgetService {
 
       print('WidgetService: forceRefresh - theme=$themeId, verse=$verseId');
       print('WidgetService: forceRefresh - colors: $startColor -> $endColor');
+      print('WidgetService: forceRefresh - backgroundImage=${theme.backgroundImage}');
 
       // Save all data in sequence
       await HomeWidget.saveWidgetData<String>('widget_start_color', startColor);
@@ -153,6 +191,9 @@ class WidgetService {
       await HomeWidget.saveWidgetData<String>('widget_verse_text', text);
       await HomeWidget.saveWidgetData<String>('widget_verse_reference', reference ?? '');
       await HomeWidget.saveWidgetData<String>('widget_verse_id', verseId ?? '');
+
+      // Render background image to App Group shared container for iOS widget
+      await _copyBackgroundForWidget(theme.backgroundImage);
 
       // Force update
       await updateWidget();

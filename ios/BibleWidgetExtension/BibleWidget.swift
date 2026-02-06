@@ -9,6 +9,7 @@ struct BibleWidgetEntry: TimelineEntry {
     let startColor: String
     let endColor: String
     let verseId: String
+    let backgroundImagePath: String?
 }
 
 // MARK: - Timeline Provider
@@ -23,7 +24,8 @@ struct BibleWidgetProvider: TimelineProvider {
             reference: "John 3:16",
             startColor: "#c9a962",
             endColor: "#d4b574",
-            verseId: ""
+            verseId: "",
+            backgroundImagePath: nil
         )
     }
 
@@ -51,7 +53,8 @@ struct BibleWidgetProvider: TimelineProvider {
                 reference: "Proverbs 3:5",
                 startColor: "#c9a962",
                 endColor: "#d4b574",
-                verseId: ""
+                verseId: "",
+                backgroundImagePath: nil
             )
         }
 
@@ -69,11 +72,13 @@ struct BibleWidgetProvider: TimelineProvider {
         let startColor = sharedDefaults.string(forKey: "widget_start_color")
         let endColor = sharedDefaults.string(forKey: "widget_end_color")
         let verseId = sharedDefaults.string(forKey: "widget_verse_id")
+        let backgroundImagePath = sharedDefaults.string(forKey: "widget_background_image")
 
         print("BibleWidget: verse=\(verse?.prefix(30) ?? "nil")...")
         print("BibleWidget: reference=\(reference ?? "nil")")
         print("BibleWidget: startColor=\(startColor ?? "nil"), endColor=\(endColor ?? "nil")")
         print("BibleWidget: verseId=\(verseId ?? "nil")")
+        print("BibleWidget: backgroundImagePath=\(backgroundImagePath ?? "nil")")
 
         return BibleWidgetEntry(
             date: Date(),
@@ -81,7 +86,8 @@ struct BibleWidgetProvider: TimelineProvider {
             reference: reference ?? "Proverbs 3:5",
             startColor: startColor ?? "#c9a962",
             endColor: endColor ?? "#d4b574",
-            verseId: verseId ?? ""
+            verseId: verseId ?? "",
+            backgroundImagePath: backgroundImagePath
         )
     }
 }
@@ -125,10 +131,10 @@ struct BibleWidgetEntryView: View {
         .widgetURL(widgetURL)
         .background {
             if showBackground {
-                LinearGradient(
-                    colors: [Color(hex: entry.startColor), Color(hex: entry.endColor)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
+                WidgetBackgroundView(
+                    startColor: entry.startColor,
+                    endColor: entry.endColor,
+                    backgroundImagePath: entry.backgroundImagePath
                 )
             }
         }
@@ -201,6 +207,34 @@ extension Color {
     }
 }
 
+// MARK: - Widget Background View
+struct WidgetBackgroundView: View {
+    let startColor: String
+    let endColor: String
+    let backgroundImagePath: String?
+
+    private var backgroundImage: UIImage? {
+        guard let path = backgroundImagePath else { return nil }
+        return UIImage(contentsOfFile: path)
+    }
+
+    var body: some View {
+        ZStack {
+            if let bgImage = backgroundImage {
+                Image(uiImage: bgImage)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } else {
+                LinearGradient(
+                    colors: [Color(hex: startColor), Color(hex: endColor)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
+        }
+    }
+}
+
 // MARK: - Widget Configuration
 @main
 struct BibleWidget: Widget {
@@ -211,10 +245,10 @@ struct BibleWidget: Widget {
             if #available(iOS 17.0, *) {
                 BibleWidgetEntryView(entry: entry, showBackground: false)
                     .containerBackground(for: .widget) {
-                        LinearGradient(
-                            colors: [Color(hex: entry.startColor), Color(hex: entry.endColor)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
+                        WidgetBackgroundView(
+                            startColor: entry.startColor,
+                            endColor: entry.endColor,
+                            backgroundImagePath: entry.backgroundImagePath
                         )
                     }
             } else {
