@@ -107,13 +107,18 @@ class BibleWidgetProvider : AppWidgetProvider() {
             views.setTextColor(R.id.widget_verse_reference, (parsedTextColor and 0x00FFFFFF) or 0xCC000000.toInt())
 
             // Create intent to open app when widget is clicked
-            // IMPORTANT: Use HomeWidgetLaunchIntent to enable initiallyLaunchedFromHomeWidget() detection
-            val uri = Uri.parse("biblewidgets://verse?id=${verseId ?: ""}&homeWidget=true")
-            val pendingIntent = HomeWidgetLaunchIntent.getActivity(
-                context,
-                MainActivity::class.java,
-                uri
-            )
+            // Use HomeWidgetLaunchIntent to enable initiallyLaunchedFromHomeWidget() detection
+            // URI must include homeWidget=true for home_widget plugin to recognize it
+            val pendingIntent = if (verseId != null && verseId.isNotEmpty()) {
+                val uri = Uri.parse("biblewidgets://verse?id=$verseId&homeWidget=true")
+                Log.d(TAG, "Creating launch intent with URI: $uri")
+                HomeWidgetLaunchIntent.getActivity(context, MainActivity::class.java, uri)
+            } else {
+                // Fallback: just open the app without specific verse
+                val uri = Uri.parse("biblewidgets://home?homeWidget=true")
+                Log.d(TAG, "Creating fallback launch intent with URI: $uri")
+                HomeWidgetLaunchIntent.getActivity(context, MainActivity::class.java, uri)
+            }
             views.setOnClickPendingIntent(R.id.widget_container, pendingIntent)
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
