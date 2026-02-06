@@ -5,25 +5,20 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.SharedPreferences
 import android.widget.RemoteViews
-import android.app.PendingIntent
+import android.net.Uri
 import android.content.Intent
 import android.util.Log
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import es.antonborri.home_widget.HomeWidgetLaunchIntent
+import es.antonborri.home_widget.HomeWidgetPlugin
 
 class BibleWidgetProvider : AppWidgetProvider() {
 
     companion object {
         private const val TAG = "BibleWidgetProvider"
-
-        // Try multiple SharedPreferences names for compatibility
-        private val PREFS_NAMES = listOf(
-            "FlutterSharedPreferences",
-            "home_widget_preferences",
-            "HomeWidgetPreferences"
-        )
 
         // Default theme colors (golden water theme)
         private const val DEFAULT_START_COLOR = "#2C1810"
@@ -71,46 +66,23 @@ class BibleWidgetProvider : AppWidgetProvider() {
         ) {
             Log.d(TAG, "updateAppWidget called for widgetId: $appWidgetId")
 
-            var verseText: String? = null
-            var verseReference: String? = null
-            var startColor: String? = null
-            var endColor: String? = null
-            var textColor: String? = null
+            // Use HomeWidgetPlugin.getData() to get the correct SharedPreferences
+            val prefs: SharedPreferences = HomeWidgetPlugin.getData(context)
 
-            // Try to find data from different SharedPreferences
-            for (prefsName in PREFS_NAMES) {
-                val prefs: SharedPreferences = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
+            // Read widget data directly (home_widget uses no prefix)
+            val verseText = prefs.getString("widget_verse_text", null)
+            val verseReference = prefs.getString("widget_verse_reference", null)
+            val startColor = prefs.getString("widget_start_color", null)
+            val endColor = prefs.getString("widget_end_color", null)
+            val textColor = prefs.getString("widget_text_color", null)
+            val verseId = prefs.getString("widget_verse_id", null)
 
-                // Try different key formats
-                val keyFormats = listOf(
-                    listOf("widget_verse_text", "widget_verse_reference", "widget_start_color", "widget_end_color", "widget_text_color"),
-                    listOf("flutter.widget_verse_text", "flutter.widget_verse_reference", "flutter.widget_start_color", "flutter.widget_end_color", "flutter.widget_text_color")
-                )
-
-                for (keys in keyFormats) {
-                    val text = prefs.getString(keys[0], null)
-                    val ref = prefs.getString(keys[1], null)
-                    val start = prefs.getString(keys[2], null)
-                    val end = prefs.getString(keys[3], null)
-                    val txtColor = prefs.getString(keys[4], null)
-
-                    if (text != null && text.isNotEmpty()) {
-                        verseText = text
-                        verseReference = ref ?: ""
-                        startColor = start
-                        endColor = end
-                        textColor = txtColor
-                        Log.d(TAG, "Found data in $prefsName with keys: ${keys[0]}")
-                        Log.d(TAG, "Colors - start: $start, end: $end, text: $txtColor")
-                        break
-                    }
-                }
-
-                if (verseText != null) break
-            }
+            Log.d(TAG, "Read data - text: ${verseText?.take(30)}...")
+            Log.d(TAG, "Read data - verseId: $verseId")
+            Log.d(TAG, "Read data - colors: start=$startColor, end=$endColor")
 
             // Use default verse if no data found
-            val (text, reference) = if (verseText != null) {
+            val (text, reference) = if (verseText != null && verseText.isNotEmpty()) {
                 Pair(verseText, verseReference ?: "")
             } else {
                 Log.d(TAG, "No verse found in SharedPreferences, using default")
@@ -135,17 +107,17 @@ class BibleWidgetProvider : AppWidgetProvider() {
             views.setTextColor(R.id.widget_verse_reference, (parsedTextColor and 0x00FFFFFF) or 0xCC000000.toInt())
 
             // Create intent to open app when widget is clicked
-            val intent = Intent(context, MainActivity::class.java)
-            val pendingIntent = PendingIntent.getActivity(
+            // IMPORTANT: Use HomeWidgetLaunchIntent to enable initiallyLaunchedFromHomeWidget() detection
+            val uri = Uri.parse("biblewidgets://verse?id=${verseId ?: ""}&homeWidget=true")
+            val pendingIntent = HomeWidgetLaunchIntent.getActivity(
                 context,
-                0,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                MainActivity::class.java,
+                uri
             )
             views.setOnClickPendingIntent(R.id.widget_container, pendingIntent)
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
-            Log.d(TAG, "Widget updated successfully with colors")
+            Log.d(TAG, "Widget updated successfully with colors and deep link URI: $uri")
         }
     }
 
