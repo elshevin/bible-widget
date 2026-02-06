@@ -131,4 +131,34 @@ class WidgetService {
       print('WidgetService: registerInteractivityCallback error: $e');
     }
   }
+
+  /// Force refresh all widget data (theme + verse) - useful when returning to app
+  static Future<void> forceRefreshWidget(String themeId, String text, String? reference, String? verseId) async {
+    try {
+      // Update theme
+      final theme = VisualThemes.getById(themeId);
+      final colors = theme.gradientColors;
+
+      final startColor = _colorToHex(colors.first);
+      final endColor = _colorToHex(colors.last);
+      final textColor = _colorToHex(theme.textColor);
+
+      print('WidgetService: forceRefresh - theme=$themeId, verse=$verseId');
+      print('WidgetService: forceRefresh - colors: $startColor -> $endColor');
+
+      // Save all data in sequence
+      await HomeWidget.saveWidgetData<String>('widget_start_color', startColor);
+      await HomeWidget.saveWidgetData<String>('widget_end_color', endColor);
+      await HomeWidget.saveWidgetData<String>('widget_text_color', textColor);
+      await HomeWidget.saveWidgetData<String>('widget_verse_text', text);
+      await HomeWidget.saveWidgetData<String>('widget_verse_reference', reference ?? '');
+      await HomeWidget.saveWidgetData<String>('widget_verse_id', verseId ?? '');
+
+      // Force update
+      await updateWidget();
+      print('WidgetService: forceRefresh complete');
+    } catch (e) {
+      print('WidgetService: forceRefreshWidget error: $e');
+    }
+  }
 }

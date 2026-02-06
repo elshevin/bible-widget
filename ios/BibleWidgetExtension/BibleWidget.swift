@@ -57,24 +57,39 @@ struct BibleWidgetProvider: TimelineProvider {
         // Force synchronize to get latest data from disk
         sharedDefaults.synchronize()
 
-        // Keys match Flutter's HomeWidget.saveWidgetData() calls
-        let verse = sharedDefaults.string(forKey: "widget_verse_text") ?? "Trust in the LORD with all your heart and lean not on your own understanding."
-        let reference = sharedDefaults.string(forKey: "widget_verse_reference") ?? "Proverbs 3:5"
+        // Try different key formats - home_widget may prefix keys differently
+        let keyFormats = [
+            // Standard keys (home_widget default)
+            ["widget_verse_text", "widget_verse_reference", "widget_start_color", "widget_end_color", "widget_verse_id"],
+            // With flutter prefix
+            ["flutter.widget_verse_text", "flutter.widget_verse_reference", "flutter.widget_start_color", "flutter.widget_end_color", "flutter.widget_verse_id"]
+        ]
 
-        // Get theme colors from Flutter - these should be set by WidgetService.updateWidgetTheme()
-        let startColor = sharedDefaults.string(forKey: "widget_start_color") ?? "#c9a962"
-        let endColor = sharedDefaults.string(forKey: "widget_end_color") ?? "#d4b574"
+        var verse: String?
+        var reference: String?
+        var startColor: String?
+        var endColor: String?
+        var verseId: String?
 
-        // Get verse ID for deep link navigation
-        let verseId = sharedDefaults.string(forKey: "widget_verse_id") ?? ""
+        for keys in keyFormats {
+            let v = sharedDefaults.string(forKey: keys[0])
+            if v != nil && !v!.isEmpty {
+                verse = v
+                reference = sharedDefaults.string(forKey: keys[1])
+                startColor = sharedDefaults.string(forKey: keys[2])
+                endColor = sharedDefaults.string(forKey: keys[3])
+                verseId = sharedDefaults.string(forKey: keys[4])
+                break
+            }
+        }
 
         return BibleWidgetEntry(
             date: Date(),
-            verse: verse,
-            reference: reference,
-            startColor: startColor,
-            endColor: endColor,
-            verseId: verseId
+            verse: verse ?? "Trust in the LORD with all your heart and lean not on your own understanding.",
+            reference: reference ?? "Proverbs 3:5",
+            startColor: startColor ?? "#c9a962",
+            endColor: endColor ?? "#d4b574",
+            verseId: verseId ?? ""
         )
     }
 }

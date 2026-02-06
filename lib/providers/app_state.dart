@@ -321,11 +321,27 @@ class AppState extends ChangeNotifier {
   }
 
   Verse? getVerseById(String id) {
+    // First search in feed content
     try {
       return _feedContent.firstWhere((v) => v.id == id);
     } catch (e) {
-      return null;
+      // Not in feed, search in all verses
+      try {
+        return ContentData.verses.firstWhere((v) => v.id == id);
+      } catch (e) {
+        return null;
+      }
     }
+  }
+
+  /// Insert a verse at the front of the feed (used when opening from widget)
+  void insertVerseAtFront(Verse verse) {
+    // Remove if already exists to avoid duplicates
+    _feedContent.removeWhere((v) => v.id == verse.id);
+    // Insert at front
+    _feedContent.insert(0, verse);
+    _currentFeedIndex = 0;
+    notifyListeners();
   }
   
   // Get current verse
