@@ -89,28 +89,28 @@ class _TopicsFollowScreenState extends State<TopicsFollowScreen> {
                   return ListView(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     children: [
-                      // Following section - Quick access items
+                      // Following section - Quick access items (these are always available, cannot be unfollowed)
                       _FollowingSection(
                         items: [
                           _FollowItem(
                             title: 'General',
-                            isFollowing: true,
-                            onToggle: () {},
+                            isFollowing: appState.user.selectedTopics.contains('general'),
+                            onToggle: () => appState.toggleTopic('general'),
                           ),
                           _FollowItem(
                             title: 'Favorites',
-                            isFollowing: true,
-                            onToggle: () {},
+                            isFollowing: appState.user.selectedTopics.contains('favorites'),
+                            onToggle: () => appState.toggleTopic('favorites'),
                           ),
                           _FollowItem(
                             title: 'My own quotes',
-                            isFollowing: true,
-                            onToggle: () {},
+                            isFollowing: appState.user.selectedTopics.contains('my_own_quotes'),
+                            onToggle: () => appState.toggleTopic('my_own_quotes'),
                           ),
                           _FollowItem(
                             title: 'History',
-                            isFollowing: true,
-                            onToggle: () {},
+                            isFollowing: appState.user.selectedTopics.contains('history'),
+                            onToggle: () => appState.toggleTopic('history'),
                           ),
                         ],
                       ),
@@ -223,20 +223,25 @@ class _FollowingSection extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: AppTheme.cardBackground,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: AppTheme.secondaryText.withOpacity(0.3),
+                    GestureDetector(
+                      onTap: item.onToggle,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: item.isFollowing
+                              ? AppTheme.cardBackground
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: AppTheme.secondaryText.withOpacity(0.3),
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        'Following',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: AppTheme.secondaryText,
+                        child: Text(
+                          item.isFollowing ? 'Following' : 'Follow',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppTheme.secondaryText,
+                          ),
                         ),
                       ),
                     ),

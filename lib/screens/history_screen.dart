@@ -33,19 +33,33 @@ class HistoryScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: AppTheme.primaryText),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Text(
-                      'Follow',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                  Consumer<AppState>(
+                    builder: (context, appState, _) {
+                      final isFollowing = appState.user.selectedTopics.contains('history');
+                      return GestureDetector(
+                        onTap: () => appState.toggleTopic('history'),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: isFollowing ? AppTheme.cardBackground : Colors.transparent,
+                            border: Border.all(
+                              color: isFollowing
+                                  ? AppTheme.secondaryText.withOpacity(0.3)
+                                  : AppTheme.primaryText,
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            isFollowing ? 'Following' : 'Follow',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: isFollowing ? AppTheme.secondaryText : AppTheme.primaryText,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

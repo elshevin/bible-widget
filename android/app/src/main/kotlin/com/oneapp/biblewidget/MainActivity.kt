@@ -2,12 +2,14 @@ package com.oneapp.biblewidget
 
 import android.content.ComponentName
 import android.content.pm.PackageManager
+import android.util.Log
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity: FlutterActivity() {
     private val CHANNEL = "com.biblewidgets/app_icon"
+    private val TAG = "BibleWidgetIcon"
 
     private val iconAliases = mapOf(
         "default" to ".MainActivityDefault",
@@ -28,12 +30,25 @@ class MainActivity: FlutterActivity() {
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
                 "setAppIcon" -> {
-                    val iconName = call.argument<String>("iconName") ?: "default"
-                    setAppIcon(iconName)
-                    result.success(true)
+                    try {
+                        val iconName = call.argument<String>("iconName") ?: "default"
+                        Log.d(TAG, "Setting app icon to: $iconName")
+                        setAppIcon(iconName)
+                        result.success(true)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error setting app icon: ${e.message}")
+                        result.error("ICON_ERROR", e.message, null)
+                    }
                 }
                 "getCurrentIcon" -> {
-                    result.success(getCurrentIcon())
+                    try {
+                        val currentIcon = getCurrentIcon()
+                        Log.d(TAG, "Current icon: $currentIcon")
+                        result.success(currentIcon)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error getting current icon: ${e.message}")
+                        result.error("ICON_ERROR", e.message, null)
+                    }
                 }
                 else -> {
                     result.notImplemented()
@@ -43,36 +58,51 @@ class MainActivity: FlutterActivity() {
     }
 
     private fun setAppIcon(iconName: String) {
-        val packageManager = packageManager
-        val packageName = packageName
+        val pm = packageManager
+        val pkgName = packageName
 
-        // Disable all aliases first
-        iconAliases.values.forEach { alias ->
-            packageManager.setComponentEnabledSetting(
-                ComponentName(packageName, "$packageName$alias"),
-                PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                PackageManager.DONT_KILL_APP
-            )
-        }
+        Log.d(TAG, "Package name: $pkgName")
+        Log.d(TAG, "Available aliases: ${iconAliases.keys}")
 
-        // Enable the selected alias
+        // First, enable the new icon
         val selectedAlias = iconAliases[iconName] ?: iconAliases["default"]!!
-        packageManager.setComponentEnabledSetting(
-            ComponentName(packageName, "$packageName$selectedAlias"),
+        Log.d(TAG, "Enabling alias: $pkgName$selectedAlias")
+
+        pm.setComponentEnabledSetting(
+            ComponentName(pkgName, "$pkgName$selectedAlias"),
             PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
             PackageManager.DONT_KILL_APP
         )
+
+        // Then disable all other aliases
+        iconAliases.forEach { (name, alias) ->
+            if (name != iconName) {
+                Log.d(TAG, "Disabling alias: $pkgName$alias")
+                pm.setComponentEnabledSetting(
+                    ComponentName(pkgName, "$pkgName$alias"),
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                    PackageManager.DONT_KILL_APP
+                )
+            }
+        }
+
+        Log.d(TAG, "Icon change completed for: $iconName")
     }
 
     private fun getCurrentIcon(): String {
-        val packageManager = packageManager
-        val packageName = packageName
+        val pm = packageManager
+        val pkgName = packageName
 
         for ((name, alias) in iconAliases) {
-            val componentName = ComponentName(packageName, "$packageName$alias")
-            val state = packageManager.getComponentEnabledSetting(componentName)
-            if (state == PackageManager.COMPONENT_ENABLED_STATE_ENABLED ||
-                (state == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT && name == "default")) {
+            val componentName = ComponentName(pkgName, "$pkgName$alias")
+            val state = pm.getComponentEnabledSetting(componentName)
+            Log.d(TAG, "Alias $name ($alias) state: $state")
+
+            if (state == PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
+                return name
+            }
+            // Check if default is in default state (not explicitly set)
+            if (name == "default" && state == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT) {
                 return name
             }
         }
