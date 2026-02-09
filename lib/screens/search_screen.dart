@@ -67,7 +67,7 @@ class _SearchScreenState extends State<SearchScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header with search bar
+            // Header with back button
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
               child: Row(
@@ -76,23 +76,13 @@ class _SearchScreenState extends State<SearchScreen> {
                     onTap: () => Navigator.pop(context),
                     child: const Icon(Icons.arrow_back, size: 24),
                   ),
-                  const SizedBox(width: 12),
-                  Icon(
-                    Icons.search,
-                    color: AppTheme.secondaryText.withOpacity(0.5),
-                    size: 22,
-                  ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: Container(
-                      height: 44,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: AppTheme.primaryText.withOpacity(0.3),
-                          width: 1,
-                        ),
+                        color: AppTheme.cardBackground,
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: TextField(
                         controller: _searchController,
@@ -100,16 +90,16 @@ class _SearchScreenState extends State<SearchScreen> {
                         onChanged: (value) => setState(() => _searchQuery = value),
                         style: const TextStyle(fontSize: 16),
                         decoration: InputDecoration(
+                          icon: Icon(
+                            Icons.search,
+                            color: AppTheme.secondaryText.withOpacity(0.5),
+                          ),
                           hintText: 'Search',
                           hintStyle: TextStyle(
                             color: AppTheme.secondaryText.withOpacity(0.5),
                             fontSize: 16,
                           ),
                           border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
                           suffixIcon: _searchQuery.isNotEmpty
                               ? IconButton(
                                   icon: const Icon(Icons.close, size: 18),
