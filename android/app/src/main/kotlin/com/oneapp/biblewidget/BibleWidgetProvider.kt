@@ -145,7 +145,7 @@ class BibleWidgetProvider : AppWidgetProvider() {
             views.setOnClickPendingIntent(R.id.widget_container, pendingIntent)
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
-            Log.d(TAG, "Widget updated successfully with colors and deep link URI: $uri")
+            Log.d(TAG, "Widget updated successfully with colors")
         }
     }
 
