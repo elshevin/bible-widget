@@ -18,6 +18,23 @@ allprojects {
     }
 }
 
+// Fix for plugins that don't have namespace defined (required for AGP 8.0+)
+subprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty('android') && project.android.namespace == null) {
+            // Try to get package from AndroidManifest.xml
+            def manifest = project.file("src/main/AndroidManifest.xml")
+            if (manifest.exists()) {
+                def xml = new XmlSlurper().parse(manifest)
+                def packageName = xml.@package.toString()
+                if (packageName) {
+                    project.android.namespace = packageName
+                }
+            }
+        }
+    }
+}
+
 rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
