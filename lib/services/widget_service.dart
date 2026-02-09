@@ -1,4 +1,5 @@
 import 'dart:ui' as ui;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:home_widget/home_widget.dart';
@@ -15,9 +16,9 @@ class WidgetService {
   static Future<void> initialize() async {
     try {
       await HomeWidget.setAppGroupId(appGroupId);
-      print('WidgetService: initialized with appGroupId: $appGroupId');
+      if (kDebugMode) print('WidgetService: initialized with appGroupId: $appGroupId');
     } catch (e) {
-      print('WidgetService: initialization error: $e');
+      if (kDebugMode) print('WidgetService: initialization error: $e');
     }
   }
 
@@ -27,7 +28,7 @@ class WidgetService {
       final verses = ContentData.verses;
       final randomVerse = verses[Random().nextInt(verses.length)];
 
-      print('WidgetService: saving verse - ${randomVerse.reference}');
+      if (kDebugMode) print('WidgetService: saving verse - ${randomVerse.reference}');
 
       await HomeWidget.saveWidgetData<String>(
         'widget_verse_text',
@@ -44,9 +45,9 @@ class WidgetService {
       );
 
       await updateWidget();
-      print('WidgetService: widget updated successfully');
+      if (kDebugMode) print('WidgetService: widget updated successfully');
     } catch (e) {
-      print('WidgetService: updateWidgetWithRandomVerse error: $e');
+      if (kDebugMode) print('WidgetService: updateWidgetWithRandomVerse error: $e');
     }
   }
 
@@ -65,7 +66,7 @@ class WidgetService {
 
       await updateWidget();
     } catch (e) {
-      print('WidgetService: updateWidgetWithVerse error: $e');
+      if (kDebugMode) print('WidgetService: updateWidgetWithVerse error: $e');
     }
   }
 
@@ -79,9 +80,9 @@ class WidgetService {
       final endColor = _colorToHex(colors.last);
       final textColor = _colorToHex(theme.textColor);
 
-      print('WidgetService: Updating theme to $themeId');
-      print('WidgetService: startColor=$startColor, endColor=$endColor');
-      print('WidgetService: backgroundImage=${theme.backgroundImage}');
+      if (kDebugMode) print('WidgetService: Updating theme to $themeId');
+      if (kDebugMode) print('WidgetService: startColor=$startColor, endColor=$endColor');
+      if (kDebugMode) print('WidgetService: backgroundImage=${theme.backgroundImage}');
 
       // Save gradient colors as hex strings
       await HomeWidget.saveWidgetData<String>(
@@ -102,9 +103,9 @@ class WidgetService {
 
       // Force widget refresh
       await updateWidget();
-      print('WidgetService: theme updated successfully to $themeId');
+      if (kDebugMode) print('WidgetService: theme updated successfully to $themeId');
     } catch (e) {
-      print('WidgetService: updateWidgetTheme error: $e');
+      if (kDebugMode) print('WidgetService: updateWidgetTheme error: $e');
     }
   }
 
@@ -120,7 +121,7 @@ class WidgetService {
     if (assetPath == null) return;
 
     try {
-      print('WidgetService: Rendering background for widget: $assetPath');
+      if (kDebugMode) print('WidgetService: Rendering background for widget: $assetPath');
 
       // Load the image first to ensure it's fully loaded before rendering
       final ByteData data = await rootBundle.load(assetPath);
@@ -128,7 +129,7 @@ class WidgetService {
       final ui.FrameInfo frameInfo = await codec.getNextFrame();
       final ui.Image image = frameInfo.image;
 
-      print('WidgetService: Image loaded: ${image.width}x${image.height}');
+      if (kDebugMode) print('WidgetService: Image loaded: ${image.width}x${image.height}');
 
       // Use renderFlutterWidget with RawImage which doesn't need async loading
       // This works on both iOS and Android
@@ -144,9 +145,9 @@ class WidgetService {
         pixelRatio: 2.0, // For retina/high-density displays
       );
 
-      print('WidgetService: Background rendered to shared container');
+      if (kDebugMode) print('WidgetService: Background rendered to shared container');
     } catch (e) {
-      print('WidgetService: _copyBackgroundForWidget error: $e');
+      if (kDebugMode) print('WidgetService: _copyBackgroundForWidget error: $e');
     }
   }
 
@@ -159,9 +160,9 @@ class WidgetService {
         name: androidWidgetName,
         iOSName: iOSWidgetName,
       );
-      print('WidgetService: updateWidget result = $result');
+      if (kDebugMode) print('WidgetService: updateWidget result = $result');
     } catch (e) {
-      print('WidgetService: updateWidget error: $e');
+      if (kDebugMode) print('WidgetService: updateWidget error: $e');
     }
   }
 
@@ -172,7 +173,7 @@ class WidgetService {
     try {
       await HomeWidget.registerInteractivityCallback(callback);
     } catch (e) {
-      print('WidgetService: registerInteractivityCallback error: $e');
+      if (kDebugMode) print('WidgetService: registerInteractivityCallback error: $e');
     }
   }
 
@@ -187,9 +188,9 @@ class WidgetService {
       final endColor = _colorToHex(colors.last);
       final textColor = _colorToHex(theme.textColor);
 
-      print('WidgetService: forceRefresh - theme=$themeId, verse=$verseId');
-      print('WidgetService: forceRefresh - colors: $startColor -> $endColor');
-      print('WidgetService: forceRefresh - backgroundImage=${theme.backgroundImage}');
+      if (kDebugMode) print('WidgetService: forceRefresh - theme=$themeId, verse=$verseId');
+      if (kDebugMode) print('WidgetService: forceRefresh - colors: $startColor -> $endColor');
+      if (kDebugMode) print('WidgetService: forceRefresh - backgroundImage=${theme.backgroundImage}');
 
       // Save all data in sequence
       await HomeWidget.saveWidgetData<String>('widget_start_color', startColor);
@@ -204,9 +205,9 @@ class WidgetService {
 
       // Force update
       await updateWidget();
-      print('WidgetService: forceRefresh complete');
+      if (kDebugMode) print('WidgetService: forceRefresh complete');
     } catch (e) {
-      print('WidgetService: forceRefreshWidget error: $e');
+      if (kDebugMode) print('WidgetService: forceRefreshWidget error: $e');
     }
   }
 }

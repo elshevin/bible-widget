@@ -75,50 +75,7 @@ class ProfileSheet extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    
-                    // Unlock all banner
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        gradient: AppTheme.goldGradient,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Unlock all',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppTheme.primaryText,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Access all categories, quotes, themes, and remove ads!',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: AppTheme.primaryText.withOpacity(0.8),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Icon(
-                            Icons.menu_book_outlined,
-                            size: 48,
-                            color: AppTheme.primaryText.withOpacity(0.3),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    
+
                     // Streak widget
                     Consumer<AppState>(
                       builder: (context, appState, _) {

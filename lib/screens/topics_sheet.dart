@@ -122,50 +122,7 @@ class _TopicsSheetState extends State<TopicsSheet> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    
-                    // Unlock all banner
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        gradient: AppTheme.goldGradient,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Unlock all topics',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppTheme.primaryText,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Browse topics and follow them to customize your feed',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: AppTheme.primaryText.withOpacity(0.8),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Icon(
-                            Icons.menu_book_outlined,
-                            size: 48,
-                            color: AppTheme.primaryText.withOpacity(0.3),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    
+
                     // Quick access grid
                     Row(
                       children: [
@@ -287,42 +244,6 @@ class _TopicsSheetState extends State<TopicsSheet> {
                       );
                     }),
                     
-                    // Go Premium footer
-                    const SizedBox(height: 16),
-                    Center(
-                      child: Column(
-                        children: [
-                          const Text(
-                            'Go Premium',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          const Text(
-                            'Unlock all topics',
-                            style: TextStyle(
-                              color: AppTheme.secondaryText,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Icon(
-                            Icons.menu_book_outlined,
-                            size: 64,
-                            color: AppTheme.secondaryText.withOpacity(0.3),
-                          ),
-                          const SizedBox(height: 16),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: () {},
-                              child: const Text('Unlock all'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                     const SizedBox(height: 32),
                   ],
                 ),

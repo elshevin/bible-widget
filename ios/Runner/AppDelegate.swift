@@ -12,11 +12,13 @@ import home_widget
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
-  // Handle URL schemes for widget deep linking
+  // Handle URL schemes for widget deep linking (cold start and warm start)
   override func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-    // Let home_widget handle the URL if it's from the widget
+    print("AppDelegate: open url called with: \(url)")
+    // Let home_widget handle the URL - it will dispatch to widgetClicked stream
     if url.scheme == "biblewidgets" {
-      // The home_widget package will handle this through initiallyLaunchedFromHomeWidget
+      // home_widget plugin handles both cold start (initiallyLaunchedFromHomeWidget)
+      // and warm start (widgetClicked stream) automatically
       return true
     }
     return super.application(app, open: url, options: options)

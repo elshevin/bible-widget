@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -34,9 +35,9 @@ Future<void> _updateWidgetColorsOnly(String themeId) async {
     await HomeWidget.saveWidgetData<String>('widget_end_color', endColor);
     await HomeWidget.saveWidgetData<String>('widget_text_color', textColor);
 
-    print('main: Updated widget colors for theme $themeId');
+    if (kDebugMode) print('main: Updated widget colors for theme $themeId');
   } catch (e) {
-    print('main: _updateWidgetColorsOnly error: $e');
+    if (kDebugMode) print('main: _updateWidgetColorsOnly error: $e');
   }
 }
 
@@ -61,8 +62,8 @@ void main() async {
   String? launchVerseId;
   if (launchUri != null) {
     launchVerseId = launchUri.queryParameters['id'];
-    print('App launched from widget with URI: $launchUri');
-    print('Extracted verse ID: $launchVerseId');
+    if (kDebugMode) print('App launched from widget with URI: $launchUri');
+    if (kDebugMode) print('Extracted verse ID: $launchVerseId');
   }
 
   // Load saved theme ID for passing to app
@@ -109,15 +110,35 @@ class BibleWidgetsApp extends StatefulWidget {
   State<BibleWidgetsApp> createState() => _BibleWidgetsAppState();
 }
 
-class _BibleWidgetsAppState extends State<BibleWidgetsApp> {
+class _BibleWidgetsAppState extends State<BibleWidgetsApp> with WidgetsBindingObserver {
   late AppState _appState;
   bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _appState = AppState();
     _initializeApp();
+    _setupWidgetClickListener();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// Listen for widget clicks when app is already running (warm start)
+  /// Note: We intentionally don't auto-navigate on warm start to avoid
+  /// interrupting the user's current browsing. Only cold start navigates
+  /// to the widget content since that's when user explicitly launched from widget.
+  void _setupWidgetClickListener() {
+    HomeWidget.widgetClicked.listen((uri) {
+      if (uri != null) {
+        if (kDebugMode) print('Widget clicked (warm start): $uri - not switching content to preserve user context');
+      }
+    });
   }
 
   Future<void> _initializeApp() async {
@@ -163,8 +184,8 @@ class _BibleWidgetsAppState extends State<BibleWidgetsApp> {
       }
       widgetText = await HomeWidget.getWidgetData<String>('widget_verse_text');
 
-      print('Widget sync: launchVerseId=$launchVerseId, storedVerseId=$verseId');
-      print('Widget sync: text=${widgetText?.substring(0, min(30, widgetText.length))}...');
+      if (kDebugMode) print('Widget sync: launchVerseId=$launchVerseId, storedVerseId=$verseId');
+      if (kDebugMode) print('Widget sync: text=${widgetText?.substring(0, min(30, widgetText.length))}...');
 
       // First search in feedContent by ID
       if (verseId != null && verseId.isNotEmpty) {
@@ -172,7 +193,7 @@ class _BibleWidgetsAppState extends State<BibleWidgetsApp> {
         for (int i = 0; i < feedContent.length; i++) {
           if (feedContent[i].id == verseId) {
             _appState.setFeedIndex(i);
-            print('Found verse by ID in feed: $verseId at index $i');
+            if (kDebugMode) print('Found verse by ID in feed: $verseId at index $i');
             return;
           }
         }
@@ -184,7 +205,7 @@ class _BibleWidgetsAppState extends State<BibleWidgetsApp> {
         for (int i = 0; i < feedContent.length; i++) {
           if (feedContent[i].text == widgetText) {
             _appState.setFeedIndex(i);
-            print('Found verse by text in feed at index $i');
+            if (kDebugMode) print('Found verse by text in feed at index $i');
             return;
           }
         }
@@ -197,15 +218,15 @@ class _BibleWidgetsAppState extends State<BibleWidgetsApp> {
           if (verse.id == verseId) {
             // Found the verse - insert it at the beginning of feed
             _appState.insertVerseAtFront(verse);
-            print('Found verse in all content, inserted at front: $verseId');
+            if (kDebugMode) print('Found verse in all content, inserted at front: $verseId');
             return;
           }
         }
       }
 
-      print('Widget sync: Could not find matching verse');
+      if (kDebugMode) print('Widget sync: Could not find matching verse');
     } catch (e) {
-      print('Error syncing widget content: $e');
+      if (kDebugMode) print('Error syncing widget content: $e');
     }
   }
 

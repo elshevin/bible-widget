@@ -511,24 +511,24 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           ),
                         ),
                         const Spacer(),
-                        // Premium button
-                        GestureDetector(
-                          onTap: () {
-                            // Show premium sheet
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.3),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.workspace_premium_outlined,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                          ),
-                        ),
+                        // Premium button - hidden for free version
+                        // GestureDetector(
+                        //   onTap: () {
+                        //     // Show premium sheet
+                        //   },
+                        //   child: Container(
+                        //     padding: const EdgeInsets.all(8),
+                        //     decoration: BoxDecoration(
+                        //       color: Colors.black.withOpacity(0.3),
+                        //       shape: BoxShape.circle,
+                        //     ),
+                        //     child: const Icon(
+                        //       Icons.workspace_premium_outlined,
+                        //       color: Colors.white,
+                        //       size: 24,
+                        //     ),
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dynamic_icon/flutter_dynamic_icon.dart';
@@ -103,7 +104,7 @@ class _AppIconScreenState extends State<AppIconScreen> {
           });
         }
       } catch (e) {
-        print('Error loading icon state: $e');
+        if (kDebugMode) print('Error loading icon state: $e');
         if (mounted) {
           setState(() {
             _isLoading = false;
@@ -122,7 +123,7 @@ class _AppIconScreenState extends State<AppIconScreen> {
           });
         }
       } catch (e) {
-        print('Error loading Android icon state: $e');
+        if (kDebugMode) print('Error loading Android icon state: $e');
         if (mounted) {
           setState(() {
             _isLoading = false;
@@ -167,7 +168,7 @@ class _AppIconScreenState extends State<AppIconScreen> {
         );
       }
     } catch (e) {
-      print('Error changing icon: $e');
+      if (kDebugMode) print('Error changing icon: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

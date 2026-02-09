@@ -48,20 +48,6 @@ class _ThemesSheetState extends State<ThemesSheet> {
                       ),
                     ),
                     const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppTheme.cardBackground,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Text(
-                        'Unlock all',
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                    ),
                   ],
                 ),
               ),
