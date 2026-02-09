@@ -38,13 +38,13 @@
             </intent-filter>
         </activity-alias>
 
-        <!-- Dark App Icon -->
+        <!-- Navy Stars App Icon -->
         <activity-alias
-            android:name=".MainActivityDark"
+            android:name=".MainActivityNavyStars"
             android:targetActivity=".MainActivity"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/ic_launcher"
+            android:icon="@mipmap/ic_launcher_navy_stars"
             android:label="Bible Widgets">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -52,13 +52,13 @@
             </intent-filter>
         </activity-alias>
 
-        <!-- Light App Icon -->
+        <!-- Cream Olive App Icon -->
         <activity-alias
-            android:name=".MainActivityLight"
+            android:name=".MainActivityCreamOlive"
             android:targetActivity=".MainActivity"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/ic_launcher"
+            android:icon="@mipmap/ic_launcher_cream_olive"
             android:label="Bible Widgets">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -66,13 +66,13 @@
             </intent-filter>
         </activity-alias>
 
-        <!-- Gold App Icon -->
+        <!-- Gold Luxe App Icon -->
         <activity-alias
-            android:name=".MainActivityGold"
+            android:name=".MainActivityGoldLuxe"
             android:targetActivity=".MainActivity"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/ic_launcher"
+            android:icon="@mipmap/ic_launcher_gold_luxe"
             android:label="Bible Widgets">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -80,13 +80,13 @@
             </intent-filter>
         </activity-alias>
 
-        <!-- Rose App Icon -->
+        <!-- White Wave App Icon -->
         <activity-alias
-            android:name=".MainActivityRose"
+            android:name=".MainActivityWhiteWave"
             android:targetActivity=".MainActivity"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/ic_launcher"
+            android:icon="@mipmap/ic_launcher_white_wave"
             android:label="Bible Widgets">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -94,13 +94,13 @@
             </intent-filter>
         </activity-alias>
 
-        <!-- Ocean App Icon -->
+        <!-- Teal Pink App Icon -->
         <activity-alias
-            android:name=".MainActivityOcean"
+            android:name=".MainActivityTealPink"
             android:targetActivity=".MainActivity"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/ic_launcher"
+            android:icon="@mipmap/ic_launcher_teal_pink"
             android:label="Bible Widgets">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -108,13 +108,13 @@
             </intent-filter>
         </activity-alias>
 
-        <!-- Forest App Icon -->
+        <!-- Ocean Clouds App Icon -->
         <activity-alias
-            android:name=".MainActivityForest"
+            android:name=".MainActivityOceanClouds"
             android:targetActivity=".MainActivity"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/ic_launcher"
+            android:icon="@mipmap/ic_launcher_ocean_clouds"
             android:label="Bible Widgets">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -122,13 +122,41 @@
             </intent-filter>
         </activity-alias>
 
-        <!-- Sunset App Icon -->
+        <!-- Night Gold App Icon -->
         <activity-alias
-            android:name=".MainActivitySunset"
+            android:name=".MainActivityNightGold"
             android:targetActivity=".MainActivity"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/ic_launcher"
+            android:icon="@mipmap/ic_launcher_night_gold"
+            android:label="Bible Widgets">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+
+        <!-- Sunset Coral App Icon -->
+        <activity-alias
+            android:name=".MainActivitySunsetCoral"
+            android:targetActivity=".MainActivity"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_sunset_coral"
+            android:label="Bible Widgets">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+
+        <!-- Royal Purple App Icon -->
+        <activity-alias
+            android:name=".MainActivityRoyalPurple"
+            android:targetActivity=".MainActivity"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_royal_purple"
             android:label="Bible Widgets">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

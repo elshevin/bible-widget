@@ -11,13 +11,15 @@ class MainActivity: FlutterActivity() {
 
     private val iconAliases = mapOf(
         "default" to ".MainActivityDefault",
-        "dark" to ".MainActivityDark",
-        "light" to ".MainActivityLight",
-        "gold" to ".MainActivityGold",
-        "rose" to ".MainActivityRose",
-        "ocean" to ".MainActivityOcean",
-        "forest" to ".MainActivityForest",
-        "sunset" to ".MainActivitySunset"
+        "navy_stars" to ".MainActivityNavyStars",
+        "cream_olive" to ".MainActivityCreamOlive",
+        "gold_luxe" to ".MainActivityGoldLuxe",
+        "white_wave" to ".MainActivityWhiteWave",
+        "teal_pink" to ".MainActivityTealPink",
+        "ocean_clouds" to ".MainActivityOceanClouds",
+        "night_gold" to ".MainActivityNightGold",
+        "sunset_coral" to ".MainActivitySunsetCoral",
+        "royal_purple" to ".MainActivityRoyalPurple"
     )
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dynamic_icon/flutter_dynamic_icon.dart';
 import '../theme/app_theme.dart';
 
@@ -11,6 +12,8 @@ class AppIconScreen extends StatefulWidget {
 }
 
 class _AppIconScreenState extends State<AppIconScreen> {
+  static const platform = MethodChannel('com.biblewidgets/app_icon');
+
   String _currentIcon = 'default';
   bool _isLoading = true;
   bool _isChanging = false;
@@ -87,38 +90,61 @@ class _AppIconScreenState extends State<AppIconScreen> {
   }
 
   Future<void> _loadCurrentIcon() async {
-    if (!Platform.isIOS) {
+    if (Platform.isIOS) {
+      try {
+        final supports = await FlutterDynamicIcon.supportsAlternateIcons;
+        String? currentIcon;
+        try {
+          currentIcon = await FlutterDynamicIcon.getAlternateIconName();
+        } catch (e) {
+          currentIcon = null;
+        }
+
+        if (mounted) {
+          setState(() {
+            _supportsAlternateIcons = supports;
+            // Parse icon name from "AppIcon-xxx" format
+            if (currentIcon != null && currentIcon.startsWith('AppIcon-')) {
+              _currentIcon = currentIcon.substring(8);
+            } else {
+              _currentIcon = 'default';
+            }
+            _isLoading = false;
+          });
+        }
+      } catch (e) {
+        print('Error loading icon state: $e');
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+            _supportsAlternateIcons = false;
+          });
+        }
+      }
+    } else if (Platform.isAndroid) {
+      try {
+        final currentIcon = await platform.invokeMethod('getCurrentIcon');
+        if (mounted) {
+          setState(() {
+            _supportsAlternateIcons = true;
+            _currentIcon = currentIcon ?? 'default';
+            _isLoading = false;
+          });
+        }
+      } catch (e) {
+        print('Error loading Android icon state: $e');
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+            _supportsAlternateIcons = false;
+          });
+        }
+      }
+    } else {
       setState(() {
         _isLoading = false;
         _supportsAlternateIcons = false;
       });
-      return;
-    }
-
-    try {
-      final supports = await FlutterDynamicIcon.supportsAlternateIcons;
-      String? currentIcon;
-      try {
-        currentIcon = await FlutterDynamicIcon.getAlternateIconName();
-      } catch (e) {
-        currentIcon = null;
-      }
-
-      if (mounted) {
-        setState(() {
-          _supportsAlternateIcons = supports;
-          _currentIcon = currentIcon ?? 'default';
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      print('Error loading icon state: $e');
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-          _supportsAlternateIcons = false;
-        });
-      }
     }
   }
 
@@ -128,11 +154,15 @@ class _AppIconScreenState extends State<AppIconScreen> {
     setState(() => _isChanging = true);
 
     try {
-      if (iconId == 'default') {
-        await FlutterDynamicIcon.setAlternateIconName(null);
-      } else {
-        // Use Asset Catalog name format: "AppIcon-{name}"
-        await FlutterDynamicIcon.setAlternateIconName('AppIcon-$iconId');
+      if (Platform.isIOS) {
+        if (iconId == 'default') {
+          await FlutterDynamicIcon.setAlternateIconName(null);
+        } else {
+          // Use Asset Catalog name format: "AppIcon-{name}"
+          await FlutterDynamicIcon.setAlternateIconName('AppIcon-$iconId');
+        }
+      } else if (Platform.isAndroid) {
+        await platform.invokeMethod('setAppIcon', {'iconName': iconId});
       }
 
       if (mounted) {
@@ -206,29 +236,6 @@ class _AppIconScreenState extends State<AppIconScreen> {
             if (_isLoading)
               const Expanded(
                 child: Center(child: CircularProgressIndicator()),
-              )
-            else if (!Platform.isIOS)
-              Expanded(
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(32),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.info_outline, size: 48, color: AppTheme.secondaryText),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Alternate app icons are only available on iOS',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: AppTheme.secondaryText,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
               )
             else if (!_supportsAlternateIcons)
               Expanded(
