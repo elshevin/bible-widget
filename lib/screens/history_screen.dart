@@ -8,6 +8,188 @@ import '../models/models.dart';
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
 
+  void _showAddToCollectionSheet(BuildContext context, String verseId) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => Container(
+        decoration: BoxDecoration(
+          color: AppTheme.cardBackground,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Consumer<AppState>(
+          builder: (context, appState, _) {
+            final collections = appState.collections;
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 12),
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Add to Collection',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                if (collections.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.bookmark_border,
+                          size: 48,
+                          color: AppTheme.secondaryText.withOpacity(0.5),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'No collections yet',
+                          style: TextStyle(
+                            color: AppTheme.secondaryText,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  ...collections.map((collection) {
+                    final isInCollection = collection.verseIds.contains(verseId);
+                    return ListTile(
+                      leading: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: isInCollection
+                              ? AppTheme.accent.withOpacity(0.2)
+                              : Colors.grey[200],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
+                          isInCollection ? Icons.bookmark : Icons.bookmark_border,
+                          color: isInCollection ? AppTheme.accent : Colors.grey,
+                        ),
+                      ),
+                      title: Text(collection.name),
+                      subtitle: Text('${collection.verseIds.length} verses'),
+                      trailing: isInCollection
+                          ? const Icon(Icons.check_circle, color: AppTheme.accent)
+                          : null,
+                      onTap: () {
+                        if (isInCollection) {
+                          appState.removeFromCollection(collection.id, verseId);
+                          Navigator.pop(sheetContext);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Removed from "${collection.name}"'),
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        } else {
+                          appState.addToCollection(collection.id, verseId);
+                          Navigator.pop(sheetContext);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Added to "${collection.name}"'),
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        }
+                      },
+                    );
+                  }),
+                const Divider(),
+                ListTile(
+                  leading: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: AppTheme.accent.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.add, color: AppTheme.accent),
+                  ),
+                  title: const Text('Create new collection'),
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    _showCreateCollectionDialog(context, verseId);
+                  },
+                ),
+                SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  void _showCreateCollectionDialog(BuildContext context, String verseId) {
+    final controller = TextEditingController();
+    final appState = Provider.of<AppState>(context, listen: false);
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        backgroundColor: AppTheme.cardBackground,
+        title: const Text('Create Collection'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: InputDecoration(
+            hintText: 'Collection name',
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              if (controller.text.trim().isNotEmpty) {
+                appState.createCollection(controller.text.trim());
+                // Add verse to the newly created collection
+                final newCollection = appState.collections.last;
+                appState.addToCollection(newCollection.id, verseId);
+                Navigator.pop(dialogContext);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Created "${controller.text.trim()}" and added verse'),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              }
+            },
+            child: const Text(
+              'Create & Add',
+              style: TextStyle(
+                color: AppTheme.accent,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,13 +244,7 @@ class HistoryScreen extends StatelessWidget {
                         isBookmarked: appState.isInAnyCollection(verse.id),
                         onFavorite: () => appState.toggleFavorite(verse.id),
                         onBookmark: () {
-                          // Show collections sheet or toggle bookmark
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Bookmark feature coming soon'),
-                              duration: Duration(seconds: 1),
-                            ),
-                          );
+                          _showAddToCollectionSheet(context, verse.id);
                         },
                         onShare: () {
                           Share.share(appState.getDisplayText(verse));

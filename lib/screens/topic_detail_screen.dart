@@ -141,6 +141,7 @@ class TopicDetailScreen extends StatelessWidget {
 
   void _showCreateCollectionDialog(BuildContext context, String verseId) {
     final controller = TextEditingController();
+    final appState = Provider.of<AppState>(context, listen: false);
 
     showDialog(
       context: context,
@@ -169,7 +170,6 @@ class TopicDetailScreen extends StatelessWidget {
           TextButton(
             onPressed: () {
               if (controller.text.trim().isNotEmpty) {
-                final appState = context.read<AppState>();
                 appState.createCollection(controller.text.trim());
                 // Add verse to the newly created collection
                 final newCollection = appState.collections.last;
