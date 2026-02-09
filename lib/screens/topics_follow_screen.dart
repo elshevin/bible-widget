@@ -89,13 +89,27 @@ class _TopicsFollowScreenState extends State<TopicsFollowScreen> {
                   return ListView(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     children: [
-                      // Quick access section - System features that are always available
-                      _QuickAccessSection(
-                        items: const [
-                          _QuickAccessItem(title: 'General', description: 'All content'),
-                          _QuickAccessItem(title: 'Favorites', description: 'Your saved items'),
-                          _QuickAccessItem(title: 'My own quotes', description: 'Custom quotes'),
-                          _QuickAccessItem(title: 'History', description: 'Recently viewed'),
+                      // Your content section - user's personal content that can be followed
+                      _PersonalContentSection(
+                        items: [
+                          _PersonalContentItem(
+                            title: 'Favorites',
+                            description: 'Your saved items',
+                            isFollowing: appState.user.selectedTopics.contains('favorites'),
+                            onToggle: () => appState.toggleTopic('favorites'),
+                          ),
+                          _PersonalContentItem(
+                            title: 'My own quotes',
+                            description: 'Custom quotes you created',
+                            isFollowing: appState.user.selectedTopics.contains('my_own_quotes'),
+                            onToggle: () => appState.toggleTopic('my_own_quotes'),
+                          ),
+                          _PersonalContentItem(
+                            title: 'Collections',
+                            description: 'Your saved collections',
+                            isFollowing: appState.user.selectedTopics.contains('collections'),
+                            onToggle: () => appState.toggleTopic('collections'),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 24),
@@ -176,11 +190,11 @@ class _TopicsFollowScreenState extends State<TopicsFollowScreen> {
   }
 }
 
-// Quick access section - system features that are always available
-class _QuickAccessSection extends StatelessWidget {
-  final List<_QuickAccessItem> items;
+// Personal content section - user content that can be followed/unfollowed
+class _PersonalContentSection extends StatelessWidget {
+  final List<_PersonalContentItem> items;
 
-  const _QuickAccessSection({required this.items});
+  const _PersonalContentSection({required this.items});
 
   @override
   Widget build(BuildContext context) {
@@ -221,10 +235,27 @@ class _QuickAccessSection extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Icon(
-                      Icons.check_circle,
-                      size: 20,
-                      color: AppTheme.accent,
+                    GestureDetector(
+                      onTap: item.onToggle,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: item.isFollowing
+                              ? AppTheme.cardBackground
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: AppTheme.secondaryText.withOpacity(0.3),
+                          ),
+                        ),
+                        child: Text(
+                          item.isFollowing ? 'Following' : 'Follow',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppTheme.secondaryText,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -244,13 +275,17 @@ class _QuickAccessSection extends StatelessWidget {
   }
 }
 
-class _QuickAccessItem {
+class _PersonalContentItem {
   final String title;
   final String? description;
+  final bool isFollowing;
+  final VoidCallback onToggle;
 
-  const _QuickAccessItem({
+  const _PersonalContentItem({
     required this.title,
     this.description,
+    required this.isFollowing,
+    required this.onToggle,
   });
 }
 
