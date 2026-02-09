@@ -89,29 +89,13 @@ class _TopicsFollowScreenState extends State<TopicsFollowScreen> {
                   return ListView(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     children: [
-                      // Following section - Quick access items (these are always available, cannot be unfollowed)
-                      _FollowingSection(
-                        items: [
-                          _FollowItem(
-                            title: 'General',
-                            isFollowing: appState.user.selectedTopics.contains('general'),
-                            onToggle: () => appState.toggleTopic('general'),
-                          ),
-                          _FollowItem(
-                            title: 'Favorites',
-                            isFollowing: appState.user.selectedTopics.contains('favorites'),
-                            onToggle: () => appState.toggleTopic('favorites'),
-                          ),
-                          _FollowItem(
-                            title: 'My own quotes',
-                            isFollowing: appState.user.selectedTopics.contains('my_own_quotes'),
-                            onToggle: () => appState.toggleTopic('my_own_quotes'),
-                          ),
-                          _FollowItem(
-                            title: 'History',
-                            isFollowing: appState.user.selectedTopics.contains('history'),
-                            onToggle: () => appState.toggleTopic('history'),
-                          ),
+                      // Quick access section - System features that are always available
+                      _QuickAccessSection(
+                        items: const [
+                          _QuickAccessItem(title: 'General', description: 'All content'),
+                          _QuickAccessItem(title: 'Favorites', description: 'Your saved items'),
+                          _QuickAccessItem(title: 'My own quotes', description: 'Custom quotes'),
+                          _QuickAccessItem(title: 'History', description: 'Recently viewed'),
                         ],
                       ),
                       const SizedBox(height: 24),
@@ -192,10 +176,11 @@ class _TopicsFollowScreenState extends State<TopicsFollowScreen> {
   }
 }
 
-class _FollowingSection extends StatelessWidget {
-  final List<_FollowItem> items;
+// Quick access section - system features that are always available
+class _QuickAccessSection extends StatelessWidget {
+  final List<_QuickAccessItem> items;
 
-  const _FollowingSection({required this.items});
+  const _QuickAccessSection({required this.items});
 
   @override
   Widget build(BuildContext context) {
@@ -215,35 +200,31 @@ class _FollowingSection extends StatelessWidget {
                 child: Row(
                   children: [
                     Expanded(
-                      child: Text(
-                        item.title,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item.title,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          if (item.description != null)
+                            Text(
+                              item.description!,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: AppTheme.secondaryText.withOpacity(0.7),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
-                    GestureDetector(
-                      onTap: item.onToggle,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: item.isFollowing
-                              ? AppTheme.cardBackground
-                              : Colors.transparent,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: AppTheme.secondaryText.withOpacity(0.3),
-                          ),
-                        ),
-                        child: Text(
-                          item.isFollowing ? 'Following' : 'Follow',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: AppTheme.secondaryText,
-                          ),
-                        ),
-                      ),
+                    Icon(
+                      Icons.check_circle,
+                      size: 20,
+                      color: AppTheme.accent,
                     ),
                   ],
                 ),
@@ -263,15 +244,13 @@ class _FollowingSection extends StatelessWidget {
   }
 }
 
-class _FollowItem {
+class _QuickAccessItem {
   final String title;
-  final bool isFollowing;
-  final VoidCallback onToggle;
+  final String? description;
 
-  const _FollowItem({
+  const _QuickAccessItem({
     required this.title,
-    required this.isFollowing,
-    required this.onToggle,
+    this.description,
   });
 }
 
