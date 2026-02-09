@@ -103,7 +103,11 @@ class _ThemesSheetState extends State<ThemesSheet> {
                           ),
                         ),
                         TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            setState(() {
+                              _selectedCategory = 'All';
+                            });
+                          },
                           child: const Text(
                             'See all',
                             style: TextStyle(color: AppTheme.primaryText),

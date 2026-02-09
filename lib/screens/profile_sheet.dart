@@ -10,6 +10,9 @@ import '../models/models.dart';
 import '../services/notification_service.dart';
 import 'app_icon_screen.dart';
 import 'settings_screen.dart';
+import 'favorites_screen.dart';
+import 'my_quotes_screen.dart';
+import 'collections_screen.dart';
 
 class ProfileSheet extends StatelessWidget {
   const ProfileSheet({super.key});
@@ -860,31 +863,53 @@ class _TopicsFollowedSheet extends StatelessWidget {
                       controller: scrollController,
                       padding: const EdgeInsets.all(16),
                       children: [
-                        // General section (always shown)
-                        _TopicFollowItem(
-                          icon: '📋',
-                          title: 'General',
-                          subtitle: 'All content',
-                          isFollowed: selectedTopics.isEmpty,
-                          onTap: () => appState.setSelectedTopics([]),
-                        ),
-                        const SizedBox(height: 8),
+                        // Personal content section - same as topics_follow_screen
                         _TopicFollowItem(
                           icon: '❤️',
                           title: 'Favorites',
                           subtitle: '${appState.favoritesCount} saved',
-                          isFollowed: false,
-                          showFollowButton: false,
-                          onTap: () {},
+                          isFollowed: selectedTopics.contains('favorites'),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const FavoritesScreen(),
+                              ),
+                            );
+                          },
+                          onToggle: () => appState.toggleTopic('favorites'),
                         ),
                         const SizedBox(height: 8),
                         _TopicFollowItem(
                           icon: '✏️',
                           title: 'My own quotes',
                           subtitle: '${appState.customQuotes.length} quotes',
-                          isFollowed: false,
-                          showFollowButton: false,
-                          onTap: () {},
+                          isFollowed: selectedTopics.contains('my_own_quotes'),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const MyQuotesScreen(),
+                              ),
+                            );
+                          },
+                          onToggle: () => appState.toggleTopic('my_own_quotes'),
+                        ),
+                        const SizedBox(height: 8),
+                        _TopicFollowItem(
+                          icon: '📚',
+                          title: 'Collections',
+                          subtitle: '${appState.user.collections.length} collections',
+                          isFollowed: selectedTopics.contains('collections'),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const CollectionsScreen(),
+                              ),
+                            );
+                          },
+                          onToggle: () => appState.toggleTopic('collections'),
                         ),
 
                         const SizedBox(height: 24),
@@ -913,7 +938,8 @@ class _TopicsFollowedSheet extends StatelessWidget {
                                     title: topic.name,
                                     subtitle: isFollowed ? 'Following' : '',
                                     isFollowed: isFollowed,
-                                    onTap: () => appState.toggleTopic(topic.id),
+                                    onTap: () {},
+                                    onToggle: () => appState.toggleTopic(topic.id),
                                   ),
                                 );
                               }),
@@ -941,6 +967,7 @@ class _TopicFollowItem extends StatelessWidget {
   final bool isFollowed;
   final bool showFollowButton;
   final VoidCallback onTap;
+  final VoidCallback? onToggle;
 
   const _TopicFollowItem({
     required this.icon,
@@ -949,6 +976,7 @@ class _TopicFollowItem extends StatelessWidget {
     required this.isFollowed,
     this.showFollowButton = true,
     required this.onTap,
+    this.onToggle,
   });
 
   @override
@@ -998,23 +1026,26 @@ class _TopicFollowItem extends StatelessWidget {
               ),
             ),
             if (showFollowButton)
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: isFollowed
-                      ? AppTheme.accent
-                      : AppTheme.secondaryText.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  isFollowed ? 'Following' : 'Follow',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: isFollowed ? Colors.white : AppTheme.primaryText,
+              GestureDetector(
+                onTap: onToggle,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isFollowed
+                        ? AppTheme.accent
+                        : AppTheme.secondaryText.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    isFollowed ? 'Following' : 'Follow',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: isFollowed ? Colors.white : AppTheme.primaryText,
+                    ),
                   ),
                 ),
               ),

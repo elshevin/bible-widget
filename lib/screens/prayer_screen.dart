@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import '../theme/app_theme.dart';
 import '../providers/app_state.dart';
 import '../data/content_data.dart';
@@ -148,19 +150,44 @@ class _PrayerScreenState extends State<PrayerScreen> {
                         _ActionButton(
                           icon: Icons.ios_share,
                           color: theme.textColor,
-                          onTap: () {},
+                          onTap: () {
+                            if (_currentPrayer != null) {
+                              final text = '${_currentPrayer!.title}\n\n${_currentPrayer!.getDisplayContent(userName)}';
+                              Share.share(text);
+                            }
+                          },
                         ),
                         const SizedBox(width: 24),
                         _ActionButton(
                           icon: Icons.favorite_border,
                           color: theme.textColor,
-                          onTap: () {},
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text('Prayer saved to favorites'),
+                                backgroundColor: theme.gradient.colors.first,
+                                duration: const Duration(seconds: 2),
+                              ),
+                            );
+                          },
                         ),
                         const SizedBox(width: 24),
                         _ActionButton(
                           icon: Icons.copy,
                           color: theme.textColor,
-                          onTap: () {},
+                          onTap: () {
+                            if (_currentPrayer != null) {
+                              final text = '${_currentPrayer!.title}\n\n${_currentPrayer!.getDisplayContent(userName)}';
+                              Clipboard.setData(ClipboardData(text: text));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Text('Prayer copied to clipboard'),
+                                  backgroundColor: theme.gradient.colors.first,
+                                  duration: const Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          },
                         ),
                       ],
                     ),

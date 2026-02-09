@@ -9,6 +9,7 @@ import 'favorites_screen.dart';
 import 'topic_detail_screen.dart';
 import 'collections_screen.dart';
 import 'my_quotes_screen.dart';
+import 'history_screen.dart';
 
 class TopicsSheet extends StatefulWidget {
   const TopicsSheet({super.key});
@@ -182,8 +183,15 @@ class _TopicsSheetState extends State<TopicsSheet> {
                           child: _QuickAccessCard(
                             title: 'History',
                             icon: Icons.history,
-                            isPremium: true,
-                            onTap: () {},
+                            isPremium: false,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const HistoryScreen(),
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ],
