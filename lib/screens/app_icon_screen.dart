@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_dynamic_icon/flutter_dynamic_icon.dart';
+import 'package:flutter_dynamic_icon_plus/flutter_dynamic_icon_plus.dart';
 import '../theme/app_theme.dart';
 
 class AppIconScreen extends StatefulWidget {
@@ -83,10 +83,10 @@ class _AppIconScreenState extends State<AppIconScreen> {
   Future<void> _loadCurrentIcon() async {
     if (Platform.isIOS) {
       try {
-        final supports = await FlutterDynamicIcon.supportsAlternateIcons;
+        final supports = await FlutterDynamicIconPlus.supportsAlternateIcons;
         String? currentIcon;
         try {
-          currentIcon = await FlutterDynamicIcon.getAlternateIconName();
+          currentIcon = await FlutterDynamicIconPlus.alternateIconName;
         } catch (e) {
           currentIcon = null;
         }
@@ -147,10 +147,10 @@ class _AppIconScreenState extends State<AppIconScreen> {
     try {
       if (Platform.isIOS) {
         if (iconId == 'default') {
-          await FlutterDynamicIcon.setAlternateIconName(null);
+          await FlutterDynamicIconPlus.setAlternateIconName(iconName: null);
         } else {
           // Use Asset Catalog name format: "AppIcon-{name}"
-          await FlutterDynamicIcon.setAlternateIconName('AppIcon-$iconId');
+          await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'AppIcon-$iconId');
         }
       } else if (Platform.isAndroid) {
         await platform.invokeMethod('setAppIcon', {'iconName': iconId});
