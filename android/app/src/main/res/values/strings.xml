@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Bible Widgets</string>
+    <string name="app_name">Bible Widget</string>
     <string name="widget_description">Display daily Bible verses on your home screen</string>
 </resources>

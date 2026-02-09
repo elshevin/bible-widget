@@ -7,7 +7,7 @@
     <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
 
     <application
-        android:label="Bible Widgets"
+        android:label="Bible Widget"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -31,7 +31,7 @@
             android:enabled="true"
             android:exported="true"
             android:icon="@mipmap/ic_launcher"
-            android:label="Bible Widgets">
+            android:label="Bible Widget">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -45,7 +45,7 @@
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_navy_stars"
-            android:label="Bible Widgets">
+            android:label="Bible Widget">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -59,7 +59,7 @@
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_cream_olive"
-            android:label="Bible Widgets">
+            android:label="Bible Widget">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -73,7 +73,7 @@
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_gold_luxe"
-            android:label="Bible Widgets">
+            android:label="Bible Widget">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -87,7 +87,7 @@
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_white_wave"
-            android:label="Bible Widgets">
+            android:label="Bible Widget">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -101,7 +101,7 @@
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_teal_pink"
-            android:label="Bible Widgets">
+            android:label="Bible Widget">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -115,7 +115,7 @@
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_ocean_clouds"
-            android:label="Bible Widgets">
+            android:label="Bible Widget">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -129,7 +129,7 @@
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_night_gold"
-            android:label="Bible Widgets">
+            android:label="Bible Widget">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -143,7 +143,7 @@
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_sunset_coral"
-            android:label="Bible Widgets">
+            android:label="Bible Widget">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -157,7 +157,7 @@
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_royal_purple"
-            android:label="Bible Widgets">
+            android:label="Bible Widget">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
