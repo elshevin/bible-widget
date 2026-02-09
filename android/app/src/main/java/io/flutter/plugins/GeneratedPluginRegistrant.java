@@ -16,9 +16,14 @@ public final class GeneratedPluginRegistrant {
   private static final String TAG = "GeneratedPluginRegistrant";
   public static void registerWith(@NonNull FlutterEngine flutterEngine) {
     try {
-      flutterEngine.getPlugins().add(new io.github.tastelessjolt.flutterdynamicicon.FlutterDynamicIconPlugin());
+      flutterEngine.getPlugins().add(new com.example.android_dynamic_icon.AndroidDynamicIconPlugin());
     } catch (Exception e) {
-      Log.e(TAG, "Error registering plugin flutter_dynamic_icon, io.github.tastelessjolt.flutterdynamicicon.FlutterDynamicIconPlugin", e);
+      Log.e(TAG, "Error registering plugin android_dynamic_icon, com.example.android_dynamic_icon.AndroidDynamicIconPlugin", e);
+    }
+    try {
+      flutterEngine.getPlugins().add(new com.solusibejo.flutter_dynamic_icon_plus.FlutterDynamicIconPlusPlugin());
+    } catch (Exception e) {
+      Log.e(TAG, "Error registering plugin flutter_dynamic_icon_plus, com.solusibejo.flutter_dynamic_icon_plus.FlutterDynamicIconPlusPlugin", e);
     }
     try {
       flutterEngine.getPlugins().add(new com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin());

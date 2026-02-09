@@ -92,28 +92,12 @@ class _ThemesSheetState extends State<ThemesSheet> {
                     const SizedBox(height: 24),
 
                     // Theme mixes section
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Theme mixes',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            setState(() {
-                              _selectedCategory = 'All';
-                            });
-                          },
-                          child: const Text(
-                            'See all',
-                            style: TextStyle(color: AppTheme.primaryText),
-                          ),
-                        ),
-                      ],
+                    const Text(
+                      'Theme mixes',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     SizedBox(

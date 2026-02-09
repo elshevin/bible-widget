@@ -67,7 +67,7 @@ class _SearchScreenState extends State<SearchScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header with back button
+            // Header with back button and search bar
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
               child: Row(
@@ -76,40 +76,64 @@ class _SearchScreenState extends State<SearchScreen> {
                     onTap: () => Navigator.pop(context),
                     child: const Icon(Icons.arrow_back, size: 24),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      height: 44,
                       decoration: BoxDecoration(
                         color: AppTheme.cardBackground,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(22),
                       ),
-                      child: TextField(
-                        controller: _searchController,
-                        autofocus: true,
-                        onChanged: (value) => setState(() => _searchQuery = value),
-                        style: const TextStyle(fontSize: 16),
-                        decoration: InputDecoration(
-                          icon: Icon(
+                      child: Row(
+                        children: [
+                          const SizedBox(width: 16),
+                          Icon(
                             Icons.search,
+                            size: 20,
                             color: AppTheme.secondaryText.withOpacity(0.5),
                           ),
-                          hintText: 'Search',
-                          hintStyle: TextStyle(
-                            color: AppTheme.secondaryText.withOpacity(0.5),
-                            fontSize: 16,
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: TextField(
+                              controller: _searchController,
+                              autofocus: true,
+                              onChanged: (value) => setState(() => _searchQuery = value),
+                              style: const TextStyle(fontSize: 16),
+                              decoration: InputDecoration(
+                                hintText: 'Search',
+                                hintStyle: TextStyle(
+                                  color: AppTheme.secondaryText.withOpacity(0.5),
+                                  fontSize: 16,
+                                ),
+                                border: InputBorder.none,
+                                isDense: true,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                            ),
                           ),
-                          border: InputBorder.none,
-                          suffixIcon: _searchQuery.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.close, size: 18),
-                                  onPressed: () {
-                                    _searchController.clear();
-                                    setState(() => _searchQuery = '');
-                                  },
-                                )
-                              : null,
-                        ),
+                          if (_searchQuery.isNotEmpty)
+                            GestureDetector(
+                              onTap: () {
+                                _searchController.clear();
+                                setState(() => _searchQuery = '');
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                margin: const EdgeInsets.only(right: 8),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.secondaryText.withOpacity(0.3),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.close,
+                                  size: 14,
+                                  color: AppTheme.cardBackground,
+                                ),
+                              ),
+                            )
+                          else
+                            const SizedBox(width: 16),
+                        ],
                       ),
                     ),
                   ),

@@ -57,26 +57,60 @@ class _TopicsFollowScreenState extends State<TopicsFollowScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                height: 44,
                 decoration: BoxDecoration(
                   color: AppTheme.cardBackground,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(22),
                 ),
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: (value) => setState(() => _searchQuery = value),
-                  decoration: InputDecoration(
-                    icon: Icon(
+                child: Row(
+                  children: [
+                    const SizedBox(width: 16),
+                    Icon(
                       Icons.search,
+                      size: 20,
                       color: AppTheme.secondaryText.withOpacity(0.5),
                     ),
-                    hintText: 'Search',
-                    hintStyle: TextStyle(
-                      color: AppTheme.secondaryText.withOpacity(0.5),
-                      fontSize: 16,
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: (value) => setState(() => _searchQuery = value),
+                        style: const TextStyle(fontSize: 16),
+                        decoration: InputDecoration(
+                          hintText: 'Search',
+                          hintStyle: TextStyle(
+                            color: AppTheme.secondaryText.withOpacity(0.5),
+                            fontSize: 16,
+                          ),
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ),
                     ),
-                    border: InputBorder.none,
-                  ),
+                    if (_searchQuery.isNotEmpty)
+                      GestureDetector(
+                        onTap: () {
+                          _searchController.clear();
+                          setState(() => _searchQuery = '');
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          margin: const EdgeInsets.only(right: 8),
+                          decoration: BoxDecoration(
+                            color: AppTheme.secondaryText.withOpacity(0.3),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.close,
+                            size: 14,
+                            color: AppTheme.cardBackground,
+                          ),
+                        ),
+                      )
+                    else
+                      const SizedBox(width: 16),
+                  ],
                 ),
               ),
             ),

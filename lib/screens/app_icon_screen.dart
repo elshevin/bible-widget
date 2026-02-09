@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dynamic_icon_plus/flutter_dynamic_icon_plus.dart';
+import 'package:android_dynamic_icon/android_dynamic_icon.dart';
 import '../theme/app_theme.dart';
 
 class AppIconScreen extends StatefulWidget {
@@ -14,60 +15,88 @@ class AppIconScreen extends StatefulWidget {
 
 class _AppIconScreenState extends State<AppIconScreen> {
   static const platform = MethodChannel('com.biblewidgets/app_icon');
+  final _androidDynamicIconPlugin = AndroidDynamicIcon();
 
   String _currentIcon = 'default';
   bool _isLoading = true;
   bool _isChanging = false;
   bool _supportsAlternateIcons = false;
 
+  // Android icon class names mapping
+  final List<String> _androidIconNames = [
+    'MainActivityDefault',
+    'MainActivityNavyStars',
+    'MainActivityCreamOlive',
+    'MainActivityGoldLuxe',
+    'MainActivityWhiteWave',
+    'MainActivityTealPink',
+    'MainActivityOceanClouds',
+    'MainActivityNightGold',
+    'MainActivitySunsetCoral',
+    'MainActivityRoyalPurple',
+  ];
+
+  final Map<String, String> _iconIdToClassName = {
+    'default': 'MainActivityDefault',
+    'navy_stars': 'MainActivityNavyStars',
+    'cream_olive': 'MainActivityCreamOlive',
+    'gold_luxe': 'MainActivityGoldLuxe',
+    'white_wave': 'MainActivityWhiteWave',
+    'teal_pink': 'MainActivityTealPink',
+    'ocean_clouds': 'MainActivityOceanClouds',
+    'night_gold': 'MainActivityNightGold',
+    'sunset_coral': 'MainActivitySunsetCoral',
+    'royal_purple': 'MainActivityRoyalPurple',
+  };
+
   // Icon options with their asset paths
   final List<AppIconOption> _icons = [
-    AppIconOption(
+    const AppIconOption(
       id: 'default',
       name: 'Default',
       assetPath: 'assets/icons/icon_default.png',
     ),
-    AppIconOption(
+    const AppIconOption(
       id: 'navy_stars',
       name: 'Navy Stars',
       assetPath: 'assets/icons/icon_navy_stars.png',
     ),
-    AppIconOption(
+    const AppIconOption(
       id: 'cream_olive',
       name: 'Cream',
       assetPath: 'assets/icons/icon_cream_olive.png',
     ),
-    AppIconOption(
+    const AppIconOption(
       id: 'gold_luxe',
       name: 'Gold Luxe',
       assetPath: 'assets/icons/icon_gold_luxe.png',
     ),
-    AppIconOption(
+    const AppIconOption(
       id: 'white_wave',
       name: 'White Wave',
       assetPath: 'assets/icons/icon_white_wave.png',
     ),
-    AppIconOption(
+    const AppIconOption(
       id: 'teal_pink',
       name: 'Teal Pink',
       assetPath: 'assets/icons/icon_teal_pink.png',
     ),
-    AppIconOption(
+    const AppIconOption(
       id: 'ocean_clouds',
       name: 'Ocean',
       assetPath: 'assets/icons/icon_ocean_clouds.png',
     ),
-    AppIconOption(
+    const AppIconOption(
       id: 'night_gold',
       name: 'Night Gold',
       assetPath: 'assets/icons/icon_night_gold.png',
     ),
-    AppIconOption(
+    const AppIconOption(
       id: 'sunset_coral',
       name: 'Sunset',
       assetPath: 'assets/icons/icon_sunset_coral.png',
     ),
-    AppIconOption(
+    const AppIconOption(
       id: 'royal_purple',
       name: 'Royal Purple',
       assetPath: 'assets/icons/icon_royal_purple.png',
@@ -126,8 +155,9 @@ class _AppIconScreenState extends State<AppIconScreen> {
         if (kDebugMode) print('Error loading Android icon state: $e');
         if (mounted) {
           setState(() {
+            _supportsAlternateIcons = true;
+            _currentIcon = 'default';
             _isLoading = false;
-            _supportsAlternateIcons = false;
           });
         }
       }
@@ -153,7 +183,15 @@ class _AppIconScreenState extends State<AppIconScreen> {
           await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'AppIcon-$iconId');
         }
       } else if (Platform.isAndroid) {
-        await platform.invokeMethod('setAppIcon', {'iconName': iconId});
+        // Use android_dynamic_icon plugin
+        final className = _iconIdToClassName[iconId] ?? 'MainActivityDefault';
+        final isNewIcon = iconId != 'default';
+        await _androidDynamicIconPlugin.changeIcon(
+          bundleId: 'com.oneapp.biblewidget',
+          isNewIcon: isNewIcon,
+          iconName: className,
+          iconNames: _androidIconNames,
+        );
       }
 
       if (mounted) {

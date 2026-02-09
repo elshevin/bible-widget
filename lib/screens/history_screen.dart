@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import '../theme/app_theme.dart';
 import '../providers/app_state.dart';
 import '../models/models.dart';
@@ -47,12 +48,8 @@ class HistoryScreen extends StatelessWidget {
 
                   return ListView.builder(
                     padding: const EdgeInsets.all(16),
-                    itemCount: history.length + 1, // +1 for "See older quotes" button
+                    itemCount: history.length,
                     itemBuilder: (context, index) {
-                      if (index == history.length) {
-                        return _buildSeeOlderButton();
-                      }
-
                       final entry = history[index];
                       final verse = appState.getVerseById(entry.verseId);
                       if (verse == null) return const SizedBox.shrink();
@@ -64,6 +61,18 @@ class HistoryScreen extends StatelessWidget {
                         isFavorite: appState.isFavorite(verse.id),
                         isBookmarked: appState.isInAnyCollection(verse.id),
                         onFavorite: () => appState.toggleFavorite(verse.id),
+                        onBookmark: () {
+                          // Show collections sheet or toggle bookmark
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Bookmark feature coming soon'),
+                              duration: Duration(seconds: 1),
+                            ),
+                          );
+                        },
+                        onShare: () {
+                          Share.share(appState.getDisplayText(verse));
+                        },
                       );
                     },
                   );
@@ -108,29 +117,6 @@ class HistoryScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSeeOlderButton() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8, bottom: 24),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          color: AppTheme.primaryText,
-          borderRadius: BorderRadius.circular(28),
-        ),
-        child: const Center(
-          child: Text(
-            'See older quotes',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 class _HistoryItem extends StatelessWidget {
@@ -140,6 +126,8 @@ class _HistoryItem extends StatelessWidget {
   final bool isFavorite;
   final bool isBookmarked;
   final VoidCallback onFavorite;
+  final VoidCallback onBookmark;
+  final VoidCallback onShare;
 
   const _HistoryItem({
     required this.verse,
@@ -148,6 +136,8 @@ class _HistoryItem extends StatelessWidget {
     required this.isFavorite,
     required this.isBookmarked,
     required this.onFavorite,
+    required this.onBookmark,
+    required this.onShare,
   });
 
   String _formatDate(DateTime date) {
@@ -212,16 +202,22 @@ class _HistoryItem extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 16),
-              Icon(
-                isBookmarked ? Icons.bookmark : Icons.bookmark_border,
-                size: 22,
-                color: AppTheme.primaryText,
+              GestureDetector(
+                onTap: onBookmark,
+                child: Icon(
+                  isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                  size: 22,
+                  color: AppTheme.primaryText,
+                ),
               ),
               const SizedBox(width: 16),
-              const Icon(
-                Icons.share,
-                size: 22,
-                color: AppTheme.primaryText,
+              GestureDetector(
+                onTap: onShare,
+                child: const Icon(
+                  Icons.share,
+                  size: 22,
+                  color: AppTheme.primaryText,
+                ),
               ),
             ],
           ),

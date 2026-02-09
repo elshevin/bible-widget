@@ -91,110 +91,146 @@ class _TopicsSheetState extends State<TopicsSheet> {
                   children: [
                     // Search bar
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      height: 44,
                       decoration: BoxDecoration(
                         color: AppTheme.cardBackground,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(22),
                       ),
-                      child: TextField(
-                        controller: _searchController,
-                        onChanged: (value) => setState(() => _searchQuery = value),
-                        decoration: InputDecoration(
-                          icon: Icon(
+                      child: Row(
+                        children: [
+                          const SizedBox(width: 16),
+                          Icon(
                             Icons.search,
+                            size: 20,
                             color: AppTheme.secondaryText.withOpacity(0.5),
                           ),
-                          hintText: 'Search topics',
-                          hintStyle: TextStyle(
-                            color: AppTheme.secondaryText.withOpacity(0.5),
-                            fontSize: 16,
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: TextField(
+                              controller: _searchController,
+                              onChanged: (value) => setState(() => _searchQuery = value),
+                              style: const TextStyle(fontSize: 16),
+                              decoration: InputDecoration(
+                                hintText: 'Search topics',
+                                hintStyle: TextStyle(
+                                  color: AppTheme.secondaryText.withOpacity(0.5),
+                                  fontSize: 16,
+                                ),
+                                border: InputBorder.none,
+                                isDense: true,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                            ),
                           ),
-                          border: InputBorder.none,
-                          suffixIcon: _searchQuery.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.clear, size: 20),
-                                  onPressed: () {
-                                    _searchController.clear();
-                                    setState(() => _searchQuery = '');
-                                  },
-                                )
-                              : null,
-                        ),
+                          if (_searchQuery.isNotEmpty)
+                            GestureDetector(
+                              onTap: () {
+                                _searchController.clear();
+                                setState(() => _searchQuery = '');
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                margin: const EdgeInsets.only(right: 8),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.secondaryText.withOpacity(0.3),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.close,
+                                  size: 14,
+                                  color: AppTheme.cardBackground,
+                                ),
+                              ),
+                            )
+                          else
+                            const SizedBox(width: 16),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 16),
 
                     // Quick access grid
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _QuickAccessCard(
-                            title: 'Favorites',
-                            icon: Icons.favorite_border,
-                            onTap: () {
-                              Navigator.pop(context);
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const FavoritesScreen(),
+                    Consumer<AppState>(
+                      builder: (context, appState, _) {
+                        final selectedTopics = appState.user.selectedTopics;
+                        return Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _QuickAccessCard(
+                                    title: 'Favorites',
+                                    icon: Icons.favorite_border,
+                                    isFollowing: selectedTopics.contains('favorites'),
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => const FavoritesScreen(),
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ),
-                              );
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _QuickAccessCard(
-                            title: 'Collections',
-                            icon: Icons.bookmark_border,
-                            onTap: () {
-                              Navigator.pop(context);
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const CollectionsScreen(),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: _QuickAccessCard(
+                                    title: 'My own quotes',
+                                    icon: Icons.edit_outlined,
+                                    isFollowing: selectedTopics.contains('my_own_quotes'),
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => const MyQuotesScreen(),
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _QuickAccessCard(
-                            title: 'My own quotes',
-                            icon: Icons.edit_outlined,
-                            onTap: () {
-                              Navigator.pop(context);
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const MyQuotesScreen(),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _QuickAccessCard(
+                                    title: 'Collections',
+                                    icon: Icons.bookmark_border,
+                                    isFollowing: selectedTopics.contains('collections'),
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => const CollectionsScreen(),
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ),
-                              );
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _QuickAccessCard(
-                            title: 'History',
-                            icon: Icons.history,
-                            isPremium: false,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const HistoryScreen(),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: _QuickAccessCard(
+                                    title: 'History',
+                                    icon: Icons.history,
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => const HistoryScreen(),
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
+                              ],
+                            ),
+                          ],
+                        );
+                      },
                     ),
                     const SizedBox(height: 24),
                     
@@ -268,12 +304,14 @@ class _QuickAccessCard extends StatelessWidget {
   final String title;
   final IconData icon;
   final bool isPremium;
+  final bool isFollowing;
   final VoidCallback onTap;
 
   const _QuickAccessCard({
     required this.title,
     required this.icon,
     this.isPremium = false,
+    this.isFollowing = false,
     required this.onTap,
   });
 
@@ -314,6 +352,23 @@ class _QuickAccessCard extends StatelessWidget {
                   Icons.lock,
                   size: 16,
                   color: AppTheme.secondaryText,
+                ),
+              ),
+            if (isFollowing)
+              Positioned(
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: const BoxDecoration(
+                    color: AppTheme.primaryText,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.check,
+                    size: 14,
+                    color: Colors.white,
+                  ),
                 ),
               ),
           ],
