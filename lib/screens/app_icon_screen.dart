@@ -19,67 +19,57 @@ class _AppIconScreenState extends State<AppIconScreen> {
   bool _isChanging = false;
   bool _supportsAlternateIcons = false;
 
-  // Icon options with their visual representations
+  // Icon options with their asset paths
   final List<AppIconOption> _icons = [
     AppIconOption(
       id: 'default',
       name: 'Default',
-      colors: [Color(0xFFF5EDE4), Color(0xFFD4A574)],
-      description: 'Original design',
+      assetPath: 'assets/icons/icon_default.png',
     ),
     AppIconOption(
       id: 'navy_stars',
       name: 'Navy Stars',
-      colors: [Color(0xFF1A2744), Color(0xFFD4A574)],
-      description: 'Navy with gold cross',
+      assetPath: 'assets/icons/icon_navy_stars.png',
     ),
     AppIconOption(
       id: 'cream_olive',
       name: 'Cream',
-      colors: [Color(0xFFF5F0E8), Color(0xFF8B7355)],
-      description: 'Cream with olive branch',
+      assetPath: 'assets/icons/icon_cream_olive.png',
     ),
     AppIconOption(
       id: 'gold_luxe',
       name: 'Gold Luxe',
-      colors: [Color(0xFFD4A574), Color(0xFF8B6914)],
-      description: 'Elegant gold',
+      assetPath: 'assets/icons/icon_gold_luxe.png',
     ),
     AppIconOption(
       id: 'white_wave',
       name: 'White Wave',
-      colors: [Color(0xFFFFFFFF), Color(0xFFD4A574)],
-      description: 'White with waves',
+      assetPath: 'assets/icons/icon_white_wave.png',
     ),
     AppIconOption(
       id: 'teal_pink',
       name: 'Teal Pink',
-      colors: [Color(0xFF5BBFBA), Color(0xFFFFB6C1)],
-      description: 'Teal and pink gradient',
+      assetPath: 'assets/icons/icon_teal_pink.png',
     ),
     AppIconOption(
       id: 'ocean_clouds',
       name: 'Ocean',
-      colors: [Color(0xFF4A90B8), Color(0xFFFFFFFF)],
-      description: 'Ocean blue with clouds',
+      assetPath: 'assets/icons/icon_ocean_clouds.png',
     ),
     AppIconOption(
       id: 'night_gold',
       name: 'Night Gold',
-      colors: [Color(0xFF1A2744), Color(0xFFE8C47C)],
-      description: 'Night sky with gold',
+      assetPath: 'assets/icons/icon_night_gold.png',
     ),
     AppIconOption(
       id: 'sunset_coral',
       name: 'Sunset',
-      colors: [Color(0xFFFF8C69), Color(0xFFFFFFFF)],
-      description: 'Sunset coral',
+      assetPath: 'assets/icons/icon_sunset_coral.png',
     ),
     AppIconOption(
       id: 'royal_purple',
       name: 'Royal Purple',
-      colors: [Color(0xFF6B4C8A), Color(0xFFD4A574)],
-      description: 'Royal purple',
+      assetPath: 'assets/icons/icon_royal_purple.png',
     ),
   ];
 
@@ -283,12 +273,11 @@ class _AppIconScreenState extends State<AppIconScreen> {
                           children: [
                             Stack(
                               children: [
-                                // Icon preview
+                                // Icon preview using actual image
                                 Container(
                                   width: 64,
                                   height: 64,
                                   decoration: BoxDecoration(
-                                    color: icon.colors.first,
                                     borderRadius: BorderRadius.circular(14),
                                     border: isSelected
                                         ? Border.all(
@@ -312,8 +301,14 @@ class _AppIconScreenState extends State<AppIconScreen> {
                                             ),
                                           ],
                                   ),
-                                  child: Center(
-                                    child: _buildCrossIcon(icon.colors.last),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(isSelected ? 11 : 14),
+                                    child: Image.asset(
+                                      icon.assetPath,
+                                      width: 64,
+                                      height: 64,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                 ),
                                 // Checkmark for current icon
@@ -357,67 +352,16 @@ class _AppIconScreenState extends State<AppIconScreen> {
       ),
     );
   }
-
-  Widget _buildCrossIcon(Color color) {
-    return CustomPaint(
-      size: const Size(28, 28),
-      painter: CrossPainter(color: color),
-    );
-  }
-}
-
-class CrossPainter extends CustomPainter {
-  final Color color;
-
-  CrossPainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    final cx = size.width / 2;
-    final cy = size.height / 2;
-    final thickness = size.width / 5;
-    final armLength = size.height / 2.5;
-
-    // Vertical bar
-    canvas.drawRect(
-      Rect.fromCenter(
-        center: Offset(cx, cy),
-        width: thickness,
-        height: armLength * 2,
-      ),
-      paint,
-    );
-
-    // Horizontal bar (higher up)
-    final barY = cy - armLength / 3;
-    canvas.drawRect(
-      Rect.fromCenter(
-        center: Offset(cx, barY),
-        width: armLength,
-        height: thickness,
-      ),
-      paint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class AppIconOption {
   final String id;
   final String name;
-  final List<Color> colors;
-  final String description;
+  final String assetPath;
 
   const AppIconOption({
     required this.id,
     required this.name,
-    required this.colors,
-    required this.description,
+    required this.assetPath,
   });
 }
