@@ -57,35 +57,48 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             // Search bar
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: AppTheme.cardBackground,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: (value) => setState(() => _searchQuery = value),
-                  decoration: InputDecoration(
-                    icon: Icon(
-                      Icons.search,
-                      color: AppTheme.secondaryText.withOpacity(0.5),
-                    ),
-                    hintText: 'Search favorites',
-                    hintStyle: TextStyle(
-                      color: AppTheme.secondaryText.withOpacity(0.5),
-                      fontSize: 16,
-                    ),
-                    border: InputBorder.none,
-                    suffixIcon: _searchQuery.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear, size: 20),
-                            onPressed: () {
-                              _searchController.clear();
-                              setState(() => _searchQuery = '');
-                            },
-                          )
-                        : null,
+              child: TextField(
+                controller: _searchController,
+                onChanged: (value) => setState(() => _searchQuery = value),
+                style: const TextStyle(fontSize: 16),
+                decoration: InputDecoration(
+                  hintText: 'Search favorites',
+                  hintStyle: TextStyle(
+                    color: AppTheme.secondaryText.withOpacity(0.5),
+                    fontSize: 16,
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    size: 20,
+                    color: AppTheme.secondaryText.withOpacity(0.5),
+                  ),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? GestureDetector(
+                          onTap: () {
+                            _searchController.clear();
+                            setState(() => _searchQuery = '');
+                          },
+                          child: Icon(
+                            Icons.close,
+                            size: 18,
+                            color: AppTheme.secondaryText.withOpacity(0.5),
+                          ),
+                        )
+                      : null,
+                  filled: true,
+                  fillColor: AppTheme.cardBackground,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
                   ),
                 ),
               ),
