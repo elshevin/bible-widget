@@ -107,7 +107,6 @@ class _TopicsScreenState extends State<TopicsScreen> {
                         child: _QuickAccessCard(
                           title: 'Favorites',
                           icon: Icons.favorite_border,
-                          showCheckmark: true,
                           onTap: () {
                             Navigator.push(
                               context,
@@ -303,15 +302,11 @@ class _TopicsScreenState extends State<TopicsScreen> {
 class _QuickAccessCard extends StatelessWidget {
   final String title;
   final IconData icon;
-  final bool isPremium;
-  final bool showCheckmark;
   final VoidCallback onTap;
 
   const _QuickAccessCard({
     required this.title,
     required this.icon,
-    this.isPremium = false,
-    this.showCheckmark = false,
     required this.onTap,
   });
 
@@ -326,59 +321,20 @@ class _QuickAccessCard extends StatelessWidget {
           color: AppTheme.cardBackground,
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Stack(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 15,
-                  ),
-                ),
-                const Spacer(),
-              ],
-            ),
-            // Top right icon
-            Positioned(
-              right: 0,
-              top: 0,
-              child: Icon(
-                icon,
-                color: AppTheme.secondaryText,
-                size: 22,
+            Text(
+              title,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
               ),
             ),
-            // Bottom right - checkmark or lock
-            if (showCheckmark)
-              Positioned(
-                right: 0,
-                bottom: 0,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                    color: AppTheme.primaryText,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.check,
-                    size: 14,
-                    color: Colors.white,
-                  ),
-                ),
-              )
-            else if (isPremium)
-              const Positioned(
-                right: 0,
-                bottom: 0,
-                child: Icon(
-                  Icons.lock,
-                  size: 16,
-                  color: AppTheme.secondaryText,
-                ),
-              ),
+            const Spacer(),
+            Icon(
+              icon,
+              color: AppTheme.secondaryText,
+            ),
           ],
         ),
       ),
