@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
-import '../providers/app_state.dart';
 import '../data/content_data.dart';
-import '../widgets/common_widgets.dart';
 import '../models/models.dart';
 import 'favorites_screen.dart';
 import 'topic_detail_screen.dart';
@@ -138,87 +135,79 @@ class _TopicsSheetState extends State<TopicsSheet> {
                     const SizedBox(height: 16),
 
                     // Quick access grid
-                    Consumer<AppState>(
-                      builder: (context, appState, _) {
-                        final selectedTopics = appState.user.selectedTopics;
-                        return Column(
+                    Column(
+                      children: [
+                        Row(
                           children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _QuickAccessCard(
-                                    title: 'Favorites',
-                                    icon: Icons.favorite_border,
-                                    isFollowing: selectedTopics.contains('favorites'),
-                                    onTap: () {
-                                      Navigator.pop(context);
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => const FavoritesScreen(),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: _QuickAccessCard(
-                                    title: 'My own quotes',
-                                    icon: Icons.edit_outlined,
-                                    isFollowing: selectedTopics.contains('my_own_quotes'),
-                                    onTap: () {
-                                      Navigator.pop(context);
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => const MyQuotesScreen(),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ],
+                            Expanded(
+                              child: _QuickAccessCard(
+                                title: 'Favorites',
+                                icon: Icons.favorite_border,
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const FavoritesScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
-                            const SizedBox(height: 12),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _QuickAccessCard(
-                                    title: 'Collections',
-                                    icon: Icons.bookmark_border,
-                                    isFollowing: selectedTopics.contains('collections'),
-                                    onTap: () {
-                                      Navigator.pop(context);
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => const CollectionsScreen(),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: _QuickAccessCard(
-                                    title: 'History',
-                                    icon: Icons.history,
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => const HistoryScreen(),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ],
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _QuickAccessCard(
+                                title: 'My own quotes',
+                                icon: Icons.edit_outlined,
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const MyQuotesScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
                           ],
-                        );
-                      },
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _QuickAccessCard(
+                                title: 'Collections',
+                                icon: Icons.bookmark_border,
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const CollectionsScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _QuickAccessCard(
+                                title: 'History',
+                                icon: Icons.history,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const HistoryScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 24),
                     
@@ -291,15 +280,11 @@ class _TopicsSheetState extends State<TopicsSheet> {
 class _QuickAccessCard extends StatelessWidget {
   final String title;
   final IconData icon;
-  final bool isPremium;
-  final bool isFollowing;
   final VoidCallback onTap;
 
   const _QuickAccessCard({
     required this.title,
     required this.icon,
-    this.isPremium = false,
-    this.isFollowing = false,
     required this.onTap,
   });
 
@@ -314,51 +299,20 @@ class _QuickAccessCard extends StatelessWidget {
           color: AppTheme.cardBackground,
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Stack(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const Spacer(),
-                Icon(
-                  icon,
-                  color: AppTheme.secondaryText,
-                ),
-              ],
+            Text(
+              title,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+              ),
             ),
-            if (isPremium)
-              const Positioned(
-                right: 0,
-                bottom: 0,
-                child: Icon(
-                  Icons.lock,
-                  size: 16,
-                  color: AppTheme.secondaryText,
-                ),
-              ),
-            if (isFollowing)
-              Positioned(
-                right: 0,
-                bottom: 0,
-                child: Container(
-                  padding: const EdgeInsets.all(2),
-                  decoration: const BoxDecoration(
-                    color: AppTheme.primaryText,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.check,
-                    size: 14,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
+            const Spacer(),
+            Icon(
+              icon,
+              color: AppTheme.secondaryText,
+            ),
           ],
         ),
       ),
