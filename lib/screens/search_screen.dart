@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
 import '../data/content_data.dart';
 import '../models/models.dart';
+import '../providers/app_state.dart';
 import 'topic_detail_screen.dart';
+import 'share_sheet.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -43,6 +46,187 @@ class _SearchScreenState extends State<SearchScreen> {
     return allTopics.where((topic) {
       return topic.name.toLowerCase().contains(query);
     }).toList();
+  }
+
+  void _showAddToCollectionSheet(BuildContext context, String verseId) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => Container(
+        decoration: BoxDecoration(
+          color: AppTheme.cardBackground,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Consumer<AppState>(
+          builder: (context, appState, _) {
+            final collections = appState.collections;
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 12),
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Add to Collection',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                if (collections.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.bookmark_border,
+                          size: 48,
+                          color: AppTheme.secondaryText.withOpacity(0.5),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'No collections yet',
+                          style: TextStyle(
+                            color: AppTheme.secondaryText,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  ...collections.map((collection) {
+                    final isInCollection = collection.verseIds.contains(verseId);
+                    return ListTile(
+                      leading: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: isInCollection
+                              ? AppTheme.accent.withOpacity(0.2)
+                              : Colors.grey[200],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
+                          isInCollection ? Icons.bookmark : Icons.bookmark_border,
+                          color: isInCollection ? AppTheme.accent : Colors.grey,
+                        ),
+                      ),
+                      title: Text(collection.name),
+                      subtitle: Text('${collection.verseIds.length} verses'),
+                      trailing: isInCollection
+                          ? const Icon(Icons.check_circle, color: AppTheme.accent)
+                          : null,
+                      onTap: () {
+                        if (isInCollection) {
+                          appState.removeFromCollection(collection.id, verseId);
+                          Navigator.pop(sheetContext);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Removed from "${collection.name}"'),
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        } else {
+                          appState.addToCollection(collection.id, verseId);
+                          Navigator.pop(sheetContext);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Added to "${collection.name}"'),
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        }
+                      },
+                    );
+                  }),
+                const Divider(),
+                ListTile(
+                  leading: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: AppTheme.accent.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.add, color: AppTheme.accent),
+                  ),
+                  title: const Text('Create new collection'),
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    _showCreateCollectionDialog(context, verseId);
+                  },
+                ),
+                SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  void _showCreateCollectionDialog(BuildContext context, String verseId) {
+    final controller = TextEditingController();
+    final appState = Provider.of<AppState>(context, listen: false);
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        backgroundColor: AppTheme.cardBackground,
+        title: const Text('Create Collection'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: InputDecoration(
+            hintText: 'Collection name',
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              if (controller.text.trim().isNotEmpty) {
+                appState.createCollection(controller.text.trim());
+                final newCollection = appState.collections.last;
+                appState.addToCollection(newCollection.id, verseId);
+                Navigator.pop(dialogContext);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Created "${controller.text.trim()}" and added verse'),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              }
+            },
+            child: const Text(
+              'Create & Add',
+              style: TextStyle(
+                color: AppTheme.accent,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   List<Verse> _getFilteredVerses() {
@@ -207,10 +391,38 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          ...verses.map((verse) => Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: _VerseResultItem(verse: verse),
-          )),
+          Consumer<AppState>(
+            builder: (context, appState, _) {
+              return Column(
+                children: verses.map((verse) {
+                  final isFavorite = appState.isFavorite(verse.id);
+                  final isBookmarked = appState.isInAnyCollection(verse.id);
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: _VerseResultItem(
+                      verse: verse,
+                      isFavorite: isFavorite,
+                      isBookmarked: isBookmarked,
+                      onFavoriteToggle: () => appState.toggleFavorite(verse.id),
+                      onBookmarkTap: () => _showAddToCollectionSheet(context, verse.id),
+                      onShareTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (_) => ShareSheet(
+                            text: appState.getDisplayText(verse),
+                            reference: verse.reference,
+                            theme: appState.currentTheme,
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                }).toList(),
+              );
+            },
+          ),
         ],
       ],
     );
@@ -321,8 +533,20 @@ class _TopicResultItem extends StatelessWidget {
 
 class _VerseResultItem extends StatelessWidget {
   final Verse verse;
+  final bool isFavorite;
+  final bool isBookmarked;
+  final VoidCallback onFavoriteToggle;
+  final VoidCallback onBookmarkTap;
+  final VoidCallback onShareTap;
 
-  const _VerseResultItem({required this.verse});
+  const _VerseResultItem({
+    required this.verse,
+    required this.isFavorite,
+    required this.isBookmarked,
+    required this.onFavoriteToggle,
+    required this.onBookmarkTap,
+    required this.onShareTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -330,7 +554,7 @@ class _VerseResultItem extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppTheme.cardBackground,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -339,10 +563,8 @@ class _VerseResultItem extends StatelessWidget {
             verse.text,
             style: const TextStyle(
               fontSize: 15,
-              height: 1.4,
+              height: 1.5,
             ),
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 8),
           Text(
@@ -350,7 +572,51 @@ class _VerseResultItem extends StatelessWidget {
             style: TextStyle(
               fontSize: 13,
               color: AppTheme.secondaryText,
+              fontStyle: FontStyle.italic,
             ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: onFavoriteToggle,
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_border,
+                    size: 22,
+                    color: isFavorite ? Colors.red : AppTheme.primaryText,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: onBookmarkTap,
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Icon(
+                    isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                    size: 22,
+                    color: isBookmarked ? AppTheme.accent : AppTheme.primaryText,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: onShareTap,
+                child: const Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Icon(
+                    Icons.ios_share,
+                    size: 22,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

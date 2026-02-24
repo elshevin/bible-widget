@@ -12,67 +12,6 @@ class WidgetSettingsScreen extends StatefulWidget {
 }
 
 class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
-  late TextEditingController _nameController;
-
-  @override
-  void initState() {
-    super.initState();
-    final settings = context.read<AppState>().widgetSettings;
-    _nameController = TextEditingController(text: settings.name);
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    super.dispose();
-  }
-
-  void _showNameEditor(BuildContext context) {
-    final appState = context.read<AppState>();
-    _nameController.text = appState.widgetSettings.name;
-
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        backgroundColor: AppTheme.cardBackground,
-        title: const Text('Edit Widget Name'),
-        content: TextField(
-          controller: _nameController,
-          autofocus: true,
-          decoration: InputDecoration(
-            hintText: 'Enter widget name',
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              appState.updateWidgetName(_nameController.text.trim());
-              Navigator.pop(dialogContext);
-            },
-            child: const Text(
-              'Save',
-              style: TextStyle(
-                color: AppTheme.accent,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _showThemePicker(BuildContext context) {
     final appState = context.read<AppState>();
     final themes = VisualThemes.all;
@@ -126,6 +65,7 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
                       Navigator.pop(sheetContext);
                     },
                     child: Container(
+                      clipBehavior: Clip.antiAlias,
                       decoration: BoxDecoration(
                         gradient: theme.gradient,
                         borderRadius: BorderRadius.circular(12),
@@ -134,7 +74,13 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
                             : null,
                       ),
                       child: Stack(
+                        fit: StackFit.expand,
                         children: [
+                          if (theme.hasBackgroundImage)
+                            Image.asset(
+                              theme.backgroundImage!,
+                              fit: BoxFit.cover,
+                            ),
                           Center(
                             child: Text(
                               theme.name,
@@ -143,6 +89,14 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
                                 color: theme.textColor,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
+                                shadows: [
+                                  Shadow(
+                                    color: theme.textColor == Colors.white
+                                        ? Colors.black54
+                                        : Colors.white54,
+                                    blurRadius: 4,
+                                  ),
+                                ],
                               ),
                             ),
                           ),
@@ -330,55 +284,6 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
     );
   }
 
-  void _showButtonStylePicker(BuildContext context) {
-    final appState = context.read<AppState>();
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (sheetContext) => Container(
-        decoration: const BoxDecoration(
-          color: AppTheme.cardBackground,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 12),
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Visible Buttons',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            ...WidgetButtonStyle.values.map((style) => ListTile(
-              title: Text(style.displayName),
-              trailing: appState.widgetSettings.buttonStyle == style
-                  ? const Icon(Icons.check_circle, color: AppTheme.accent)
-                  : null,
-              onTap: () {
-                appState.updateWidgetButtonStyle(style);
-                Navigator.pop(sheetContext);
-              },
-            )),
-            SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -430,6 +335,7 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
                       // Widget Preview
                       Container(
                         height: 120,
+                        clipBehavior: Clip.antiAlias,
                         decoration: BoxDecoration(
                           gradient: theme.gradient,
                           borderRadius: BorderRadius.circular(16),
@@ -441,27 +347,39 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
                             ),
                           ],
                         ),
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        child: Stack(
+                          fit: StackFit.expand,
                           children: [
-                            Text(
-                              'For I know the plans I have for you...',
-                              style: TextStyle(
-                                color: theme.textColor,
-                                fontSize: settings.textSize.fontSize,
-                                fontWeight: FontWeight.w500,
+                            if (theme.hasBackgroundImage)
+                              Image.asset(
+                                theme.backgroundImage!,
+                                fit: BoxFit.cover,
                               ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Jeremiah 29:11',
-                              style: TextStyle(
-                                color: theme.textColor.withOpacity(0.7),
-                                fontSize: 12,
+                            Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'For I know the plans I have for you...',
+                                    style: TextStyle(
+                                      color: theme.textColor,
+                                      fontSize: settings.textSize.fontSize,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Jeremiah 29:11',
+                                    style: TextStyle(
+                                      color: theme.textColor.withOpacity(0.7),
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
@@ -473,12 +391,6 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
                       _SettingsSection(
                         title: 'APPEARANCE',
                         items: [
-                          _SettingsItem(
-                            icon: Icons.edit_outlined,
-                            title: 'Edit name',
-                            subtitle: settings.name,
-                            onTap: () => _showNameEditor(context),
-                          ),
                           _SettingsItem(
                             icon: Icons.palette_outlined,
                             title: 'Change theme',
@@ -508,18 +420,6 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
                             title: 'Type of quotes',
                             subtitle: settings.contentType.displayName,
                             onTap: () => _showContentTypePicker(context),
-                          ),
-                        ],
-                      ),
-
-                      _SettingsSection(
-                        title: 'INTERACTION',
-                        items: [
-                          _SettingsItem(
-                            icon: Icons.touch_app_outlined,
-                            title: 'Visible buttons',
-                            subtitle: settings.buttonStyle.displayName,
-                            onTap: () => _showButtonStylePicker(context),
                           ),
                         ],
                       ),

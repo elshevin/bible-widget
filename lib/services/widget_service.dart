@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:home_widget/home_widget.dart';
 import '../data/content_data.dart';
+import '../models/models.dart';
 import '../theme/app_theme.dart';
 import 'dart:math';
 
@@ -174,6 +175,80 @@ class WidgetService {
       await HomeWidget.registerInteractivityCallback(callback);
     } catch (e) {
       if (kDebugMode) print('WidgetService: registerInteractivityCallback error: $e');
+    }
+  }
+
+  /// Save widget settings (text size, refresh frequency, content type) to shared UserDefaults
+  static Future<void> saveWidgetSettings(WidgetSettings settings) async {
+    try {
+      await HomeWidget.saveWidgetData<double>(
+        'widget_text_size',
+        settings.textSize.fontSize,
+      );
+      await HomeWidget.saveWidgetData<int>(
+        'widget_refresh_minutes',
+        settings.refreshFrequency.duration.inMinutes,
+      );
+      await HomeWidget.saveWidgetData<String>(
+        'widget_content_type',
+        settings.contentType.name,
+      );
+      if (kDebugMode) print('WidgetService: saved widget settings - textSize=${settings.textSize.fontSize}, refresh=${settings.refreshFrequency.duration.inMinutes}min, content=${settings.contentType.name}');
+    } catch (e) {
+      if (kDebugMode) print('WidgetService: saveWidgetSettings error: $e');
+    }
+  }
+
+  /// Update widget with a verse filtered by content type
+  static Future<void> updateWidgetWithFilteredVerse(
+    WidgetContentType contentType,
+    List<String> favoriteVerseIds,
+    List<String> followedTopicNames,
+  ) async {
+    try {
+      final allVerses = ContentData.getAllContent();
+      List<Verse> filteredVerses;
+
+      switch (contentType) {
+        case WidgetContentType.favorites:
+          filteredVerses = allVerses.where((v) => favoriteVerseIds.contains(v.id)).toList();
+          break;
+        case WidgetContentType.bibleVerses:
+          filteredVerses = allVerses.where((v) => v.reference != null && v.reference!.isNotEmpty).toList();
+          break;
+        case WidgetContentType.prayers:
+          filteredVerses = allVerses.where((v) =>
+            v.topics.any((t) => t.toLowerCase().contains('prayer'))
+          ).toList();
+          break;
+        case WidgetContentType.followedTopics:
+          if (followedTopicNames.isNotEmpty) {
+            filteredVerses = allVerses.where((v) =>
+              v.topics.any((t) => followedTopicNames.any((ft) => t.toLowerCase().contains(ft.toLowerCase())))
+            ).toList();
+          } else {
+            filteredVerses = allVerses;
+          }
+          break;
+        case WidgetContentType.general:
+          filteredVerses = allVerses;
+      }
+
+      // Fallback to all verses if filtered list is empty
+      if (filteredVerses.isEmpty) {
+        filteredVerses = allVerses;
+      }
+
+      final randomVerse = filteredVerses[Random().nextInt(filteredVerses.length)];
+
+      await HomeWidget.saveWidgetData<String>('widget_verse_text', randomVerse.text);
+      await HomeWidget.saveWidgetData<String>('widget_verse_reference', randomVerse.reference ?? '');
+      await HomeWidget.saveWidgetData<String>('widget_verse_id', randomVerse.id);
+
+      await updateWidget();
+      if (kDebugMode) print('WidgetService: updated with filtered verse (${contentType.name}): ${randomVerse.reference}');
+    } catch (e) {
+      if (kDebugMode) print('WidgetService: updateWidgetWithFilteredVerse error: $e');
     }
   }
 

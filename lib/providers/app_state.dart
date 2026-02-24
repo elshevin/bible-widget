@@ -364,6 +364,8 @@ class AppState extends ChangeNotifier {
     StorageService.saveWidgetSettings(settings);
     // Update widget with new theme
     WidgetService.updateWidgetTheme(settings.themeId);
+    // Sync settings (text size, refresh frequency, content type) to iOS Widget
+    WidgetService.saveWidgetSettings(settings);
     notifyListeners();
   }
 
@@ -390,6 +392,12 @@ class AppState extends ChangeNotifier {
   void updateWidgetContentType(WidgetContentType contentType) {
     final newSettings = _user.widgetSettings.copyWith(contentType: contentType);
     updateWidgetSettings(newSettings);
+    // Immediately update widget content based on new type
+    WidgetService.updateWidgetWithFilteredVerse(
+      contentType,
+      _user.favoriteVerseIds,
+      _user.selectedTopics,
+    );
   }
 
   void updateWidgetButtonStyle(WidgetButtonStyle buttonStyle) {

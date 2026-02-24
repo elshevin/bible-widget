@@ -10,6 +10,8 @@ struct BibleWidgetEntry: TimelineEntry {
     let endColor: String
     let verseId: String
     let backgroundImagePath: String?
+    let textSize: CGFloat
+    let refreshMinutes: Int
 }
 
 // MARK: - Timeline Provider
@@ -25,7 +27,9 @@ struct BibleWidgetProvider: TimelineProvider {
             startColor: "#c9a962",
             endColor: "#d4b574",
             verseId: "",
-            backgroundImagePath: nil
+            backgroundImagePath: nil,
+            textSize: 16.0,
+            refreshMinutes: 1440
         )
     }
 
@@ -36,8 +40,9 @@ struct BibleWidgetProvider: TimelineProvider {
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<BibleWidgetEntry>) -> Void) {
         let entry = getEntryFromDefaults()
-        // Update every 30 minutes
-        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 30, to: Date())!
+        // Use saved refresh interval, default to 1440 minutes (daily)
+        let refreshInterval = entry.refreshMinutes > 0 ? entry.refreshMinutes : 1440
+        let nextUpdate = Calendar.current.date(byAdding: .minute, value: refreshInterval, to: Date())!
         let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
         completion(timeline)
     }
@@ -54,7 +59,9 @@ struct BibleWidgetProvider: TimelineProvider {
                 startColor: "#c9a962",
                 endColor: "#d4b574",
                 verseId: "",
-                backgroundImagePath: nil
+                backgroundImagePath: nil,
+                textSize: 16.0,
+                refreshMinutes: 1440
             )
         }
 
@@ -73,12 +80,15 @@ struct BibleWidgetProvider: TimelineProvider {
         let endColor = sharedDefaults.string(forKey: "widget_end_color")
         let verseId = sharedDefaults.string(forKey: "widget_verse_id")
         let backgroundImagePath = sharedDefaults.string(forKey: "widget_background_image")
+        let textSize = sharedDefaults.double(forKey: "widget_text_size")
+        let refreshMinutes = sharedDefaults.integer(forKey: "widget_refresh_minutes")
 
         print("BibleWidget: verse=\(verse?.prefix(30) ?? "nil")...")
         print("BibleWidget: reference=\(reference ?? "nil")")
         print("BibleWidget: startColor=\(startColor ?? "nil"), endColor=\(endColor ?? "nil")")
         print("BibleWidget: verseId=\(verseId ?? "nil")")
         print("BibleWidget: backgroundImagePath=\(backgroundImagePath ?? "nil")")
+        print("BibleWidget: textSize=\(textSize), refreshMinutes=\(refreshMinutes)")
 
         return BibleWidgetEntry(
             date: Date(),
@@ -87,7 +97,9 @@ struct BibleWidgetProvider: TimelineProvider {
             startColor: startColor ?? "#c9a962",
             endColor: endColor ?? "#d4b574",
             verseId: verseId ?? "",
-            backgroundImagePath: backgroundImagePath
+            backgroundImagePath: backgroundImagePath,
+            textSize: textSize > 0 ? CGFloat(textSize) : 16.0,
+            refreshMinutes: refreshMinutes > 0 ? refreshMinutes : 1440
         )
     }
 }
@@ -141,28 +153,30 @@ struct BibleWidgetEntryView: View {
     }
 
     private var verseFontSize: Font {
+        let baseSize = entry.textSize  // From user settings (default 16.0)
         switch widgetFamily {
         case .systemSmall:
-            return .system(size: 13)
+            return .system(size: baseSize - 3)
         case .systemMedium:
-            return .system(size: 15)
+            return .system(size: baseSize - 1)
         case .systemLarge:
-            return .system(size: 18)
+            return .system(size: baseSize + 2)
         default:
-            return .system(size: 14)
+            return .system(size: baseSize - 2)
         }
     }
 
     private var referenceFontSize: Font {
+        let baseSize = entry.textSize
         switch widgetFamily {
         case .systemSmall:
-            return .system(size: 11)
+            return .system(size: baseSize - 5)
         case .systemMedium:
-            return .system(size: 12)
+            return .system(size: baseSize - 4)
         case .systemLarge:
-            return .system(size: 14)
+            return .system(size: baseSize - 2)
         default:
-            return .system(size: 12)
+            return .system(size: baseSize - 4)
         }
     }
 
