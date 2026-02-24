@@ -15,7 +15,7 @@ struct BibleWidgetEntry: TimelineEntry {
 // MARK: - Timeline Provider
 struct BibleWidgetProvider: TimelineProvider {
     // App Group ID - MUST match exactly with Flutter's HomeWidget.setAppGroupId()
-    static let appGroupId = "group.com.oneapp.bibleWidgets"
+    static let appGroupId = "group.com.oneapp.bibleWidget"
 
     func placeholder(in context: Context) -> BibleWidgetEntry {
         BibleWidgetEntry(

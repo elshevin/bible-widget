@@ -8,7 +8,7 @@ import '../theme/app_theme.dart';
 import 'dart:math';
 
 class WidgetService {
-  static const String appGroupId = 'group.com.oneapp.bibleWidgets';
+  static const String appGroupId = 'group.com.oneapp.bibleWidget';
   static const String iOSWidgetName = 'BibleWidget';
   static const String androidWidgetName = 'BibleWidgetProvider';
 

@@ -16,7 +16,7 @@ open "/Users/vincent/Desktop/bible widget /code/bible_widgets/ios/Runner.xcworks
 4. 填写以下信息：
    - **Product Name**: `BibleWidgetExtension`
    - **Team**: 选择你的开发者账号
-   - **Bundle Identifier**: `com.oneapp.bibleWidgets.BibleWidgetExtension`
+   - **Bundle Identifier**: `com.oneapp.bibleWidget.BibleWidgetExtension`
    - **Include Configuration App Intent**: 取消勾选（不需要）
 5. 点击 **Finish**
 6. 如果弹出 "Activate scheme?" 对话框，选择 **Activate**
@@ -45,7 +45,7 @@ Xcode 会自动生成一些模板文件，我们需要用已创建的文件替�
 4. 点击 **+ Capability** 按钮
 5. 搜索并添加 **App Groups**
 6. 点击 App Groups 下的 **+** 按钮
-7. 输入: `group.com.oneapp.bibleWidgets`
+7. 输入: `group.com.oneapp.bibleWidget`
 8. 点击 **OK**
 
 ### 为 Widget Extension 配置：
@@ -54,7 +54,7 @@ Xcode 会自动生成一些模板文件，我们需要用已创建的文件替�
 2. 点击 **Signing & Capabilities** 标签
 3. 点击 **+ Capability** 按钮
 4. 搜索并添加 **App Groups**
-5. 勾选 `group.com.oneapp.bibleWidgets`（应该已经存在）
+5. 勾选 `group.com.oneapp.bibleWidget`（应该已经存在）
 
 ## 步骤 5: 添加 Entitlements 文件
 
@@ -101,7 +101,7 @@ Xcode 会自动生成一些模板文件，我们需要用已创建的文件替�
 
 ### Q: Widget 显示空白？
 确保：
-- App Groups ID 完全匹配 (`group.com.oneapp.bibleWidgets`)
+- App Groups ID 完全匹配 (`group.com.oneapp.bibleWidget`)
 - 主 App 至少运行过一次
 - Flutter 代码中正确调用了 `HomeWidget.saveWidgetData()`
 
