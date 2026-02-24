@@ -79,11 +79,20 @@ class BibleWidgetProvider : AppWidgetProvider() {
             val textColor = prefs.getString("widget_text_color", null)
             val verseId = prefs.getString("widget_verse_id", null)
             val backgroundImagePath = prefs.getString("widget_background_image", null)
+            val textSize = try {
+                prefs.getFloat("widget_text_size", 16.0f)
+            } catch (e: ClassCastException) {
+                try {
+                    val longBits = prefs.getLong("widget_text_size", java.lang.Double.doubleToRawLongBits(16.0))
+                    java.lang.Double.longBitsToDouble(longBits).toFloat()
+                } catch (e2: Exception) { 16.0f }
+            }
 
             Log.d(TAG, "Read data - text: ${verseText?.take(30)}...")
             Log.d(TAG, "Read data - verseId: $verseId")
             Log.d(TAG, "Read data - colors: start=$startColor, end=$endColor")
             Log.d(TAG, "Read data - backgroundImagePath: $backgroundImagePath")
+            Log.d(TAG, "Read data - textSize: $textSize")
 
             // Use default verse if no data found
             val (text, reference) = if (verseText != null && verseText.isNotEmpty()) {
@@ -128,6 +137,11 @@ class BibleWidgetProvider : AppWidgetProvider() {
             // Set text colors
             views.setTextColor(R.id.widget_verse_text, parsedTextColor)
             views.setTextColor(R.id.widget_verse_reference, (parsedTextColor and 0x00FFFFFF) or 0xCC000000.toInt())
+
+            // Apply dynamic text size from user settings
+            val verseTextSize = if (textSize > 0) textSize else 16.0f
+            views.setTextViewTextSize(R.id.widget_verse_text, android.util.TypedValue.COMPLEX_UNIT_SP, verseTextSize)
+            views.setTextViewTextSize(R.id.widget_verse_reference, android.util.TypedValue.COMPLEX_UNIT_SP, verseTextSize - 4f)
 
             // Create intent to open app when widget is clicked
             // Use HomeWidgetLaunchIntent to enable initiallyLaunchedFromHomeWidget() detection
