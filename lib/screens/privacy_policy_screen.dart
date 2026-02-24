@@ -116,7 +116,7 @@ These services have their own privacy policies governing the use of your informa
                     'Contact Us',
                     '''If you have questions about this Privacy Policy, please contact us at:
 
-Email: support@biblewidgets.app
+Email: livein@livein.mobi
 
 We will respond to your inquiry within a reasonable timeframe.''',
                   ),
