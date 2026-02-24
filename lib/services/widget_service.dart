@@ -37,7 +37,7 @@ class WidgetService {
       );
       await HomeWidget.saveWidgetData<String>(
         'widget_verse_reference',
-        randomVerse.reference ?? '',
+        _getDisplayReference(randomVerse),
       );
       // Save verse ID for deep link navigation
       await HomeWidget.saveWidgetData<String>(
@@ -108,6 +108,21 @@ class WidgetService {
     } catch (e) {
       if (kDebugMode) print('WidgetService: updateWidgetTheme error: $e');
     }
+  }
+
+  /// Get display reference for widget - fallback to topic label if no Bible reference
+  static String _getDisplayReference(Verse verse) {
+    if (verse.reference != null && verse.reference!.isNotEmpty) {
+      return verse.reference!;
+    }
+    // For non-Bible quotes, show a topic-based label
+    if (verse.topics.contains('prayers') || verse.topics.contains('prayer')) {
+      return '— Prayer';
+    }
+    if (verse.topics.contains('quotes')) {
+      return '— Inspirational';
+    }
+    return '— Daily Wisdom';
   }
 
   static String _colorToHex(Color color) {
@@ -242,7 +257,7 @@ class WidgetService {
       final randomVerse = filteredVerses[Random().nextInt(filteredVerses.length)];
 
       await HomeWidget.saveWidgetData<String>('widget_verse_text', randomVerse.text);
-      await HomeWidget.saveWidgetData<String>('widget_verse_reference', randomVerse.reference ?? '');
+      await HomeWidget.saveWidgetData<String>('widget_verse_reference', _getDisplayReference(randomVerse));
       await HomeWidget.saveWidgetData<String>('widget_verse_id', randomVerse.id);
 
       await updateWidget();
