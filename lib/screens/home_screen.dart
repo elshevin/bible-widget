@@ -5,6 +5,7 @@ import 'package:lottie/lottie.dart';
 import '../theme/app_theme.dart';
 import '../providers/app_state.dart';
 import '../widgets/common_widgets.dart';
+import '../services/analytics_service.dart';
 import 'topics_screen.dart';
 import 'themes_sheet.dart';
 import 'profile_sheet.dart';
@@ -37,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    AnalyticsService.logScreenView('home');
     _exitController = AnimationController(
       duration: const Duration(milliseconds: 250),
       vsync: this,
@@ -131,6 +133,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       final nextIndex = appState.currentFeedIndex + direction;
       appState.setFeedIndex(nextIndex);
 
+      // Analytics: verse swiped
+      final swipedVerse = appState.currentVerse;
+      AnalyticsService.logVerseSwiped(
+        swipedVerse?.id ?? '',
+        direction > 0 ? 'next' : 'previous',
+      );
+
       // Add to reading history
       final currentVerse = appState.currentVerse;
       if (currentVerse != null) {
@@ -214,6 +223,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void _showTopicsScreen() {
+    AnalyticsService.logButtonTap('general_topics');
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -223,6 +233,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void _showThemesSheet() {
+    AnalyticsService.logButtonTap('home_theme_entry');
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -232,6 +243,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void _showProfileSheet() {
+    AnalyticsService.logButtonTap('home_profile');
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -408,6 +420,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                     GestureDetector(
                                       onTap: () {
                                         if (currentVerse != null) {
+                                          AnalyticsService.logShare(
+                                            currentVerse.id,
+                                            'share_sheet',
+                                            source: 'home',
+                                          );
                                           _showShareSheet(displayText, reference, currentTheme);
                                         }
                                       },
@@ -425,7 +442,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                     GestureDetector(
                                       onTap: () {
                                         if (currentVerse != null) {
+                                          final wasAlreadyFavorite = appState.isFavorite(currentVerse.id);
                                           final justReachedLimit = appState.toggleFavorite(currentVerse.id);
+                                          AnalyticsService.logFavoriteToggle(
+                                            currentVerse.id,
+                                            !wasAlreadyFavorite,
+                                            source: 'home',
+                                          );
                                           if (justReachedLimit) {
                                             _showCongratulationsDialog();
                                           }

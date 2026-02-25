@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "65737884260",
+    "project_id": "bible-widget-d038b",
+    "storage_bucket": "bible-widget-d038b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:65737884260:android:b365c6f923c709aa485571",
+        "android_client_info": {
+          "package_name": "com.oneapp.biblewidget"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAMc5nrcEhJIC7ZTeg2MeZs1rskEGQca6U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

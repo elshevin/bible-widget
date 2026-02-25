@@ -4,15 +4,27 @@ import '../theme/app_theme.dart';
 import '../providers/app_state.dart';
 import '../data/content_data.dart';
 import '../models/models.dart';
+import '../services/analytics_service.dart';
 import 'share_sheet.dart';
 
-class TopicDetailScreen extends StatelessWidget {
+class TopicDetailScreen extends StatefulWidget {
   final Topic topic;
 
   const TopicDetailScreen({
     super.key,
     required this.topic,
   });
+
+  @override
+  State<TopicDetailScreen> createState() => _TopicDetailScreenState();
+}
+
+class _TopicDetailScreenState extends State<TopicDetailScreen> {
+  @override
+  void initState() {
+    super.initState();
+    AnalyticsService.logScreenView('topic_detail_${widget.topic.id}');
+  }
 
   void _showAddToCollectionSheet(BuildContext context, String verseId) {
     showModalBottomSheet(
@@ -198,6 +210,7 @@ class TopicDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final topic = widget.topic;
     final verses = ContentData.getByTopic(topic.id);
 
     return Scaffold(
@@ -290,11 +303,24 @@ class TopicDetailScreen extends StatelessWidget {
                               reference: verse.reference,
                               isFavorite: isFavorite,
                               isBookmarked: isBookmarked,
-                              onFavoriteToggle: () =>
-                                  appState.toggleFavorite(verse.id),
-                              onBookmarkTap: () =>
-                                  _showAddToCollectionSheet(context, verse.id),
+                              onFavoriteToggle: () {
+                                appState.toggleFavorite(verse.id);
+                                AnalyticsService.logFavoriteToggle(
+                                  verse.id,
+                                  !isFavorite,
+                                  source: 'topic_detail',
+                                );
+                              },
+                              onBookmarkTap: () {
+                                AnalyticsService.logButtonTap('topic_detail_bookmark');
+                                _showAddToCollectionSheet(context, verse.id);
+                              },
                               onShareTap: () {
+                                AnalyticsService.logShare(
+                                  verse.id,
+                                  'share_sheet',
+                                  source: 'topic_detail',
+                                );
                                 showModalBottomSheet(
                                   context: context,
                                   isScrollControlled: true,

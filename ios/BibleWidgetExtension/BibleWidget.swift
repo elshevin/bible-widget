@@ -40,6 +40,12 @@ struct BibleWidgetProvider: TimelineProvider {
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<BibleWidgetEntry>) -> Void) {
         let entry = getEntryFromDefaults()
+
+        // Mark that widget has been loaded at least once (for analytics detection in Flutter)
+        if let sharedDefaults = UserDefaults(suiteName: BibleWidgetProvider.appGroupId) {
+            sharedDefaults.set(true, forKey: "widget_has_loaded")
+        }
+
         // Use saved refresh interval, default to 1440 minutes (daily)
         let refreshInterval = entry.refreshMinutes > 0 ? entry.refreshMinutes : 1440
         let nextUpdate = Calendar.current.date(byAdding: .minute, value: refreshInterval, to: Date())!

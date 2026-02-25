@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:home_widget/home_widget.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'theme/app_theme.dart';
 import 'providers/app_state.dart';
 import 'screens/welcome_screen.dart';
@@ -11,6 +12,7 @@ import 'screens/home_screen.dart';
 import 'services/widget_service.dart';
 import 'services/storage_service.dart';
 import 'services/notification_service.dart';
+import 'services/analytics_service.dart';
 import 'data/content_data.dart';
 
 // Global key to access app state from widget callback
@@ -44,6 +46,10 @@ Future<void> _updateWidgetColorsOnly(String themeId) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initialize Firebase
+  await Firebase.initializeApp();
+  AnalyticsService.logAppOpen();
+
   // Initialize storage service first
   await StorageService.init();
 
@@ -64,6 +70,8 @@ void main() async {
     launchVerseId = launchUri.queryParameters['id'];
     if (kDebugMode) print('App launched from widget with URI: $launchUri');
     if (kDebugMode) print('Extracted verse ID: $launchVerseId');
+    // Analytics: widget click (cold start)
+    AnalyticsService.logWidgetClick(launchType: 'cold');
   }
 
   // Load saved theme ID for passing to app
@@ -137,12 +145,17 @@ class _BibleWidgetsAppState extends State<BibleWidgetsApp> with WidgetsBindingOb
     HomeWidget.widgetClicked.listen((uri) {
       if (uri != null) {
         if (kDebugMode) print('Widget clicked (warm start): $uri - not switching content to preserve user context');
+        // Analytics: widget click (warm start)
+        AnalyticsService.logWidgetClick(launchType: 'warm');
       }
     });
   }
 
   Future<void> _initializeApp() async {
     await _appState.initialize();
+
+    // Check if widget has been enabled (iOS widget sets this flag when loaded)
+    await _checkWidgetEnabled();
 
     // If launched from widget, sync the displayed verse
     if (widget.launchedFromWidget) {
@@ -168,6 +181,26 @@ class _BibleWidgetsAppState extends State<BibleWidgetsApp> with WidgetsBindingOb
       setState(() {
         _isInitialized = true;
       });
+    }
+  }
+
+  /// Check if the iOS widget has been loaded (user added widget to home screen)
+  /// The iOS widget extension sets 'widget_has_loaded' = true in shared UserDefaults
+  /// We check this flag and log 'widget_enabled' once (tracked via SharedPreferences)
+  Future<void> _checkWidgetEnabled() async {
+    try {
+      final widgetHasLoaded = await HomeWidget.getWidgetData<bool>('widget_has_loaded');
+      if (widgetHasLoaded == true) {
+        // Check if we've already logged this event
+        final alreadyLogged = await StorageService.getBool('widget_enabled_logged');
+        if (alreadyLogged != true) {
+          AnalyticsService.logWidgetEnabled();
+          await StorageService.setBool('widget_enabled_logged', true);
+          if (kDebugMode) print('Widget enabled detected - logged analytics event');
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) print('Error checking widget enabled status: $e');
     }
   }
 
@@ -256,6 +289,7 @@ class _BibleWidgetsAppState extends State<BibleWidgetsApp> with WidgetsBindingOb
             title: 'Bible Widgets',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.theme,
+            navigatorObservers: [AnalyticsService.observer],
             home: appState.hasCompletedOnboarding
                 ? const HomeScreen()
                 : const WelcomeScreen(),

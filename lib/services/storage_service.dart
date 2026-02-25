@@ -238,6 +238,17 @@ class StorageService {
     return const WidgetSettings();
   }
 
+  /// Generic bool getter/setter for simple flags
+  static Future<bool?> getBool(String key) async {
+    if (_prefs == null) await init();
+    return _prefs!.getBool(key);
+  }
+
+  static Future<void> setBool(String key, bool value) async {
+    if (_prefs == null) await init();
+    await _prefs!.setBool(key, value);
+  }
+
   /// Clear all stored data (for logout/reset)
   static Future<void> clearAll() async {
     if (_prefs == null) await init();

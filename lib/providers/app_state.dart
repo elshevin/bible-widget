@@ -4,6 +4,7 @@ import '../data/content_data.dart';
 import '../theme/app_theme.dart';
 import '../services/widget_service.dart';
 import '../services/storage_service.dart';
+import '../services/analytics_service.dart';
 
 class AppState extends ChangeNotifier {
   UserProfile _user = const UserProfile();
@@ -78,13 +79,16 @@ class AppState extends ChangeNotifier {
 
   void toggleTopic(String topicId) {
     final topics = List<String>.from(_user.selectedTopics);
-    if (topics.contains(topicId)) {
+    final wasFollowing = topics.contains(topicId);
+    if (wasFollowing) {
       topics.remove(topicId);
     } else {
       topics.add(topicId);
     }
     _user = _user.copyWith(selectedTopics: topics);
     StorageService.saveTopics(topics);
+    // Analytics
+    AnalyticsService.logTopicFollow(topicId, !wasFollowing);
     notifyListeners();
   }
   
@@ -96,6 +100,8 @@ class AppState extends ChangeNotifier {
     StorageService.saveTheme(themeId);
     // Update widget with new theme colors
     WidgetService.updateWidgetTheme(themeId);
+    // Analytics
+    AnalyticsService.logThemeChange(themeId);
     notifyListeners();
   }
   
@@ -106,6 +112,8 @@ class AppState extends ChangeNotifier {
     // Save all user data collected during onboarding
     StorageService.saveUserProfile(_user);
     _refreshFeed();
+    // Analytics
+    AnalyticsService.logOnboardingComplete();
     notifyListeners();
   }
   
@@ -372,26 +380,31 @@ class AppState extends ChangeNotifier {
   void updateWidgetName(String name) {
     final newSettings = _user.widgetSettings.copyWith(name: name);
     updateWidgetSettings(newSettings);
+    AnalyticsService.logWidgetSettingChange('name', name);
   }
 
   void updateWidgetTheme(String themeId) {
     final newSettings = _user.widgetSettings.copyWith(themeId: themeId);
     updateWidgetSettings(newSettings);
+    AnalyticsService.logWidgetSettingChange('theme', themeId);
   }
 
   void updateWidgetTextSize(WidgetTextSize textSize) {
     final newSettings = _user.widgetSettings.copyWith(textSize: textSize);
     updateWidgetSettings(newSettings);
+    AnalyticsService.logWidgetSettingChange('text_size', textSize.name);
   }
 
   void updateWidgetRefreshFrequency(WidgetRefreshFrequency frequency) {
     final newSettings = _user.widgetSettings.copyWith(refreshFrequency: frequency);
     updateWidgetSettings(newSettings);
+    AnalyticsService.logWidgetSettingChange('refresh_frequency', frequency.name);
   }
 
   void updateWidgetContentType(WidgetContentType contentType) {
     final newSettings = _user.widgetSettings.copyWith(contentType: contentType);
     updateWidgetSettings(newSettings);
+    AnalyticsService.logWidgetSettingChange('content_type', contentType.name);
     // Immediately update widget content based on new type
     WidgetService.updateWidgetWithFilteredVerse(
       contentType,
@@ -403,6 +416,7 @@ class AppState extends ChangeNotifier {
   void updateWidgetButtonStyle(WidgetButtonStyle buttonStyle) {
     final newSettings = _user.widgetSettings.copyWith(buttonStyle: buttonStyle);
     updateWidgetSettings(newSettings);
+    AnalyticsService.logWidgetSettingChange('button_style', buttonStyle.name);
   }
 
   // Reading History

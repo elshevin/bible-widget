@@ -4,6 +4,7 @@ import '../theme/app_theme.dart';
 import '../data/content_data.dart';
 import '../models/models.dart';
 import '../providers/app_state.dart';
+import '../services/analytics_service.dart';
 import 'topic_detail_screen.dart';
 import 'share_sheet.dart';
 
@@ -27,6 +28,12 @@ class _SearchScreenState extends State<SearchScreen> {
     'Love',
     'Faith',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    AnalyticsService.logScreenView('search');
+  }
 
   @override
   void dispose() {
@@ -266,6 +273,12 @@ class _SearchScreenState extends State<SearchScreen> {
                       controller: _searchController,
                       autofocus: true,
                       onChanged: (value) => setState(() => _searchQuery = value),
+                      onSubmitted: (value) {
+                        if (value.isNotEmpty) {
+                          final results = _getFilteredTopics().length + _getFilteredVerses().length;
+                          AnalyticsService.logSearch(value, results);
+                        }
+                      },
                       style: const TextStyle(fontSize: 16),
                       decoration: InputDecoration(
                         hintText: 'Search',
@@ -403,9 +416,24 @@ class _SearchScreenState extends State<SearchScreen> {
                       verse: verse,
                       isFavorite: isFavorite,
                       isBookmarked: isBookmarked,
-                      onFavoriteToggle: () => appState.toggleFavorite(verse.id),
-                      onBookmarkTap: () => _showAddToCollectionSheet(context, verse.id),
+                      onFavoriteToggle: () {
+                        appState.toggleFavorite(verse.id);
+                        AnalyticsService.logFavoriteToggle(
+                          verse.id,
+                          !isFavorite,
+                          source: 'search',
+                        );
+                      },
+                      onBookmarkTap: () {
+                        AnalyticsService.logButtonTap('search_bookmark');
+                        _showAddToCollectionSheet(context, verse.id);
+                      },
                       onShareTap: () {
+                        AnalyticsService.logShare(
+                          verse.id,
+                          'share_sheet',
+                          source: 'search',
+                        );
                         showModalBottomSheet(
                           context: context,
                           isScrollControlled: true,

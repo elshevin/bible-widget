@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../theme/app_theme.dart';
 import '../providers/app_state.dart';
+import '../services/analytics_service.dart';
 import 'app_icon_screen.dart';
 import 'widget_settings_screen.dart';
 import 'privacy_policy_screen.dart';

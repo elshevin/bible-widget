@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../services/analytics_service.dart';
 import 'onboarding_flow.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -18,6 +19,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   @override
   void initState() {
     super.initState();
+    AnalyticsService.logOnboardingShow();
     _controller = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,

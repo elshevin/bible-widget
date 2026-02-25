@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
 import '../providers/app_state.dart';
 import '../models/models.dart';
+import '../services/analytics_service.dart';
 
 class WidgetSettingsScreen extends StatefulWidget {
   const WidgetSettingsScreen({super.key});

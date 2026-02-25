@@ -4,6 +4,7 @@ import '../theme/app_theme.dart';
 import '../providers/app_state.dart';
 import '../data/content_data.dart';
 import '../models/models.dart';
+import '../services/analytics_service.dart';
 import 'favorites_screen.dart';
 import 'topic_detail_screen.dart';
 import 'collections_screen.dart';
@@ -20,6 +21,12 @@ class TopicsScreen extends StatefulWidget {
 }
 
 class _TopicsScreenState extends State<TopicsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    AnalyticsService.logScreenView('topics');
+  }
+
   @override
   Widget build(BuildContext context) {
     final groupedTopics = ContentData.getTopicsGrouped();
@@ -57,6 +64,7 @@ class _TopicsScreenState extends State<TopicsScreen> {
                   ),
                   GestureDetector(
                     onTap: () {
+                      AnalyticsService.logButtonTap('topics_search');
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -108,6 +116,7 @@ class _TopicsScreenState extends State<TopicsScreen> {
                           title: 'Favorites',
                           icon: Icons.favorite_border,
                           onTap: () {
+                            AnalyticsService.logButtonTap('topics_favorites');
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -123,6 +132,7 @@ class _TopicsScreenState extends State<TopicsScreen> {
                           title: 'My own quotes',
                           icon: Icons.edit_outlined,
                           onTap: () {
+                            AnalyticsService.logButtonTap('topics_my_quotes');
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -142,6 +152,7 @@ class _TopicsScreenState extends State<TopicsScreen> {
                           title: 'Collections',
                           icon: Icons.bookmark_border,
                           onTap: () {
+                            AnalyticsService.logButtonTap('topics_collections');
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -157,6 +168,7 @@ class _TopicsScreenState extends State<TopicsScreen> {
                           title: 'History',
                           icon: Icons.history,
                           onTap: () {
+                            AnalyticsService.logButtonTap('topics_history');
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -186,6 +198,7 @@ class _TopicsScreenState extends State<TopicsScreen> {
                     icon: Icons.menu_book_outlined,
                     isPremium: false,
                     onTap: () {
+                      AnalyticsService.logButtonTap('topics_bible_verses');
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -202,6 +215,7 @@ class _TopicsScreenState extends State<TopicsScreen> {
                     icon: Icons.person_outline,
                     isPremium: false,
                     onTap: () {
+                      AnalyticsService.logButtonTap('topics_prayers');
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -218,6 +232,7 @@ class _TopicsScreenState extends State<TopicsScreen> {
                     icon: Icons.format_quote_outlined,
                     isPremium: false,
                     onTap: () {
+                      AnalyticsService.logButtonTap('topics_quotes');
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -234,6 +249,7 @@ class _TopicsScreenState extends State<TopicsScreen> {
                     icon: Icons.chat_bubble_outline,
                     isPremium: false,
                     onTap: () {
+                      AnalyticsService.logButtonTap('topics_affirmations');
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -272,6 +288,7 @@ class _TopicsScreenState extends State<TopicsScreen> {
                               isPremium: topic.isPremium,
                               onTap: () {
                                 if (!topic.isPremium) {
+                                  AnalyticsService.logButtonTap('topics_${topic.id}');
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
