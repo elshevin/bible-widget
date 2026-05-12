@@ -48,7 +48,7 @@ void main() async {
 
   // Initialize Firebase
   await Firebase.initializeApp();
-  AnalyticsService.logAppOpen();
+  await AnalyticsService.logAppOpen();
 
   // Initialize storage service first
   await StorageService.init();
